@@ -1,6 +1,6 @@
 function showProfilePage() {
     // Get email value and display it in the profile view
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('signup-email').value;
     if (email) {
         document.getElementById('user-email').textContent = email;
     }
