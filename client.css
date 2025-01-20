@@ -8,12 +8,41 @@ body{
     justify-content: center;
 }
 
-.body {
+.main {
     display: flex;
     justify-content: center;
     align-content: center;
     /* margin: 0 auto */
 }
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    width: 80px;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.form-group input {
+    flex: 1;
+}
+
+.form-group-button {
+    display: flex;
+    justify-content: flex-end; /* Aligns the button to the right */
+    margin-top: 10px; /* Adds spacing above the button */
+}
+
+.form-group input[type="submit"] {
+    width: auto;
+    flex: none;
+    align-items: right;
+}
+
 
 .left {
     width:340px;
@@ -31,14 +60,14 @@ body{
 }
 
 #right-top{
-    width:inherit;
+    width:auto;
     height: 90px;
     border:1px solid black;
     margin-bottom: 10px;
 }
 
 #right-bottom{
-    width:inherit;
+    width:auto;
     height: 300px;
     border:1px solid black;
 }
