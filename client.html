@@ -14,9 +14,7 @@
             <img src="wimage.png" alt="logo" width="100%" height="100%">
 
         </div>
-    <div class = "body">
-
-        <div class = "left">left</div>
+    <!-- <div class = "body"> -->
         <div class = "right">
             <div id = "right-top">
                 <!-- START: Login Form  -->
@@ -67,49 +65,20 @@
                         <input type="email"  name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="country">Country:</label>
-                        <input type="text"  name="country" required>
+                        <label for="password">Password:</label>
+                        <input type="password"  name="password" required>
                     </div>
+
+                    <!-- TODO: Figure out repeat password validation. - Bryan -->
+
                     <div class="form-group">
-                        <label for="country">Country:</label>
-                        <input type="text"  name="country" required>
+                        <label for="repeatPSW">Repeat PSW:</label>
+                        <input type="password"  name="repeatPSW" required>
                     </div>
                     
-
-
-                   
-                    <br><br>
-                    
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                    <br><br>
-                    
-                    <label for="repeat-password">Repeat password:</label>
-                    <input type="password" id="repeat-password" name="repeat-password" required>
-                    <br><br>
-                    
-                    <label for="first-name">First name:</label>
-                    <input type="text" id="first-name" name="first-name" required>
-                    <br><br>
-                    
-                    <label for="family-name">Family name:</label>
-                    <input type="text" id="family-name" name="family-name" required>
-                    
-                    <label for="gender">Gender:</label>
-                    <select id="gender" name="gender" required>
-                        <option value="">--Select--</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                    
-                    <label for="city">City:</label>
-                    <input type="text" id="city" name="city" required>
-                    
-                    <label for="country">Country:</label>
-                    <input type="text" id="country" name="country" required>
-                    
-                    <button type="submit">Submit</button>
+                    <div class="form-group-button">
+                        <button type="submit">Submit</button>
+                    </div>
                 </form>
                 <!-- END: Sign Up Form -->
             </div>
@@ -120,7 +89,7 @@
             <p>Welcome, <span id="user-email"></span>!</p>
             <button onclick="showSignInPage()">Sign Out</button>
         </div>
-    </div>
+    <!-- </div> -->
     <script>
         showProfilePage()
         showSignInPage()
