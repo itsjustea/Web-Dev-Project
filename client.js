@@ -1,8 +1,12 @@
-function showProfilePage() {
+function showProfilePage(ev) {
+
+    ev.preventDefault();
+
+
     // Get email value and display it in the profile view
     const email = document.getElementById('login-email').value;
     if (email) {
-        document.getElementById('login-email').textContent = email;
+        document.getElementById('login-email').textContent = formData.email;
     }
 
     // Toggle views
@@ -46,6 +50,8 @@ function pwValidation(ev) {
 function submitButton(ev) {
     storeFormData();
     pwValidation(ev);
+    showProfilePage(ev);
+    showStoredData();
 }
 
 // Global variable to store form data
@@ -60,6 +66,11 @@ function storeFormData() {
     const country = document.getElementById('signup-country').value;
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-pw').value;
+
+    if (!firstName || !familyName || !gender || !city || !country || !email || !password) {
+        alert("Please fill in all fields.");
+        return; // Exit the function if any required field is empty
+    }
 
     // Store the form data in the global object
     formData = {
