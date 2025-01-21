@@ -1,8 +1,12 @@
-function showProfilePage() {
+function showProfilePage(ev) {
+
+    ev.preventDefault();
+
+
     // Get email value and display it in the profile view
     const email = document.getElementById('login-email').value;
     if (email) {
-        document.getElementById('login-email').textContent = email;
+        document.getElementById('login-email').textContent = formData.email;
     }
 
     // Toggle views
@@ -78,5 +82,46 @@ function pwValidation(ev) {
 
     return false;    
 }
-    
-    
+
+function submitButton(ev) {
+    storeFormData();
+    pwValidation(ev);
+    showProfilePage(ev);
+    showStoredData();
+}
+
+// Global variable to store form data
+let formData = {};
+// Function to store form data when the submit button is clicked
+function storeFormData() {
+    // Get values from the form inputs
+    const firstName = document.getElementById('signup-fname').value;
+    const familyName = document.getElementById('signup-famname').value;
+    const gender = document.getElementById('signup-gender').value;
+    const city = document.getElementById('signup-city').value;
+    const country = document.getElementById('signup-country').value;
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-pw').value;
+
+    if (!firstName || !familyName || !gender || !city || !country || !email || !password) {
+        alert("Please fill in all fields.");
+        return; // Exit the function if any required field is empty
+    }
+
+    // Store the form data in the global object
+    formData = {
+        firstName,
+        familyName,
+        gender,
+        city,
+        country,
+        email,
+        password
+    };
+    console.log(formData);
+    alert('Form submitted successfully!');
+}
+
+function showStoredData() {
+    console.log(formData);
+}
