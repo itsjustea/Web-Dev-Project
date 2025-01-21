@@ -42,3 +42,39 @@ function pwValidation(ev) {
 
     return false;
 }
+
+function submitButton(ev) {
+    storeFormData();
+    pwValidation(ev);
+}
+
+// Global variable to store form data
+let formData = {};
+// Function to store form data when the submit button is clicked
+function storeFormData() {
+    // Get values from the form inputs
+    const firstName = document.getElementById('signup-fname').value;
+    const familyName = document.getElementById('signup-famname').value;
+    const gender = document.getElementById('signup-gender').value;
+    const city = document.getElementById('signup-city').value;
+    const country = document.getElementById('signup-country').value;
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-pw').value;
+
+    // Store the form data in the global object
+    formData = {
+        firstName,
+        familyName,
+        gender,
+        city,
+        country,
+        email,
+        password
+    };
+    console.log(formData);
+    alert('Form submitted successfully!');
+}
+
+function showStoredData() {
+    console.log(formData);
+}
