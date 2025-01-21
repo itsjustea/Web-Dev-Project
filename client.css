@@ -19,22 +19,24 @@ body{
     display: flex;
     align-items: center;
     margin-bottom: 5px;
+    /* Reducing the font size to fit the box */
+    font-size:13px;
 }
 
 .form-group label {
     width: 80px;
     text-align: left;
-    margin-right: 10px;
 }
 
-.form-group input {
+
+.form-group input,
+.form-group select {
     flex: 1;
 }
 
 .form-group-button {
     display: flex;
     justify-content: flex-end; /* Aligns the button to the right */
-    margin-top: 10px; /* Adds spacing above the button */
 }
 
 .form-group input[type="submit"] {
@@ -72,6 +74,11 @@ body{
     border:1px solid black;
 }
 
+#sign_up_header{
+    text-align: center;
+}
+
 .hidden{
     display: none;
 }
+
