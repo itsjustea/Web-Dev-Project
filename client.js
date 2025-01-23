@@ -9,7 +9,7 @@ var displayView = {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             attachHandler();
             showMyProfile();
-            // refreshwall(useremail);
+            
         }
     },
     hide: function (id) {
@@ -137,27 +137,6 @@ function showMyProfile(){
     document.getElementById("profileheader").innerHTML = "Your Profile";
 }
 
-var refreshwall = function (email) {
-    var token = JSON.parse(localStorage.getItem("token"));
-    var refreshresult = serverstub.getUserMessagesByEmail(token,email);
-    var wall = document.getElementById("messagewall");
-    document.getElementById("wallalert").innerText = refreshresult.message;
-    if(refreshresult.success){
-        var msgs = refreshresult.data;
-        var msg = "";
-        wall.innerHTML = "<tr><th>Author</th><th>Message</th></tr>";
-        for(var i=0;i<msgs.length;i++){
-            msg = "<tr><td>" + msgs[i].writer + "</td><td>" + msgs[i].content + "</td></tr>" ;
-            wall.innerHTML += msg;
-        }
-    }
-    if(email === useremail){
-        document.getElementById("wallheader").innerHTML = "Your Message Wall:";
-    }else{
-        document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
-    }
-}
-
 // function that handles events
 var attachHandler = function () {
     var homeTab = document.getElementById("hometab");
@@ -176,7 +155,7 @@ var attachHandler = function () {
        accountContent.className = "content";
        browseContent.className = "content";
        showMyProfile();
-       refreshwall(useremail);
+       
     },false);
 
     accountTab.addEventListener("click",function(){
