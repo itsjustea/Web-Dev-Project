@@ -9,7 +9,6 @@ var displayView = {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             attachHandler();
             showMyProfile();
-            
         }
     },
     hide: function (id) {
@@ -119,26 +118,31 @@ var signup = function() {
             // Set the currently logged in user in this session - change after lab 2.
             localStorage.setItem("loggedInUser", JSON.stringify(newUser));
             showMyProfile();
-            refreshwall(email);
+            // refreshwall(email);
         }
     }
     alert('Form submitted successfully!');
 }
 
 function showMyProfile(){
-    // showOthersProfile(useremail);
-    document.getElementById("profileheader").innerHTML = "Your Profile";
-    // Need to fix this - Bryan
-    var abc1234 = JSON.parse(localStorage.getItem("loggedInUser"));
-    console.log(abc1234);
-    // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-    document.getElementById("profileemail").innerHTML = loggedInUser.email;
-    document.getElementById("profilefname").innerHTML = loggedInUser.firstname;
-    document.getElementById("profilefamname").innerHTML = loggedInUser.familyname;
-    document.getElementById("profilegender").innerHTML =loggedInUser.gender;
-    document.getElementById("profilecity").innerHTML = loggedInUser.city;
-    document.getElementById("profilecountry").innerHTML = loggedInUser.country;
     
+    // Need to fix this - Bryan
+    // var abc1234 = JSON.parse(localStorage.getItem("loggedInUser"));
+    // console.log(abc1234);
+    
+    var token = JSON.parse(localStorage.getItem("token"));
+    var loggedInUser = serverstub.getUserDataByEmail(token,useremail);
+    
+    if (loggedInUser.success) {
+        // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+        document.getElementById("profileemail").innerHTML = loggedInUser.data.email;
+        document.getElementById("profilefname").innerHTML = loggedInUser.data.firstname;
+        document.getElementById("profilefamname").innerHTML = loggedInUser.data.familyname;
+        document.getElementById("profilegender").innerHTML =loggedInUser.data.gender;
+        document.getElementById("profilecity").innerHTML = loggedInUser.data.city;
+        document.getElementById("profilecountry").innerHTML = loggedInUser.data.country;
+    }
+    document.getElementById("profileheader").innerHTML = "Your Profile";
 }
 
 // function that handles events
