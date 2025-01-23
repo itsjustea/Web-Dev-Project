@@ -59,6 +59,27 @@ function pwValidation() {
     return true;
 }
 
+var login = function(){
+    var email = document.getElementById('login-email').value;
+    var password = document.getElementById('login-pw').value;
+    
+    var loginResult = serverstub.signIn(email,password);
+    console.log(loginResult);
+    document.getElementById("signinalert").innerText = loginResult.message;
+    var token = "";
+    if (loginResult.success){
+        token = loginResult.data;
+        localStorage.setItem("token", JSON.stringify(token));
+        displayView.show("profile");
+        displayView.hide("welcome");
+        useremail = email;
+        showMyProfile();
+    }
+    
+    alert('Form submitted successfully!');
+}
+
+
 var signup = function() {
 
     var validateCheck = pwValidation();
