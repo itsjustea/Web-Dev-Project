@@ -5,94 +5,132 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Sign In</title>
         <link href="client.css" type="text/css" rel="stylesheet">
+        <script src="client.js" type="text/javascript"></script>
+        <script src="serverstub.js" type="text/javascript"></script>
+        <script id = "welcomeView" type = "text/view">
+            
+            <div class = "main" id = "signin-view">
+                <div class = "left">
+                    <img src="wimage.png" alt="logo" width="100%" height="100%">
+                </div>
+                <div class = "right">
+                    <div id = "right-top">
+                        <!-- START: Login Form  -->
+                        <form id="signin-form">
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" name="login-email" id="email" required>
+                                <br>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" id="login-pw" name="password" required>
+                            </div>
+                            <div class="form-group-button">
+                                <button type="submit">Login</button>
+                            </div>
+                        </form>
+                        <!-- END: Login Form -->
+                    </div>
+
+
+
+                    <div id="right-bottom">
+                        <!-- START: Sign Up Form -->
+                         <h3 id="sign_up_header">Sign Up Here!</h3>
+                        <form id = "signup-form" method = "post" action="javascript:signup()" onsubmit = "javascript:signup()">
+                            <div class="form-group">
+                                <label for="fname">First Name:</label>
+                                <input type="text" id="signup-fname" name="fname" required="" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="famname">Family Name:</label>
+                                <input type="text" id="signup-famname" name="famname" required="" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender:</label>
+                                <select name="gender" id="signup-gender" required>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                  </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">City:</label>
+                                <input type="text" id="signup-city" name="city" required="" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="country">Country:</label>
+                                <input type="text" id="signup-country" name="country" required="" type="text">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" id="signup-email" name="email" required="" type="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" id="signup-pw" name="password" placeholder="Enter your password..." required="" type = "password">
+                            </div>
         
+                            <!-- TODO: Figure out repeat password validation. - Bryan -->
+        
+                            <div class="form-group">
+                                <label for="repeatPSW">Repeat PSW:</label>
+                                <input type="password"  name="signup-repeatPSW" placeholder="Re-enter your password..." required="">
+                            </div>
+                            
+                            <div class="form-group-button">
+                                <button type="submit"">Submit</button>
+                            </div>
+                            <div id="signupalert" class="alert"></div>
+                </form>
+                        </form>
+                        <!-- END: Sign Up Form -->
+                    </div>
+                </div>
+            </div>  
+        </script>
+        <script id = "profileView" type = "text/view">
+            <div id="hometab" class="tab-cur">Home</div>
+            <div id="browsetab" class="tab">Browse</div>
+            <div id="accounttab" class="tab">Account</div>
+            
+            <button id="logout">Sign Out</button>
+            <div id="profilediv">
+                <h2 id="profileheader"></h2>
+                <table id="profilearea">
+                    <tr>
+                        <th>Email: </th>
+                        <td id="infoemail"></td>
+                    </tr>
+                    <tr>
+                        <th>First Name: </th>
+                        <td id="infofirstname"></td>
+                    </tr>
+                    <tr>
+                        <th>Family Name: </th>
+                        <td id="infofamilyname"></td>
+                    </tr>
+                    <tr>
+                        <th>Gender: </th>
+                        <td id="infogender"></td>
+                    </tr>
+                    <tr>
+                        <th>City: </th>
+                        <td id="infocity"></td>
+                    </tr>
+                    <tr>
+                        <th>Country: </th>
+                        <td id="infocountry"></td>
+                    </tr>
+                </table>
+                <div id="infoalert" class="alert"></div>
+            </div>
+        </script>
     </head>
-<body>
-    <div class = "main" id = "signin-view">
-        <div class = "left">
-            <img src="wimage.png" alt="logo" width="100%" height="100%">
 
-        </div>
-    <!-- <div class = "body"> -->
-        <div class = "right">
-            <div id = "right-top">
-                <!-- START: Login Form  -->
-                <form id="signin-form">
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" name="login-email" id="email" required>
-                        <br>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="login-pw" name="password" required>
-                    </div>
-                    <div class="form-group-button">
-                        <button type="submit">Login</button>
-                    </div>
-                </form>
-                <!-- END: Login Form -->
-            </div>
-            <div id="right-bottom">
-                <!-- START: Sign Up Form -->
-                 <h3 id="sign_up_header">Sign Up Here!</h3>
-                <form>
-                    <div class="form-group">
-                        <label for="fname">First Name:</label>
-                        <input type="text" id="signup-fname" name="fname" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="famname">Family Name:</label>
-                        <input type="text" id="signup-famname" name="famname" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="gender">Gender:</label>
-                        <select name="gender" id="signup-gender" required>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                          </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="city">City:</label>
-                        <input type="text" id="signup-city" name="city" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="country">Country:</label>
-                        <input type="text" id="signup-country" name="country" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="signup-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="signup-pw" name="password" placeholder="Enter your password..." required>
-                    </div>
+    <body>
+        <div id="welcomePage"></div>
+        <div id="profilePage"></div>
+    </body>
 
-                    <!-- TODO: Figure out repeat password validation. - Bryan -->
-
-                    <div class="form-group">
-                        <label for="repeatPSW">Repeat PSW:</label>
-                        <input type="password"  name="signup-repeatPSW" placeholder="Re-enter your password..." required>
-                    </div>
-                    
-                    <div class="form-group-button">
-                        <button type="submit" href="#" onclick="submitButton(event)">Submit</button>
-                    </div>
-                </form>
-                <!-- END: Sign Up Form -->
-            </div>
-            </div>
-    </div>  
-        
-    <div id = "profile-view" class = "hidden">
-        <h2>Profile</h2>
-        <p>Welcome, <span id="fname"></span>!</p>
-        <button onclick="showSignInPage()">Sign Out</button>
-    </div>
-    <!-- </div> -->
-
-    <script src="client.js" type="text/javascript"></script>
-    <script src="serverstub.js" type="text/javascript"></script>
-</body>
 </html>

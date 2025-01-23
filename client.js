@@ -1,28 +1,40 @@
-function showProfilePage(ev) {
+var useremail = "";
+var searchemail = "";
 
-    ev.preventDefault();
-
-
-    // Get email value and display it in the profile view
-    const email = document.getElementById('login-email').value;
-    if (email) {
-        document.getElementById('login-email').textContent = formData.email;
+var displayView = {
+    // the code required to display a view\
+    show: function (id) {
+        document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
+        console.log(id);
+        if (id == "profile") {
+            useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
+            // attachHandler();
+            showMyProfile();
+            // refreshwall(useremail);
+        }
+    },
+    hide: function (id) {
+        document.getElementById(id + "Page").innerHTML = "";
     }
+};
 
-    // Toggle views
-    document.getElementById('signin-view').classList.add('hidden');
-    document.getElementById('profile-view').classList.remove('hidden');
+var initlocalstorage = function(){
+    if(localStorage.getItem("token")==null){
+        localStorage.setItem("token","[]");
+    }
 }
 
-
-function showSignInPage() {
-    // Clear the form inputs
-    document.getElementById('signin-form').reset();
-
-    // Toggle views
-    document.getElementById('profile-view').classList.add('hidden');
-    document.getElementById('signin-view').classList.remove('hidden');
-}
+window.onload = function() {
+    //code that is executed as the page is loaded.
+    //You shall put your own custom code here.
+    initlocalstorage();
+    //only when the user is logged out, it will shows the welcome view
+    if(JSON.parse(localStorage.getItem("token")).length == 0){
+        displayView.show("welcome");
+    }else{
+        displayView.show("profile");
+    }
+};
 
 // User field validation - Step 3
 function pwValidation(ev) {
@@ -47,45 +59,123 @@ function pwValidation(ev) {
     return false;
 }
 
-function submitButton(ev) {
-    storeFormData();
-    pwValidation(ev);
-    showProfilePage(ev);
-    showStoredData();
-}
-
-// Global variable to store form data
-let formData = {};
-// Function to store form data when the submit button is clicked
-function storeFormData() {
+var signup = function() {
     // Get values from the form inputs
-    const firstName = document.getElementById('signup-fname').value;
-    const familyName = document.getElementById('signup-famname').value;
-    const gender = document.getElementById('signup-gender').value;
-    const city = document.getElementById('signup-city').value;
-    const country = document.getElementById('signup-country').value;
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-pw').value;
+    var email = document.getElementById('signup-email').value;
+    var password = document.getElementById('signup-pw').value;
+    var firstName = document.getElementById('signup-fname').value;
+    var familyName = document.getElementById('signup-famname').value;
+    var gender = document.getElementById('signup-gender').value;
+    var city = document.getElementById('signup-city').value;
+    var country = document.getElementById('signup-country').value;
 
-    if (!firstName || !familyName || !gender || !city || !country || !email || !password) {
-        alert("Please fill in all fields.");
-        return; // Exit the function if any required field is empty
+    var newUser = {email, password, firstName, familyName, gender, city, country};
+    console.log(newUser)
+    var submitResult = serverstub.signUp(newUser);
+    // submitResult.success = true;
+
+    document.getElementById("signupalert").innerText = submitResult.success;
+
+    if (submitResult.success){
+        document.getElementById("signupalert").style.color = "black";
+
+        var token = "";
+        var loginResult = serverstub.signIn(email,password);
+        if (loginResult.success){
+            token = loginResult.data;
+            localStorage.setItem("token", JSON.stringify(token));
+            displayView.show("profile");
+            displayView.hide("welcome");
+            useremail = email;
+            showMyProfile();
+            refreshwall(email);
+        }
     }
 
-    // Store the form data in the global object
-    formData = {
-        firstName,
-        familyName,
-        gender,
-        city,
-        country,
-        email,
-        password
-    };
-    console.log(formData);
     alert('Form submitted successfully!');
 }
 
-function showStoredData() {
-    console.log(formData);
+function showMyProfile(){
+    showOthersProfile(useremail);
+    document.getElementById("profileheader").innerHTML = "Your Profile";
+}
+
+var refreshwall = function (email) {
+    var token = JSON.parse(localStorage.getItem("token"));
+    var refreshresult = serverstub.getUserMessagesByEmail(token,email);
+    var wall = document.getElementById("messagewall");
+    document.getElementById("wallalert").innerText = refreshresult.message;
+    if(refreshresult.success){
+        var msgs = refreshresult.data;
+        var msg = "";
+        wall.innerHTML = "<tr><th>Author</th><th>Message</th></tr>";
+        for(var i=0;i<msgs.length;i++){
+            msg = "<tr><td>" + msgs[i].writer + "</td><td>" + msgs[i].content + "</td></tr>" ;
+            wall.innerHTML += msg;
+        }
+    }
+    if(email === useremail){
+        document.getElementById("wallheader").innerHTML = "Your Message Wall:";
+    }else{
+        document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
+    }
+}
+
+
+var attachHandler = function () {
+    var homeTab = document.getElementById("hometab");
+    var accountTab = document.getElementById("accounttab");
+    var browseTab = document.getElementById("browsetab");
+    var homeContent = document.getElementById("homecontent");
+    var accountContent = document.getElementById("accountcontent");
+    var browseContent = document.getElementById("browsecontent");
+
+    // Switching tabs
+    homeTab.addEventListener("click",function(){
+       homeTab.className = "tab-cur";
+       accountTab.className = "tab";
+       browseTab.className = "tab";
+       homeContent.className = "content-cur";
+       accountContent.className = "content";
+       browseContent.className = "content";
+       showMyProfile();
+       refreshwall(useremail);
+    },false);
+
+    accountTab.addEventListener("click",function(){
+        homeTab.className = "tab";
+        accountTab.className = "tab-cur";
+        browseTab.className = "tab";
+        homeContent.className = "content";
+        accountContent.className = "content-cur";
+        browseContent.className = "content";
+    },false);
+
+    browseTab.addEventListener("click",function(){
+        homeTab.className = "tab";
+        accountTab.className = "tab";
+        browseTab.className = "tab-cur";
+        accountContent.className = "content";
+        browseContent.className = "content-cur";
+        if (!searchemail){
+            homeContent.className = "content";
+        }else{
+            searchuser(searchemail);
+        }
+    },false);
+
+    // Sign out function
+    document.getElementById("logout").addEventListener("click",function(){
+        var token = JSON.parse(localStorage.getItem("token"));
+        var signoutresult = serverstub.signOut(token);
+        if(signoutresult.success){
+            displayView.hide("profile");
+            displayView.show("welcome");
+            localStorage.setItem("token","[]");
+            useremail = "";
+            searchemail = "";
+            document.getElementById("loginalert").innerHTML = signoutresult.message;
+        }
+    },false);
+
 }
