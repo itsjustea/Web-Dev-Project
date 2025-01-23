@@ -8,7 +8,7 @@ var displayView = {
         console.log(id);
         if (id == "profile") {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
-            // attachHandler();
+            attachHandler();
             showMyProfile();
             // refreshwall(useremail);
         }
@@ -56,8 +56,8 @@ function pwValidation(ev) {
     // 3. Both password fields must contain the same string
     if (entered_pw.value !== confirm_pw.value) {
         alert('Passwords do not match. Please re-enter your password.');
-        entered_pw.value = ''; // Clear the password fields
-        confirm_pw.value = '';
+        // entered_pw.value = ''; // Clear the password fields
+        // confirm_pw.value = '';
         return false;
     }
     // 4. The password must be at least X characters long (assume X = 8)
