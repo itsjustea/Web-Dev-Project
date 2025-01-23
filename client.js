@@ -70,12 +70,11 @@ var login = function(){
     if (loginResult.success){
         token = loginResult.data;
         localStorage.setItem("token", JSON.stringify(token));
-        displayView.show("profile");
         displayView.hide("welcome");
+        displayView.show("profile");
         useremail = email;
         showMyProfile();
     }
-    
     alert('Form submitted successfully!');
 }
 
@@ -114,8 +113,8 @@ var signup = function() {
         if (loginResult.success){
             token = loginResult.data;
             localStorage.setItem("token", JSON.stringify(token));
-            displayView.show("profile");
             displayView.hide("welcome");
+            displayView.show("profile");
             useremail = email;
             // Set the currently logged in user in this session - change after lab 2.
             localStorage.setItem("loggedInUser", JSON.stringify(newUser));
