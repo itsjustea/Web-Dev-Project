@@ -80,3 +80,7 @@ body{
     display: none;
 }
 
+#navbar{
+    justify-content: space-evenly;
+    display: flex;
+}
