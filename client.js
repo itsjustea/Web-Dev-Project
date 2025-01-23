@@ -36,7 +36,7 @@ window.onload = function() {
 };
 
 // User field validation - Step 3
-function pwValidation(ev) {
+function pwValidation() {
     // Prevent form submission until validation is complete
     // ev.preventDefault();
 
@@ -45,18 +45,11 @@ function pwValidation(ev) {
 
     // Check if the password fields are empty
 
-    // 1. No field shall be blank
-    // if (!entered_pw.value || !confirm_pw.value) {
-    //     alert('All fields are required. Please fill in all the fields.');
-    //     console.log("goes into here")
-    //     return false;
-    // }
-
     // 3. Both password fields must contain the same string
     if (entered_pw.value !== confirm_pw.value) {
         alert('Passwords do not match. Please re-enter your password.');
-        // entered_pw.value = ''; // Clear the password fields
-        // confirm_pw.value = '';
+        entered_pw.value = ''; // Clear the password fields
+        confirm_pw.value = '';
         return false;
     }
     // 4. The password must be at least X characters long (assume X = 8)
@@ -65,7 +58,8 @@ function pwValidation(ev) {
         return false;
     }
 
-    alert('Passwords match!');
+    console.log('Passwords match, proceed!');
+    return true;
 
     // // Check if password fields are empty
     // if(!entered_pw || !confirm_pw){
@@ -95,6 +89,13 @@ function pwValidation(ev) {
 }
 
 var signup = function() {
+
+    var validateCheck = pwValidation();
+    
+    if(!validateCheck){
+        return false;
+    }
+
     // Get values from the form inputs
     var email = document.getElementById('signup-email').value;
     var password = document.getElementById('signup-pw').value;
