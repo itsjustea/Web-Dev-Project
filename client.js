@@ -37,13 +37,8 @@ window.onload = function() {
 
 // User field validation - Step 3
 function pwValidation() {
-    // Prevent form submission until validation is complete
-    // ev.preventDefault();
-
     const entered_pw = document.getElementById('signup-pw');
     const confirm_pw = document.getElementById('signup-repeatPSW');
-
-    // Check if the password fields are empty
 
     // 3. Both password fields must contain the same string
     if (entered_pw.value !== confirm_pw.value) {
@@ -55,6 +50,8 @@ function pwValidation() {
     // 4. The password must be at least X characters long (assume X = 8)
     if (entered_pw.value.length < 8 || confirm_pw.value.length < 8) {
         alert('Entered password must be at least 8 characters long.');
+        entered_pw.value = ''; // Clear the password fields
+        confirm_pw.value = '';
         return false;
     }
 
