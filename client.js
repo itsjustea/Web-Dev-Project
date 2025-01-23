@@ -77,7 +77,7 @@ var signup = function() {
     var country = document.getElementById('signup-country').value;
 
     var newUser = {email, password, firstname, familyname, gender, city, country};
-
+    console.log(newUser);
     // For testing - Bryan
     // for(f in newUser){
     //     console.log(f + "type: " + typeof(newUser[f]));
@@ -96,6 +96,8 @@ var signup = function() {
             displayView.show("profile");
             displayView.hide("welcome");
             useremail = email;
+            // Set the currently logged in user in this session - change after lab 2.
+            localStorage.setItem("loggedInUser", JSON.stringify(newUser));
             showMyProfile();
             refreshwall(email);
         }
@@ -106,6 +108,17 @@ var signup = function() {
 function showMyProfile(){
     // showOthersProfile(useremail);
     document.getElementById("profileheader").innerHTML = "Your Profile";
+    // Need to fix this - Bryan
+    var abc1234 = JSON.parse(localStorage.getItem("loggedInUser"));
+    console.log(abc1234);
+    // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+    document.getElementById("profileemail").innerHTML = loggedInUser.email;
+    document.getElementById("profilefname").innerHTML = loggedInUser.firstname;
+    document.getElementById("profilefamname").innerHTML = loggedInUser.familyname;
+    document.getElementById("profilegender").innerHTML =loggedInUser.gender;
+    document.getElementById("profilecity").innerHTML = loggedInUser.city;
+    document.getElementById("profilecountry").innerHTML = loggedInUser.country;
+    
 }
 
 // function that handles events
