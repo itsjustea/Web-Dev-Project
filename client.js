@@ -1,11 +1,10 @@
 var useremail = "";
 var searchemail = "";
 
+// the code required to display a view
 var displayView = {
-    // the code required to display a view\
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
-        console.log(id);
         if (id == "profile") {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             attachHandler();
@@ -25,8 +24,8 @@ var initlocalstorage = function(){
 }
 
 window.onload = function() {
+
     //code that is executed as the page is loaded.
-    //You shall put your own custom code here.
     initlocalstorage();
     //only when the user is logged out, it will shows the welcome view
     if(JSON.parse(localStorage.getItem("token")).length == 0){
@@ -106,22 +105,17 @@ var signup = function() {
     var country = document.getElementById('signup-country').value;
 
     var newUser = {email, password, firstname, familyname, gender, city, country};
-    console.log(newUser)
 
     // For testing - Bryan
     // for(f in newUser){
     //     console.log(f + "type: " + typeof(newUser[f]));
     // }
 
-
     var submitResult = serverstub.signUp(newUser);
-    // submitResult.success = true;
 
-    document.getElementById("signupalert").innerText = submitResult.success;
+    document.getElementById("signupalert").innerText = submitResult.message;
 
     if (submitResult.success){
-        document.getElementById("signupalert").style.color = "black";
-
         var token = "";
         var loginResult = serverstub.signIn(email,password);
         if (loginResult.success){
@@ -134,12 +128,11 @@ var signup = function() {
             refreshwall(email);
         }
     }
-
     alert('Form submitted successfully!');
 }
 
 function showMyProfile(){
-    showOthersProfile(useremail);
+    // showOthersProfile(useremail);
     document.getElementById("profileheader").innerHTML = "Your Profile";
 }
 
@@ -164,7 +157,7 @@ var refreshwall = function (email) {
     }
 }
 
-
+// function that handles events
 var attachHandler = function () {
     var homeTab = document.getElementById("hometab");
     var accountTab = document.getElementById("accounttab");
@@ -207,7 +200,7 @@ var attachHandler = function () {
         }
     },false);
 
-    // Sign out function
+    // Sign out function executed when button with id = logout is clicked
     document.getElementById("logout").addEventListener("click",function(){
         var token = JSON.parse(localStorage.getItem("token"));
         var signoutresult = serverstub.signOut(token);
