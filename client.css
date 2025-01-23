@@ -83,4 +83,25 @@ body{
 #navbar{
     justify-content: space-evenly;
     display: flex;
+    text-align: center;
+    font-size: large;
+}
+
+#profilePage row{
+    margin-top: 10px;
+}
+
+#profilePage {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+#profilearea th{
+    text-align: left;
+}
+
+#profilePage button{
+    float: right;
+    width: 75px;
+    height: 30px;
 }
