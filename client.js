@@ -99,14 +99,21 @@ var signup = function() {
     // Get values from the form inputs
     var email = document.getElementById('signup-email').value;
     var password = document.getElementById('signup-pw').value;
-    var firstName = document.getElementById('signup-fname').value;
-    var familyName = document.getElementById('signup-famname').value;
+    var firstname = document.getElementById('signup-fname').value;
+    var familyname = document.getElementById('signup-famname').value;
     var gender = document.getElementById('signup-gender').value;
     var city = document.getElementById('signup-city').value;
     var country = document.getElementById('signup-country').value;
 
-    var newUser = {email, password, firstName, familyName, gender, city, country};
+    var newUser = {email, password, firstname, familyname, gender, city, country};
     console.log(newUser)
+
+    // For testing - Bryan
+    // for(f in newUser){
+    //     console.log(f + "type: " + typeof(newUser[f]));
+    // }
+
+
     var submitResult = serverstub.signUp(newUser);
     // submitResult.success = true;
 
