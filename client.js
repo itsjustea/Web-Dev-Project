@@ -50,6 +50,8 @@ function pwValidation() {
     // 4. The password must be at least X characters long (assume X = 8)
     if (entered_pw.value.length < 8 || confirm_pw.value.length < 8) {
         alert('Entered password must be at least 8 characters long.');
+        entered_pw.value = ''; // Clear the password fields
+        confirm_pw.value = '';
         return false;
     }
 
