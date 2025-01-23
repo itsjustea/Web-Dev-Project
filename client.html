@@ -16,7 +16,7 @@
                 <div class = "right">
                     <div id = "right-top">
                         <!-- START: Login Form  -->
-                        <form id="signin-form">
+                        <form id="signin-form" method="post">
                             <div class="form-group">
                                 <label for="email">Email:</label>
                                 <input type="email" name="login-email" id="email" required>
@@ -38,7 +38,7 @@
                     <div id="right-bottom">
                         <!-- START: Sign Up Form -->
                         <h3 id="sign_up_header">Sign Up Here!</h3>
-                        <form id = "signup-form" method="post" onsubmit="javascript:signup()">
+                        <form id = "signup-form" method="post" action="javascript:signup()">
 
                             <div class="form-group">
                                 <label for="fname">First Name:</label>

@@ -37,13 +37,8 @@ window.onload = function() {
 
 // User field validation - Step 3
 function pwValidation() {
-    // Prevent form submission until validation is complete
-    // ev.preventDefault();
-
     const entered_pw = document.getElementById('signup-pw');
     const confirm_pw = document.getElementById('signup-repeatPSW');
-
-    // Check if the password fields are empty
 
     // 3. Both password fields must contain the same string
     if (entered_pw.value !== confirm_pw.value) {
@@ -60,32 +55,6 @@ function pwValidation() {
 
     console.log('Passwords match, proceed!');
     return true;
-
-    // // Check if password fields are empty
-    // if(!entered_pw || !confirm_pw){
-    //     alert('Please enter a password');
-    // }else{
-    //     if(entered_pw.value.length >= 8 && confirm_pw.value.length >= 8){
-    //         // Password has a valid length >= 8 characters.
-    //         if (entered_pw.value !== confirm_pw.value) {
-    //             // Passwords do not match, clear fields and alert user
-    //             alert('Passwords do not match, please re-enter your password again');
-    //             entered_pw. value = '';
-    //             confirm_pw.value = '';
-    //         } else if (entered_pw.value === confirm_pw.value) {
-    //             // Passwords match, proceed with form submission
-    //             alert('Passwords match! Form submitted.');
-    //             return true;
-    //         } else {
-    //             alert('Sign up failed, please try again.');
-    //             console.log("Unhandled exception");
-    //         }
-    //     }else{
-    //         alert('Entered password must be at least 8 characters long');
-    //     }
-    // }
-
-    return false;    
 }
 
 var signup = function() {
