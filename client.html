@@ -3,12 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sign In</title>
         <link href="client.css" type="text/css" rel="stylesheet">
         <script src="client.js" type="text/javascript"></script>
         <script src="serverstub.js" type="text/javascript"></script>
         <script id = "welcomeView" type = "text/view">
-            
+            <title>Sign In</title>
             <div class = "main" id = "signin-view">
                 <div class="left">
                     <img src="wimage.png" alt="logo" width="100%" height="100%">
@@ -79,18 +78,28 @@
                             </div>
                             
                             <div class="form-group-button">
-                                <button type="submit"">Submit</button>
+                                <button type="submit">Submit</button>
                             </div>
                             <div id="signupalert" class="alert"></div>
-                </form>
                         </form>
+                        
                         <!-- END: Sign Up Form -->
                     </div>
                 </div>
             </div>  
         </script>
         <script id = "profileView" type = "text/view">
+            <title>Profile</title>
             <div id = "navbar">
+
+                <!-- <ul>
+                    <li><a class="active" href="#">Home</a></li>
+                    <li><a href="#">Browse</a></li>
+                    <li><a href="#">Account</a></li>
+                    <li><button id="logout">Sign Out</button></li>
+                </ul> -->
+                
+
                 <div id="hometab" class="tab-cur">Home</div>
                 <div id="browsetab" class="tab">Browse</div>
                 <div id="accounttab" class="tab">Account</div>
@@ -128,11 +137,70 @@
                 <div id="infoalert" class="alert"></div>
             </div>
         </script>
+
+
+        <!-- START: Account Tab -->
+        <script id = "accountView" type = "text/view">
+            <title>Account Details</title>
+            <div id = "navbar">
+                <div id="hometab" class="tab-cur">Home</div>
+                <div id="browsetab" class="tab">Browse</div>
+                <div id="accounttab" class="tab">Account</div>
+                <button id="logout">Sign Out</button>
+            </div>
+
+            <div id="accountdiv">
+                <h2 id="accountheader"></h2>
+                <form id="account_pw_form" method="post" action="javascript:changePassword()">
+                    <div class="form-group">
+                        <label for="account_email">Email:</label>
+                        <div id="account_email"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_fname">First Name:</label>
+                        <div id="account_fname"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_famname">Family Name:</label>
+                        <div id="account_famname"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_gender">Gender:</label>
+                        <div id="account_gender"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_city">City:</label>
+                        <div id="account_city"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_country">Country:</label>
+                        <div id="account_country"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="account_old_pw">Current Password:</label>
+                        <input type="password" id="oldPassword" name="oldPassword" placeholder="" required="" type = "password">
+                    </div>
+                    <div class="form-group">
+                        <label for="account_new_pw">New Password:</label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="" required="" type = "password">
+                    </div>
+                    <div class="form-group-button">
+                        <button type="submit">Change Password</button>
+                    </div>
+                    </form>
+                </table>
+                <div id="accountalert" class="alert"></div>
+            </div>
+        </script>
+
+        <!-- END: Account Tab -->
+
     </head>
 
     <body>
         <div id="welcomePage"></div>
         <div id="profilePage"></div>
+        <div id="accountPage"></div>
     </body>
 
 </html>

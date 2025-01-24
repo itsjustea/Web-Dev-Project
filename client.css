@@ -105,3 +105,60 @@ body{
     width: 75px;
     height: 30px;
 }
+
+
+/* .tab, .tab-cur{
+    width: 33.1%;
+    height: 50px;
+    float: left;
+    border: dimgrey 0.5px solid;
+    background-color: white;
+    color: black;
+    font-size: large;
+    text-align: center;
+    line-height: 50px;
+}
+
+.tab-cur{
+    background-color: grey;
+    color: white;
+} */
+
+/* 
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+  }
+  
+  li {
+    float: left;
+  }
+  
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  
+  li button {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  li a:hover, li button:hover {
+    background-color: #111;
+  }
+  
+  .active {
+    background-color: #04AA6D;
+  } */

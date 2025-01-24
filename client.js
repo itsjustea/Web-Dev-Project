@@ -9,6 +9,10 @@ var displayView = {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             attachHandler();
             showMyProfile();
+        }else if(id == "account"){
+            // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
+            // attachHandler();
+            // showMyAccount();
         }
     },
     hide: function (id) {
@@ -23,7 +27,6 @@ var initlocalstorage = function(){
 }
 
 window.onload = function() {
-
     //code that is executed as the page is loaded.
     initlocalstorage();
     //only when the user is logged out, it will shows the welcome view
@@ -71,15 +74,18 @@ var login = function(){
         localStorage.setItem("token", JSON.stringify(token));
         displayView.hide("welcome");
         displayView.show("profile");
+        // Uncomment below to see account tab after login
+        // displayView.show("account");
         useremail = email;
         showMyProfile();
+        // Uncomment below to see account tab after login
+        // showMyAccount();
     }
     alert('Form submitted successfully!');
 }
 
 
 var signup = function() {
-
     var validateCheck = pwValidation();
     
     if(!validateCheck){
@@ -96,11 +102,6 @@ var signup = function() {
     var country = document.getElementById('signup-country').value;
 
     var newUser = {email, password, firstname, familyname, gender, city, country};
-    console.log(newUser);
-    // For testing - Bryan
-    // for(f in newUser){
-    //     console.log(f + "type: " + typeof(newUser[f]));
-    // }
 
     var submitResult = serverstub.signUp(newUser);
 
@@ -124,14 +125,26 @@ var signup = function() {
     alert('Form submitted successfully!');
 }
 
-function showMyProfile(){
-    
-    // Need to fix this - Bryan
-    // var abc1234 = JSON.parse(localStorage.getItem("loggedInUser"));
-    // console.log(abc1234);
-    
+// Allows user to change password in the Account page.
+var changePassword = function(){
+    var token = JSON.parse(localStorage.getItem("token")); // current user's email
+    var oldPassword = document.getElementById('oldPassword').value;
+    var newPassword = document.getElementById('newPassword').value;
+
+    let changePWResult = serverstub.changePassword(token, oldPassword, newPassword);
+    if(changePWResult.success){
+        console.log("SUCCESS: Change PW Message:" +  changePWResult.message);
+        document.getElementById("accountalert").innerText = "Password Changed Successfully!";
+    }else{
+        console.log("FAILED: Change PW Message:" +  changePWResult.message);
+        document.getElementById("accountalert").innerText = "ERROR: Password not changed. Please try again.";
+    }
+
+}
+
+function showMyProfile(){    
     var token = JSON.parse(localStorage.getItem("token"));
-    var loggedInUser = serverstub.getUserDataByEmail(token,useremail);
+    var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
     
     if (loggedInUser.success) {
         // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
@@ -143,6 +156,23 @@ function showMyProfile(){
         document.getElementById("profilecountry").innerHTML = loggedInUser.data.country;
     }
     document.getElementById("profileheader").innerHTML = "Your Profile";
+}
+
+function showMyAccount(){    
+    var token = JSON.parse(localStorage.getItem("token"));
+    var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
+    console.log("HAHAHA" + token);
+    displayView.hide("profile");
+    displayView.show("account");
+    //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+    document.getElementById("account_email").innerHTML = loggedInUser.data.email;
+    document.getElementById("account_fname").innerHTML = loggedInUser.data.firstname;
+    document.getElementById("account_famname").innerHTML = loggedInUser.data.familyname;
+    document.getElementById("account_gender").innerHTML =loggedInUser.data.gender;
+    document.getElementById("account_city").innerHTML = loggedInUser.data.city;
+    document.getElementById("account_country").innerHTML = loggedInUser.data.country;
+
+    document.getElementById("accountheader").innerHTML = "Your Account";
 }
 
 // function that handles events
@@ -162,6 +192,8 @@ var attachHandler = function () {
        homeContent.className = "content-cur";
        accountContent.className = "content";
        browseContent.className = "content";
+       displayView.hide("profile");
+        displayView.show("account");
        showMyProfile();
        
     },false);
@@ -170,9 +202,10 @@ var attachHandler = function () {
         homeTab.className = "tab";
         accountTab.className = "tab-cur";
         browseTab.className = "tab";
-        homeContent.className = "content";
-        accountContent.className = "content-cur";
-        browseContent.className = "content";
+        // homeContent.className = "content";
+        // accountContent.className = "content-cur";
+        // browseContent.className = "content";
+        showMyAccount();
     },false);
 
     browseTab.addEventListener("click",function(){
