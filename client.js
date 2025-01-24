@@ -73,11 +73,12 @@ var login = function(){
         token = loginResult.data;
         localStorage.setItem("token", JSON.stringify(token));
         displayView.hide("welcome");
+        // displayView.hide("account")
         displayView.show("profile");
         // Uncomment below to see account tab after login
         // displayView.show("account");
         useremail = email;
-        showMyProfile();
+        // showMyProfile();
         // Uncomment below to see account tab after login
         // showMyAccount();
     }
@@ -186,15 +187,15 @@ var attachHandler = function () {
 
     // Switching tabs
     homeTab.addEventListener("click",function(){
-       homeTab.className = "tab-cur";
-       accountTab.className = "tab";
-       browseTab.className = "tab";
-       homeContent.className = "content-cur";
-       accountContent.className = "content";
-       browseContent.className = "content";
-       displayView.hide("profile");
-        displayView.show("account");
-       showMyProfile();
+        homeTab.className = "tab-cur";
+        accountTab.className = "tab";
+        browseTab.className = "tab";
+        homeContent.className = "content-cur";
+        accountContent.className = "content";
+        browseContent.className = "content";
+        displayView.show("profile");
+        // displayView.hide("account");
+        showMyProfile();
        
     },false);
 
@@ -202,10 +203,10 @@ var attachHandler = function () {
         homeTab.className = "tab";
         accountTab.className = "tab-cur";
         browseTab.className = "tab";
-        // homeContent.className = "content";
-        // accountContent.className = "content-cur";
-        // browseContent.className = "content";
-        showMyAccount();
+        homeContent.className = "content";
+        accountContent.className = "content-cur";
+        browseContent.className = "content";
+        // showMyAccount();
     },false);
 
     browseTab.addEventListener("click",function(){
@@ -226,6 +227,7 @@ var attachHandler = function () {
         var token = JSON.parse(localStorage.getItem("token"));
         var signoutresult = serverstub.signOut(token);
         if(signoutresult.success){
+            displayView.hide("account");
             displayView.hide("profile");
             displayView.show("welcome");
             localStorage.setItem("token","[]");
