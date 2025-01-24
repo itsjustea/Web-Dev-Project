@@ -11,7 +11,7 @@ var displayView = {
             showMyProfile();
         }else if(id == "account"){
             // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
-            // attachHandler();
+            attachHandler();
             // showMyAccount();
         }
     },
