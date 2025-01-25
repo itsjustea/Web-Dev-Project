@@ -5,14 +5,16 @@ var searchemail = "";
 var displayView = {
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
+        console.log(id);
         if (id == "profile") {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
-            attachHandler();
             showMyProfile();
-        }else if(id == "account"){
-            // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             attachHandler();
-            // showMyAccount();
+        // }else if(id == "account"){
+        //     // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
+        //     attachHandler();
+        //     // showMyAccount();
+        // }
         }
     },
     hide: function (id) {
@@ -162,7 +164,7 @@ function showMyProfile(){
 function showMyAccount(){    
     var token = JSON.parse(localStorage.getItem("token"));
     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
-    console.log("HAHAHA" + token);
+    console.log(token);
     displayView.hide("profile");
     displayView.show("account");
     //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
@@ -215,6 +217,7 @@ var attachHandler = function () {
         browseTab.className = "tab-cur";
         accountContent.className = "content";
         browseContent.className = "content-cur";
+        attachHandler();
         if (!searchemail){
             homeContent.className = "content";
         }else{
@@ -227,7 +230,7 @@ var attachHandler = function () {
         var token = JSON.parse(localStorage.getItem("token"));
         var signoutresult = serverstub.signOut(token);
         if(signoutresult.success){
-            displayView.hide("account");
+            // displayView.hide("account");
             displayView.hide("profile");
             displayView.show("welcome");
             localStorage.setItem("token","[]");
