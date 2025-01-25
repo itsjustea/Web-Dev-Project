@@ -10,11 +10,6 @@ var displayView = {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             showMyProfile();
             attachHandler();
-        // }else if(id == "account"){
-        //     // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
-        //     attachHandler();
-        //     // showMyAccount();
-        // }
         }
     },
     hide: function (id) {
@@ -75,14 +70,10 @@ var login = function(){
         token = loginResult.data;
         localStorage.setItem("token", JSON.stringify(token));
         displayView.hide("welcome");
-        // displayView.hide("account")
         displayView.show("profile");
-        // Uncomment below to see account tab after login
-        // displayView.show("account");
+        homeTab = document.getElementById("hometab");
+        homeTab.className = "tab-cur";
         useremail = email;
-        // showMyProfile();
-        // Uncomment below to see account tab after login
-        // showMyAccount();
     }
     alert('Form submitted successfully!');
 }
@@ -164,7 +155,7 @@ function showMyProfile(){
 function showMyAccount(){    
     var token = JSON.parse(localStorage.getItem("token"));
     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
-    console.log(token);
+    console.log("Goes into here");
     displayView.hide("profile");
     displayView.show("account");
     //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
