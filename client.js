@@ -109,6 +109,8 @@ var signup = function() {
             localStorage.setItem("token", JSON.stringify(token));
             displayView.hide("welcome");
             displayView.show("profile");
+            homeTab = document.getElementById("hometab");
+            homeTab.className = "tab-cur";
             useremail = email;
             // Set the currently logged in user in this session - change after lab 2.
             localStorage.setItem("loggedInUser", JSON.stringify(newUser));
@@ -152,22 +154,22 @@ function showMyProfile(){
     document.getElementById("profileheader").innerHTML = "Your Profile";
 }
 
-function showMyAccount(){    
-    var token = JSON.parse(localStorage.getItem("token"));
-    var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
-    console.log("Goes into here");
-    displayView.hide("profile");
-    displayView.show("account");
-    //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-    document.getElementById("account_email").innerHTML = loggedInUser.data.email;
-    document.getElementById("account_fname").innerHTML = loggedInUser.data.firstname;
-    document.getElementById("account_famname").innerHTML = loggedInUser.data.familyname;
-    document.getElementById("account_gender").innerHTML =loggedInUser.data.gender;
-    document.getElementById("account_city").innerHTML = loggedInUser.data.city;
-    document.getElementById("account_country").innerHTML = loggedInUser.data.country;
+// function showMyAccount(){    
+//     var token = JSON.parse(localStorage.getItem("token"));
+//     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
+//     console.log("Goes into here");
+//     displayView.hide("profile");
+//     displayView.show("account");
+//     //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+//     document.getElementById("account_email").innerHTML = loggedInUser.data.email;
+//     document.getElementById("account_fname").innerHTML = loggedInUser.data.firstname;
+//     document.getElementById("account_famname").innerHTML = loggedInUser.data.familyname;
+//     document.getElementById("account_gender").innerHTML =loggedInUser.data.gender;
+//     document.getElementById("account_city").innerHTML = loggedInUser.data.city;
+//     document.getElementById("account_country").innerHTML = loggedInUser.data.country;
 
-    document.getElementById("accountheader").innerHTML = "Your Account";
-}
+//     document.getElementById("accountheader").innerHTML = "Your Account";
+// }
 
 // function that handles events
 var attachHandler = function () {
@@ -186,9 +188,6 @@ var attachHandler = function () {
         homeContent.className = "content-cur";
         accountContent.className = "content";
         browseContent.className = "content";
-        displayView.show("profile");
-        // displayView.hide("account");
-        showMyProfile();
        
     },false);
 
@@ -199,7 +198,7 @@ var attachHandler = function () {
         homeContent.className = "content";
         accountContent.className = "content-cur";
         browseContent.className = "content";
-        // showMyAccount();
+        
     },false);
 
     browseTab.addEventListener("click",function(){
