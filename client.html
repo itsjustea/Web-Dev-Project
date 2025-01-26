@@ -126,15 +126,26 @@
                     </tr>
                 </table>
                 <div id="infoalert" class="alert"></div>
+                
+                <h2 id="postheader"></h2>
+                <div id = "postmessage">
+                    <form id = "postmessageform" action = "javascript:postMessage()">
+                    <textarea id="addmessage" required=""></textarea>    
+                    <button id="sendmessage" type = "submit" form = "postmessageform">Submit</button>
+                    <div id="postalert" class="alert"></div>
+                </div>
+                <div>
+                    <h2 id="wallheader"></h2>
+                    <button id="refreshboard" onclick = "javascript:refreshbutton()">Refresh</button>
+                    <table id="messageboard"></table>
+                </div>
+                            
             </div>
 
             <div id="browsecontent" class = "content">
                 <!-- Placeholder for browse content page -->
-                <!-- <div id="messagecontent" class = "content">
-                    <button id="refreshwall" onclick = "javascript:refreshbutton()">Refresh</button>
-                    <div id="messsagewall" class = "alert"></div>
-                    <table id = "messagewall">
-                </div> -->
+                <h2 id="browseheader">test</h2>
+               
             </div>
 
             <div id="accountcontent" class = "content">

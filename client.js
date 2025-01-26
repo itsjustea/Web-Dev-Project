@@ -12,7 +12,7 @@ var displayView = {
             attachHandler();
             homeTab = document.getElementById("hometab");
             homeTab.className = "tab-cur";
-            
+            refreshboard(useremail);
         }
     },
     hide: function (id) {
@@ -150,9 +150,66 @@ function showMyProfile(){
         document.getElementById("profilecountry").innerHTML = loggedInUser.data.country;
     }
     document.getElementById("profileheader").innerHTML = "Your Profile";
+    document.getElementById("postheader").innerHTML = "Post a message";      
+}
+
+var postMessage = function(){
+    var token = JSON.parse(localStorage.getItem("token"));
+    var message = document.getElementById("addmessage").value;
+    console.log(message);
+    var email = "";
+    if (document.getElementById("browsetab").className === "tab-cur"){
+        email = searchemail;
+    }
+    else {
+        email = useremail;
+    }
+
+    var postresult = serverstub.postMessage(token,message,email);
+    document.getElementById("postalert").innerText = postresult.message;
+    if (postresult.success){
+        // console.log(postresult.success)
+        refreshboard(email);
+    }
 }
 
 
+var refreshboard =  function (email) {
+    var token = JSON.parse(localStorage.getItem("token"));
+    var refreshresult = serverstub.getUserMessagesByEmail(token,useremail);
+    var wall = document.getElementById("messageboard");
+    document.getElementById("messageboard").innertext = refreshresult.message;
+    // console.log("message1");
+    if (refreshresult.data === ""){
+        refreshresult.success === false;
+    }
+
+    if (refreshresult.success) {
+        // console.log("message2");
+        var messages = refreshresult.data;
+        // console.log(messages);
+        var message = "";
+        wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
+        for(var i=0;i<messages.length;i++){
+            message = "<tr><td>" + messages[i].writer + "</td><td>" + messages[i].content + "</td></tr>" ;
+            wall.innerHTML += message;
+        }
+    }
+
+    if (email === useremail) {
+        document.getElementById("wallheader").innerHTML = "Your Message Wall:";
+    }else{
+        document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
+    }
+}
+
+var refreshbutton = function(){
+    if(document.getElementById("browsetab").className==="tab-cur"){
+        refreshboard(searchemail);
+    }else{
+        refreshboard(useremail);
+    }
+}
 
 
 
