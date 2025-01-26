@@ -10,6 +10,9 @@ var displayView = {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             showMyProfile();
             attachHandler();
+            homeTab = document.getElementById("hometab");
+            homeTab.className = "tab-cur";
+            
         }
     },
     hide: function (id) {
@@ -71,9 +74,6 @@ var login = function(){
         localStorage.setItem("token", JSON.stringify(token));
         displayView.hide("welcome");
         displayView.show("profile");
-        homeTab = document.getElementById("hometab");
-        homeTab.className = "tab-cur";
-        useremail = email;
     }
     alert('Form submitted successfully!');
 }
@@ -109,8 +109,6 @@ var signup = function() {
             localStorage.setItem("token", JSON.stringify(token));
             displayView.hide("welcome");
             displayView.show("profile");
-            homeTab = document.getElementById("hometab");
-            homeTab.className = "tab-cur";
             useremail = email;
             // Set the currently logged in user in this session - change after lab 2.
             localStorage.setItem("loggedInUser", JSON.stringify(newUser));
@@ -153,6 +151,10 @@ function showMyProfile(){
     }
     document.getElementById("profileheader").innerHTML = "Your Profile";
 }
+
+
+
+
 
 // function showMyAccount(){    
 //     var token = JSON.parse(localStorage.getItem("token"));
