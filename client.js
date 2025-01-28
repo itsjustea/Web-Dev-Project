@@ -171,10 +171,8 @@ var showOtherProfile = function(email){
 }
 
 var searchuser = function(){
-    console.log("testsearch");
     var token = JSON.parse(localStorage.getItem("token"));
     searchemail = document.getElementById("searchemail").value;
-    console.log(searchemail);
     var searchresult = serverstub.getUserDataByEmail(token, searchemail);
     if (searchresult.success){
         if (searchemail === useremail){
@@ -266,6 +264,8 @@ var attachHandler = function () {
         homeContent.className = "content-cur";
         accountContent.className = "content";
         browseContent.className = "content";
+        showMyProfile();
+        refreshboard(useremail);
        
     },false);
 
@@ -280,7 +280,6 @@ var attachHandler = function () {
     },false);
 
     browseTab.addEventListener("click",function(){
-        console.log("test");
         homeTab.className = "tab";
         accountTab.className = "tab";
         browseTab.className = "tab-cur";
