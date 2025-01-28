@@ -2,11 +2,10 @@ var useremail = "";
 var searchemail = "";
 
 // the code required to display a view
-// Displayview currently submitting user message
+// Displaying a certain view - Step 2
 var displayView = {
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
-        console.log(id);
         if (id == "profile") {
             useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             showMyProfile();
@@ -62,6 +61,7 @@ function pwValidation() {
     return true;
 }
 
+// Adding the sign in mechanism - Step 5
 var login = function(){
     var email = document.getElementById('login-email').value;
     var password = document.getElementById('login-pw').value;
@@ -79,7 +79,7 @@ var login = function(){
     alert('Form submitted successfully!');
 }
 
-
+// Adding the signup mechanism - Step 4
 var signup = function() {
     var validateCheck = pwValidation();
     
@@ -114,7 +114,6 @@ var signup = function() {
             // Set the currently logged in user in this session - change after lab 2.
             localStorage.setItem("loggedInUser", JSON.stringify(newUser));
             showMyProfile();
-            // refreshwall(email);
         }
     }
     alert('Form submitted successfully!');
@@ -157,7 +156,6 @@ function showMyProfile(){
 var postMessage = function(){
     var token = JSON.parse(localStorage.getItem("token"));
     var message = document.getElementById("addmessage").value;
-    console.log(message);
     var email = "";
     if (document.getElementById("browsetab").className === "tab-cur"){
         email = searchemail;
@@ -174,23 +172,16 @@ var postMessage = function(){
         var postresult = serverstub.postMessage(token,message,email);
         document.getElementById("postalert").innerText = postresult.message;
         if (postresult.success){
-            // console.log(postresult.success)
             refreshboard(email);
         }
     }
-
 }
 
 var refreshboard =  function (email) {
     var token = JSON.parse(localStorage.getItem("token"));
     var refreshresult = serverstub.getUserMessagesByEmail(token,useremail);
-    console.log(refreshresult);
     var wall = document.getElementById("messageboard");
     document.getElementById("messageboard").innertext = refreshresult.message;
-    // console.log("message1");
-    // if (refreshresult.data.message === ""){
-    //     refreshresult.success === false;
-    // }
 
     if (email === useremail) {
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
@@ -199,14 +190,11 @@ var refreshboard =  function (email) {
     }
 
     if (refreshresult.success) {
-        // console.log("message2");
         var messages = refreshresult.data;
-        console.log(messages)
         if (messages.length === 0) {
             wall.innerHTML = "No messages currently";
         }
         else {
-            // console.log(messages);
             var message = "";
             wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
             for(var i=0;i<messages.length;i++){
@@ -227,26 +215,7 @@ var refreshbutton = function(){
     }
 }
 
-
-
-// function showMyAccount(){    
-//     var token = JSON.parse(localStorage.getItem("token"));
-//     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
-//     console.log("Goes into here");
-//     displayView.hide("profile");
-//     displayView.show("account");
-//     //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-//     document.getElementById("account_email").innerHTML = loggedInUser.data.email;
-//     document.getElementById("account_fname").innerHTML = loggedInUser.data.firstname;
-//     document.getElementById("account_famname").innerHTML = loggedInUser.data.familyname;
-//     document.getElementById("account_gender").innerHTML =loggedInUser.data.gender;
-//     document.getElementById("account_city").innerHTML = loggedInUser.data.city;
-//     document.getElementById("account_country").innerHTML = loggedInUser.data.country;
-
-//     document.getElementById("accountheader").innerHTML = "Your Account";
-// }
-
-// function that handles events
+// Implementing tabs - Step 6
 var attachHandler = function () {
     var homeTab = document.getElementById("hometab");
     var accountTab = document.getElementById("accounttab");
