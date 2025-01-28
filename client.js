@@ -2,6 +2,7 @@ var useremail = "";
 var searchemail = "";
 
 // the code required to display a view
+// Displayview currently submitting user message
 var displayView = {
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
@@ -165,24 +166,31 @@ var postMessage = function(){
         email = useremail;
     }
 
-    var postresult = serverstub.postMessage(token,message,email);
-    document.getElementById("postalert").innerText = postresult.message;
-    if (postresult.success){
-        // console.log(postresult.success)
-        refreshboard(email);
+    if (message === "") {
+        postresult.success === false;
     }
-}
 
+    else {
+        var postresult = serverstub.postMessage(token,message,email);
+        document.getElementById("postalert").innerText = postresult.message;
+        if (postresult.success){
+            // console.log(postresult.success)
+            refreshboard(email);
+        }
+    }
+
+}
 
 var refreshboard =  function (email) {
     var token = JSON.parse(localStorage.getItem("token"));
     var refreshresult = serverstub.getUserMessagesByEmail(token,useremail);
+    console.log(refreshresult);
     var wall = document.getElementById("messageboard");
     document.getElementById("messageboard").innertext = refreshresult.message;
     // console.log("message1");
-    if (refreshresult.data === ""){
-        refreshresult.success === false;
-    }
+    // if (refreshresult.data.message === ""){
+    //     refreshresult.success === false;
+    // }
 
     if (refreshresult.success) {
         // console.log("message2");
