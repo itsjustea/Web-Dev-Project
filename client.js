@@ -192,23 +192,31 @@ var refreshboard =  function (email) {
     //     refreshresult.success === false;
     // }
 
-    if (refreshresult.success) {
-        // console.log("message2");
-        var messages = refreshresult.data;
-        // console.log(messages);
-        var message = "";
-        wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
-        for(var i=0;i<messages.length;i++){
-            message = "<tr><td>" + messages[i].writer + "</td><td>" + messages[i].content + "</td></tr>" ;
-            wall.innerHTML += message;
-        }
-    }
-
     if (email === useremail) {
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
     }else{
         document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
     }
+
+    if (refreshresult.success) {
+        // console.log("message2");
+        var messages = refreshresult.data;
+        console.log(messages)
+        if (messages.length === 0) {
+            wall.innerHTML = "No messages currently";
+        }
+        else {
+            // console.log(messages);
+            var message = "";
+            wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
+            for(var i=0;i<messages.length;i++){
+                message = "<tr><td>" + messages[i].writer + "</td><td>" + messages[i].content + "</td></tr>" ;
+                wall.innerHTML += message;
+            }
+        }
+    }
+
+    
 }
 
 var refreshbutton = function(){
