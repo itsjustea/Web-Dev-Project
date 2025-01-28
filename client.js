@@ -1,3 +1,4 @@
+// set global variables as null first
 var useremail = "";
 var searchemail = "";
 
@@ -26,8 +27,9 @@ var initlocalstorage = function(){
     }
 }
 
+
+//code that is executed as the page is loaded.
 window.onload = function() {
-    //code that is executed as the page is loaded.
     initlocalstorage();
     //only when the user is logged out, it will shows the welcome view
     if(JSON.parse(localStorage.getItem("token")).length == 0){
@@ -61,11 +63,10 @@ function pwValidation() {
     return true;
 }
 
-// Adding the sign in mechanism - Step 5
+// Adding the signin mechanism - Step 5
 var login = function(){
     var email = document.getElementById('login-email').value;
     var password = document.getElementById('login-pw').value;
-    
     var loginResult = serverstub.signIn(email,password);
     console.log(loginResult);
     document.getElementById("signinalert").innerText = loginResult.message;
@@ -82,11 +83,9 @@ var login = function(){
 // Adding the signup mechanism - Step 4
 var signup = function() {
     var validateCheck = pwValidation();
-    
     if(!validateCheck){
         return false;
     }
-
     // Get values from the form inputs
     var email = document.getElementById('signup-email').value;
     var password = document.getElementById('signup-pw').value;
@@ -95,11 +94,8 @@ var signup = function() {
     var gender = document.getElementById('signup-gender').value;
     var city = document.getElementById('signup-city').value;
     var country = document.getElementById('signup-country').value;
-
     var newUser = {email, password, firstname, familyname, gender, city, country};
-
     var submitResult = serverstub.signUp(newUser);
-
     document.getElementById("signupalert").innerText = submitResult.message;
 
     if (submitResult.success){
@@ -133,11 +129,10 @@ var changePassword = function(){
         console.log("FAILED: Change PW Message:" +  changePWResult.message);
         document.getElementById("accountalert").innerText = "ERROR: Password not changed. Please try again.";
     }
-
 }
 
+// function to show current useremail's profile
 function showMyProfile(){  
-    // showOtherProfile(useremail);  
     var token = JSON.parse(localStorage.getItem("token"));
     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
 
@@ -154,11 +149,12 @@ function showMyProfile(){
     document.getElementById("postheader").innerHTML = "Post a message";      
 }
 
+// function to show other profile when searching
 var showOtherProfile = function(email){    
     var token = JSON.parse(localStorage.getItem("token"));
     var dataresult = serverstub.getUserDataByEmail(token, email);
     if (dataresult.success) {
-        // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+        // Display searched email's information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
         document.getElementById("profileemail").innerHTML = dataresult.data.email;
         document.getElementById("profilefname").innerHTML = dataresult.data.firstname;
         document.getElementById("profilefamname").innerHTML = dataresult.data.familyname;
@@ -169,6 +165,7 @@ var showOtherProfile = function(email){
     document.getElementById("profileheader").innerHTML = dataresult.data.firstname + "'s Profile";    
 }
 
+// function to search the user by the email, retrieves the info and the message board
 var searchuser = function(){
     var token = JSON.parse(localStorage.getItem("token"));
     searchemail = document.getElementById("searchemail").value;
@@ -180,19 +177,18 @@ var searchuser = function(){
         else {
             showOtherProfile(searchemail);
         }
-
         refreshboard(searchemail);
         document.getElementById("homecontent").className ="content-cur";
     }
 }
 
+// function to post the message on either own wall or other email wall
 var postMessage = function(){
     var token = JSON.parse(localStorage.getItem("token"));
     var message = document.getElementById("addmessage").value;
     var email = "";
     if (document.getElementById("browsetab").className === "tab-cur"){
         email = searchemail;
-
     }
     else {
         email = useremail;
@@ -206,11 +202,12 @@ var postMessage = function(){
         document.getElementById("postalert").innerText = postresult.message;
         if (postresult.success){
             refreshboard(email);
-            document.getElementById("addmessage").value = "";
+            document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
         }
     }
 }
 
+// function to refresh the message board
 var refreshboard =  function (email) {
     var token = JSON.parse(localStorage.getItem("token"));
     var refreshresult = serverstub.getUserMessagesByEmail(token,email);
@@ -228,11 +225,13 @@ var refreshboard =  function (email) {
     if (refreshresult.success) {
         var messages = refreshresult.data;
         if (messages.length === 0) {
+            // if user has no message, will display this message
             wall.innerHTML = "No messages currently";
         }
         else {
             var message = "";
             wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
+            // for loop to iterate the messages
             for(var i=0;i<messages.length;i++){
                 message = "<tr><td>" + messages[i].writer + "</td><td>" + messages[i].content + "</td></tr>" ;
                 wall.innerHTML += message;
@@ -241,10 +240,13 @@ var refreshboard =  function (email) {
     }
 }
 
+// button function when on submit
 var refreshbutton = function(){
     if(document.getElementById("browsetab").className==="tab-cur"){
+        // refresh the searched email's board
         refreshboard(searchemail);
     }else{
+        // refresh own board
         refreshboard(useremail);
     }
 }
@@ -299,7 +301,6 @@ var attachHandler = function () {
         var token = JSON.parse(localStorage.getItem("token"));
         var signoutresult = serverstub.signOut(token);
         if(signoutresult.success){
-            // displayView.hide("account");
             displayView.hide("profile");
             displayView.show("welcome");
             localStorage.setItem("token","[]");
@@ -308,5 +309,4 @@ var attachHandler = function () {
             document.getElementById("loginalert").innerHTML = signoutresult.message;
         }
     },false);
-
 }
