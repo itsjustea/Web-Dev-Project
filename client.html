@@ -99,6 +99,16 @@
                 <button id="logout">Sign Out</button>
             </div>
 
+            <!-- Implementing browse tab - Step 9 -->
+            <div id="browsecontent" class = "content">
+                <form id="searchform" action="javascript:searchuser()">
+                    <label for="searchemail">Enter and search for other user's email!</label>
+                    <input id = "searchemail" type = "email" required="">
+                    <button id = "searchbutton" type = "submit" form = "searchform">Search</button>
+                    <div id = "searchalert" class = "alert"></div>     
+                </form>    
+            </div>
+
             <!-- Implementing the home tab - Step 8 -->
             <div id="homecontent" class = "content-cur">
                 <h2 id="profileheader"></h2>
@@ -143,17 +153,6 @@
                     <button id="refreshboard" onclick = "javascript:refreshbutton()">Refresh</button>
                     <table id="messageboard"></table>
                 </div>
-                            
-            </div>
-
-            <!-- Implementing browse tab - Step 9 -->
-            <div id="browsecontent" class = "content">
-                <form id="searchform" action="javascript:searchuser()">
-                    <label for="searchemail">Enter and search for other user's email!</label>
-                    <input id = "searchemail" type = "email" required="">
-                    <button id = "searchbutton" type = "submit" form = "searchform">Search</button>
-                    <div id = "searchalert" class = "alert"></div>     
-                </form>    
             </div>
 
             <!-- Implementing the account tab - Step 7  -->

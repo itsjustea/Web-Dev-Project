@@ -201,12 +201,12 @@ var postMessage = function(){
     if (message === "") {
         postresult.success === false;
     }
-
     else {
         var postresult = serverstub.postMessage(token,message,email);
         document.getElementById("postalert").innerText = postresult.message;
         if (postresult.success){
             refreshboard(email);
+            document.getElementById("addmessage").value = "";
         }
     }
 }
