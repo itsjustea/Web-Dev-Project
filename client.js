@@ -157,7 +157,6 @@ function showMyProfile(){
 var showOtherProfile = function(email){    
     var token = JSON.parse(localStorage.getItem("token"));
     var dataresult = serverstub.getUserDataByEmail(token, email);
-    console.log(dataresult);
     if (dataresult.success) {
         // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
         document.getElementById("profileemail").innerHTML = dataresult.data.email;
@@ -193,6 +192,7 @@ var postMessage = function(){
     var email = "";
     if (document.getElementById("browsetab").className === "tab-cur"){
         email = searchemail;
+
     }
     else {
         email = useremail;
@@ -213,13 +213,15 @@ var postMessage = function(){
 
 var refreshboard =  function (email) {
     var token = JSON.parse(localStorage.getItem("token"));
-    var refreshresult = serverstub.getUserMessagesByEmail(token,useremail);
+    var refreshresult = serverstub.getUserMessagesByEmail(token,email);
     var wall = document.getElementById("messageboard");
     document.getElementById("messageboard").innertext = refreshresult.message;
 
     if (email === useremail) {
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
-    }else{
+    }
+    
+    else{
         document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
     }
 
