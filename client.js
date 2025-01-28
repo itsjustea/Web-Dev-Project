@@ -68,7 +68,6 @@ var login = function(){
     var email = document.getElementById('login-email').value;
     var password = document.getElementById('login-pw').value;
     var loginResult = serverstub.signIn(email,password);
-    console.log(loginResult);
     document.getElementById("signinalert").innerText = loginResult.message;
     var token = "";
     if (loginResult.success){
@@ -152,25 +151,25 @@ function showMyProfile(){
 // function to show other profile when searching
 var showOtherProfile = function(email){    
     var token = JSON.parse(localStorage.getItem("token"));
-    var dataresult = serverstub.getUserDataByEmail(token, email);
-    if (dataresult.success) {
+    var searchedData = serverstub.getUserDataByEmail(token, email);
+    if (searchedData.success) {
         // Display searched email's information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-        document.getElementById("profileemail").innerHTML = dataresult.data.email;
-        document.getElementById("profilefname").innerHTML = dataresult.data.firstname;
-        document.getElementById("profilefamname").innerHTML = dataresult.data.familyname;
-        document.getElementById("profilegender").innerHTML = dataresult.data.gender;
-        document.getElementById("profilecity").innerHTML = dataresult.data.city;
-        document.getElementById("profilecountry").innerHTML = dataresult.data.country;
+        document.getElementById("profileemail").innerHTML = searchedData.data.email;
+        document.getElementById("profilefname").innerHTML = searchedData.data.firstname;
+        document.getElementById("profilefamname").innerHTML = searchedData.data.familyname;
+        document.getElementById("profilegender").innerHTML = searchedData.data.gender;
+        document.getElementById("profilecity").innerHTML = searchedData.data.city;
+        document.getElementById("profilecountry").innerHTML = searchedData.data.country;
     }
-    document.getElementById("profileheader").innerHTML = dataresult.data.firstname + "'s Profile";    
+    document.getElementById("profileheader").innerHTML = searchedData.data.firstname + "'s Profile";    
 }
 
 // function to search the user by the email, retrieves the info and the message board
 var searchuser = function(){
     var token = JSON.parse(localStorage.getItem("token"));
     searchemail = document.getElementById("searchemail").value;
-    var searchresult = serverstub.getUserDataByEmail(token, searchemail);
-    if (searchresult.success){
+    var result = serverstub.getUserDataByEmail(token, searchemail);
+    if (result.success){
         if (searchemail === useremail){
             showMyProfile();
         }
