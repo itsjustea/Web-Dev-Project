@@ -136,10 +136,11 @@ var changePassword = function(){
 
 }
 
-function showMyProfile(){    
+function showMyProfile(){  
+    // showOtherProfile(useremail);  
     var token = JSON.parse(localStorage.getItem("token"));
     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
-    
+
     if (loggedInUser.success) {
         // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
         document.getElementById("profileemail").innerHTML = loggedInUser.data.email;
@@ -151,6 +152,41 @@ function showMyProfile(){
     }
     document.getElementById("profileheader").innerHTML = "Your Profile";
     document.getElementById("postheader").innerHTML = "Post a message";      
+}
+
+var showOtherProfile = function(email){    
+    var token = JSON.parse(localStorage.getItem("token"));
+    var dataresult = serverstub.getUserDataByEmail(token, email);
+    console.log(dataresult);
+    if (dataresult.success) {
+        // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+        document.getElementById("profileemail").innerHTML = dataresult.data.email;
+        document.getElementById("profilefname").innerHTML = dataresult.data.firstname;
+        document.getElementById("profilefamname").innerHTML = dataresult.data.familyname;
+        document.getElementById("profilegender").innerHTML = dataresult.data.gender;
+        document.getElementById("profilecity").innerHTML = dataresult.data.city;
+        document.getElementById("profilecountry").innerHTML = dataresult.data.country;
+    }
+    document.getElementById("profileheader").innerHTML = dataresult.data.firstname + "'s Profile";    
+}
+
+var searchuser = function(){
+    console.log("testsearch");
+    var token = JSON.parse(localStorage.getItem("token"));
+    searchemail = document.getElementById("searchemail").value;
+    console.log(searchemail);
+    var searchresult = serverstub.getUserDataByEmail(token, searchemail);
+    if (searchresult.success){
+        if (searchemail === useremail){
+            showMyProfile();
+        }
+        else {
+            showOtherProfile(searchemail);
+        }
+
+        refreshboard(searchemail);
+        document.getElementById("homecontent").className ="content-cur";
+    }
 }
 
 var postMessage = function(){
@@ -203,8 +239,6 @@ var refreshboard =  function (email) {
             }
         }
     }
-
-    
 }
 
 var refreshbutton = function(){
@@ -246,12 +280,12 @@ var attachHandler = function () {
     },false);
 
     browseTab.addEventListener("click",function(){
+        console.log("test");
         homeTab.className = "tab";
         accountTab.className = "tab";
         browseTab.className = "tab-cur";
         accountContent.className = "content";
         browseContent.className = "content-cur";
-        attachHandler();
         if (!searchemail){
             homeContent.className = "content";
         }else{
