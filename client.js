@@ -76,7 +76,7 @@ var login = function(){
         displayView.hide("welcome");
         displayView.show("profile");
     }
-    alert('Form submitted successfully!');
+    // alert('Form submitted successfully!');
 }
 
 // Adding the signup mechanism - Step 4
