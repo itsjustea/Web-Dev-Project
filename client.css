@@ -1,5 +1,6 @@
 html{
     height:100%;
+    font-family: 'calibri';
 }
 
 body{
@@ -154,6 +155,11 @@ body{
     align-items: center;
 }
 
+#postmessagebutton{
+    width:100%;
+}
+
+
 #addmessage {
     width: 100%;
     height: 80px;
@@ -208,9 +214,8 @@ body{
 /* END: Styling for Browse Section */
 
 /* START: Styling for Account Section */
-#account_pw_form {
-    margin: 10px auto;
-    max-width: 300px;
+#account_pw_form .form-group{
+    width:50%;
 }
 
 #account_change_pw_btn{
