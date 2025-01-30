@@ -95,8 +95,12 @@ body{
 }
 
 .tab-cur{
-    color: red;
+    color: white;
     padding: 10px 15px;
+    cursor: pointer;
+    background-color: #555;
+    border-radius: 5px;
+    font-weight:bolder;
 }
 
 /* START: Navbar Styling */
