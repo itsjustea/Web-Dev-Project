@@ -170,6 +170,7 @@ var searchuser = function(){
     searchemail = document.getElementById("searchemail").value;
     var result = serverstub.getUserDataByEmail(token, searchemail);
     if (result.success){
+        document.getElementById("searchalert").innerHTML = "";
         if (searchemail === useremail){
             showMyProfile();
         }
@@ -178,6 +179,10 @@ var searchuser = function(){
         }
         refreshboard(searchemail);
         document.getElementById("homecontent").className ="content-cur";
+    }else{
+        // No such uer is found
+        document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
+        document.getElementById("homecontent").className ="content";
     }
 }
 

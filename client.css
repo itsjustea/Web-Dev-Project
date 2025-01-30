@@ -105,7 +105,7 @@ body{
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    background-color: #333; /* Dark background for the navbar */
+    background-color: #3d5a80; /* Dark background for the navbar */
     padding: 10px 20px;
     color: white;
 }
@@ -131,6 +131,7 @@ body{
     border: none;
     cursor: pointer; /* Cursor changes to pointer on hover instead of the normal mouse cursor */
     transition: background-color 0.3s ease;
+    font-weight:bold;
 }
 
 /* Hover effect for the sign-out button */
@@ -144,6 +145,11 @@ body{
 .content, .content-cur {
     padding: 20px;
     background-color: white;
+}
+
+.alert{
+    padding-top:10px;
+    color: red;
 }
 
 /* START: Styling for Profile Section */
@@ -187,9 +193,12 @@ body{
 /* START: Styling for Browse Section */
 #searchform {
     margin: 10px auto;
-    padding: 10px;
-    /* background: white; */
     border-radius: 5px;
+}
+
+#searchform #searchemail{
+    margin-left:10px;
+    width:30%;
 }
 
 #searchemail {
