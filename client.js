@@ -134,7 +134,7 @@ var changePassword = function(){
 function showMyProfile(){  
     var token = JSON.parse(localStorage.getItem("token"));
     var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
-
+    document.getElementById("postalert").innerText = "";
     if (loggedInUser.success) {
         // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
         document.getElementById("profileemail").innerHTML = loggedInUser.data.email;
@@ -152,6 +152,7 @@ function showMyProfile(){
 var showOtherProfile = function(email){    
     var token = JSON.parse(localStorage.getItem("token"));
     var searchedData = serverstub.getUserDataByEmail(token, email);
+    document.getElementById("postalert").innerText = "";
     if (searchedData.success) {
         // Display searched email's information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
         document.getElementById("profileemail").innerHTML = searchedData.data.email;
