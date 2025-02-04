@@ -12,8 +12,9 @@ def hello_world():
     # return render_template('client.html')  # Change to this when integrating with our lab 1, this will render the client.html file upon loading.
 
 
-@app.route("/testDB")
-def testDB():
+# Retrieves all the existing user - for testing
+@app.route("/retrieve_all")
+def retrieve_all():
     users = retrieve_all("SELECT * FROM user")
     return (
         jsonify([dict(row) for row in users])
@@ -22,8 +23,9 @@ def testDB():
     )
 
 
-@app.route("/insertuser", methods=["POST"])
-def testInsert():
+# Inserts a dummy user - for testing
+@app.route("/insert_user", methods=["POST"])
+def insert_user():
     query = """
     INSERT INTO user (email, password, firstName, familyName, gender, city, country)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -45,8 +47,9 @@ def testInsert():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-@app.route("/retrieveTest", methods=["GET"])
-def retrieveTest():
+# Retrieves a specific user based on email - can use later
+@app.route("/retrieve_user", methods=["GET"])
+def retrieve_user():
     query = """
     SELECT * FROM user WHERE email = ?
     """
@@ -150,5 +153,16 @@ def retrieveTest():
 #     return "Messages"  # Placeholder
 
 
+# For us to see the existing routes only, not to be used in the final implementation
+@app.route("/routes", methods=["GET"])
+def show_routes():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append(
+            {"endpoint": rule.endpoint, "methods": list(rule.methods), "url": str(rule)}
+        )
+    return jsonify(routes)
+
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
