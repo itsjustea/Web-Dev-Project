@@ -1,7 +1,6 @@
 # This file shall contain all the server side services, implemented using Python and Flask
 
-import sqlite3
-
+from database_helper import *
 from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
@@ -10,6 +9,75 @@ app = Flask(__name__)
 @app.route("/")  # Initial landing page of the user.
 def hello_world():
     return "Hello world"
+    # return render_template('client.html')  # Change to this when integrating with our lab 1, this will render the client.html file upon loading.
+
+
+@app.route("/testDB")
+def testDB():
+    users = retrieve_all("SELECT * FROM user")
+    return (
+        jsonify([dict(row) for row in users])
+        if users
+        else jsonify({"message": "No users found"})
+    )
+
+
+@app.route("/insertuser", methods=["POST"])
+def testInsert():
+    query = """
+    INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    params = (
+        "Test@r.c",
+        "password123",
+        "test first name",
+        "test last name",
+        "test gender",
+        "test city",
+        "test country",
+    )
+
+    try:
+        execute_query(query, params)
+        return jsonify({"success": True, "message": "User inserted successfully"}), 201
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route("/retrieveTest", methods=["GET"])
+def retrieveTest():
+    query = """
+    SELECT * FROM user WHERE email = ?
+    """
+    params = ("Test@r.c",)  # Make sure this is a tuple, not a string
+
+    try:
+        result = execute_query(query, params)
+        if result:  # Check if the result is not empty
+            user = result[0]  # Assuming only one user matches
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "user": {
+                            "id": user[0],
+                            "email": user[1],
+                            "firstName": user[2],
+                            "familyName": user[3],
+                            "gender": user[4],
+                            "city": user[5],
+                            "country": user[6],
+                        },
+                    }
+                ),
+                200,
+            )
+        else:
+            return jsonify({"success": False, "message": "User not found"}), 404
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 # # Defining all the necessary functions from serverstub
@@ -37,7 +105,7 @@ def hello_world():
 #     )  # Placeholder
 
 
-# @app.route("/users/change_password", methods=["POST"])
+# @app.route("/user/change_password", methods=["POST"])
 # def change_password():
 #     return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
 
@@ -69,6 +137,17 @@ def hello_world():
 # @app.route("/messages/post_message", methods=["POST"])
 # def post_message():
 #     return (jsonify({"success": True, "message": "Message Posted Successfully"}), 500)
+
+
+# # Defining base routes (users and messages)
+# @app.route("/user")
+# def users():
+#     return "User"  # Placeholder
+
+
+# @app.route("/messages")
+# def messages():
+#     return "Messages"  # Placeholder
 
 
 if __name__ == "__main__":
