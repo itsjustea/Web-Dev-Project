@@ -64,12 +64,14 @@ body{
     height: 90px;
     border:1px solid black;
     margin-bottom: 10px;
+    background-color:white;
 }
 
 #right-bottom{
     width:auto;
     height: 300px;
     border:1px solid black;
+    background-color:white;
 }
 
 #sign_up_header{
@@ -244,12 +246,4 @@ body{
     background-color: #555;
 }
 
-
 /* END: Styling for Account Section */
-
-
-
-
-
-
-

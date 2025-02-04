@@ -119,6 +119,11 @@ var changePassword = function(){
     var token = JSON.parse(localStorage.getItem("token")); // current user's email
     var oldPassword = document.getElementById('oldPassword').value;
     var newPassword = document.getElementById('newPassword').value;
+    var confirmNewPassword = document.getElementById('confirmNewPassword').value;
+    if (newPassword !== confirmNewPassword) {
+        document.getElementById("accountalert").innerText = "ERROR: New passwords do not match. Please try again.";
+        return;
+    }
 
     let changePWResult = serverstub.changePassword(token, oldPassword, newPassword);
     if(changePWResult.success){
