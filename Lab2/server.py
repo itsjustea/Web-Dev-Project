@@ -83,24 +83,22 @@ def retrieve_user():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-# Defining all the necessary functions from serverstub
-# TODO: Create a login token upon successful sign in
-@app.route("/user/sign_in", methods=["POST"])
+# # Defining all the necessary functions from serverstub
+@app.route("/sign_in", methods=["POST"])
 def sign_in():
 
-    email = request.json("email")
-    password = request.json("password")
+    email = request.json['email']
+    password = request.json['password']
 
     user = get_user(email)
-    check = verify_password(email, password)
-
-    if user == False:
+    
+    if user == 0:
         return (
             jsonify({"success": False, "message": "User not found"}),
             404,
         )
 
-    elif check == False:
+    elif user[1] != password:
         return (
             jsonify({"success": False, "message": "Wrong password"}),
             401,
@@ -108,7 +106,7 @@ def sign_in():
 
     else:
         return (
-            jsonify({"success": False, "message": "Sign In Successful"}),
+            jsonify({"success": True, "message": "Sign In Successful"}),
             200,
         )
 
@@ -120,7 +118,7 @@ def sign_up():
     # print(email)
     # print("checking if user exist")
     if (user_exist(email)) == False:
-        print("user does not exist")
+        # print("user does not exist")2e
         first_name = request.json["firstName"]
         last_name = request.json["familyName"]
         gender = request.json["gender"]
@@ -177,7 +175,7 @@ def sign_out():
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
-    if exist == False:
+    if exist == email:
         result = False
 
     else:
@@ -185,29 +183,29 @@ def user_exist(email):
 
     return result
 
+@app.route("/user/change_password", methods=["POST"])
+def change_password():
 
-def verify_password(email, password):
-    checkPassword = get_user(email)
-    if password == checkPassword:
-        result = True
+    email = request.json["email"]
+    old_password = request.json["oldPassword"]
+    new_password = request.json["newPassword"]
 
+    user = get_user(email)
+    if (user[1] != old_password):
+        return (
+            jsonify({"success": False, "message": "Wrong password"}),
+            401,
+        )
+    
+    elif (len(new_password)<4):
+        return (
+            jsonify({"success": False, "message": "Password must be at least 4 characters"}),
+            400,
+        )
+    
     else:
-        result = False
-
-    return result
-
-
-# @app.route("/user/sign_out", methods=["POST"])
-# def sign_out():
-#     return (
-#         jsonify({"success": True, "message": "Sign Out Successful"}),
-#         500,
-#     )  # Placeholder
-
-
-# @app.route("/user/change_password", methods=["POST"])
-# def change_password():
-#     return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
+        update_password(email, new_password)
+        return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
 
 
 # @app.route("/user/get_user_data_by_email", methods=["GET"])

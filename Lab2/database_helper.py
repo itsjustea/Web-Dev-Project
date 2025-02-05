@@ -28,25 +28,22 @@ def get_user(email):
     # Query the DB
     # print(email)
     query = """
-    SELECT email FROM user WHERE email = ?
+    SELECT email, password FROM user WHERE email = ?
     """
 
     params = (email,)
-    # print(params)
-
     user = execute_query(query, params)
+    # print("test")
     # print(user)
     if user == []:
-        # print("User not found")
-        return False
-
+        return 0
+    
     else:
-        # print("User found")
-        return True
-
+        return user[0]
+    
 
 def insert_user(email, password, firstName, familyName, gender, city, country):
-    print("insert")
+    # print("insert")
     params = (
         email,
         password,
@@ -95,6 +92,25 @@ def retrieve_all(query, params=()):
     cursor.execute(query, params)
     return cursor.fetchall()
 
+# Used for sign in
+def create_token(email):
+    db = get_db()
+    cursor = db.cursor()
+
+    # query = """
+    # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+    # VALUES (?, ?, ?, ?, ?, ?, ?)
+    # """
+
+    query = """
+    INSERT INTO tokens (email) VALUES (?)
+    """
+    params = email
+    cursor.execute(query, params)
+    db.commit()
+    cursor.close()
+    db.close()
+
 
 # Used for sign out
 def delete_token(email):
@@ -108,6 +124,14 @@ def delete_token(email):
     db.commit()
     cursor.close()
     db.close()
+
+
+def update_password(email, password):
+    query = """
+    UPDATE user SET password = ? WHERE email = ?
+    """
+    params = (password, email)
+    execute_query(query, params)
 
 
 # Can uncomment if you need this, but should be don't need. You can use the retrieve_all() function to perform SELECT with WHERE.
