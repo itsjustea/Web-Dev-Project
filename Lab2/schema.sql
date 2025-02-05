@@ -17,11 +17,9 @@ CREATE TABLE IF NOT EXISTS messages (
     datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS tokens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    token TEXT NOT NULL UNIQUE,
-    user_id INTEGER NOT NULL,
-    created_at DATETIME ,
-    expiry_time INTEGER,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-);
+-- DROP TABLE IF EXISTS tokens;
+
+-- CREATE TABLE IF NOT EXISTS tokens (
+--     email TEXT NOT NULL PRIMARY KEY,
+--     token TEXT NOT NULL UNIQUE
+-- );
