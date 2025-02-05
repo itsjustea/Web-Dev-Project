@@ -167,7 +167,10 @@ def sign_up():
 
 @app.route("/sign_out", methods=["POST"])
 def sign_out():
-    print("Hello world")
+    email = request.json["email"]
+    # TODO: Add If/else to see if email exists in the database. If yes, delete. If no, return false.
+    delete_token(email)
+    return jsonify({"success": True, "message": "Successfully signed out"}), 500
 
 
 # Check whether user exist
