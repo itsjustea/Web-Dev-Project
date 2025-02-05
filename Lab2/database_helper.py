@@ -23,6 +23,7 @@ def close_db(error=None):
     if db is not None:
         db.close()
 
+
 def get_user(email):
     # Query the DB
     # print(email)
@@ -38,11 +39,11 @@ def get_user(email):
     if user == []:
         # print("User not found")
         return False
-    
+
     else:
         # print("User found")
         return True
-    
+
 
 def insert_user(email, password, firstName, familyName, gender, city, country):
     print("insert")
@@ -61,8 +62,8 @@ def insert_user(email, password, firstName, familyName, gender, city, country):
     VALUES (?, ?, ?, ?, ?, ?, ?)
     """
     execute_query(query, params)
-    
-    
+
+
 def execute_query(query, params=()):
     # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
     # Sample usage (in server.py):
@@ -93,6 +94,20 @@ def retrieve_all(query, params=()):
     cursor = db.cursor()
     cursor.execute(query, params)
     return cursor.fetchall()
+
+
+# Used for sign out
+def delete_token(email):
+    db = get_db()
+    cursor = db.cursor()
+    query = """
+    DELETE FROM tokens WHERE email = ?
+    """
+    params = email
+    cursor.execute(query, params)
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 # Can uncomment if you need this, but should be don't need. You can use the retrieve_all() function to perform SELECT with WHERE.
