@@ -25,3 +25,5 @@ CREATE TABLE IF NOT EXISTS tokens (
     expiry_time INTEGER,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+ALTER TABLE  

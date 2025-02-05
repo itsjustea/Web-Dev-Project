@@ -35,10 +35,11 @@ def get_user(email):
     # print(params)
 
     user = execute_query(query, params)
-    # print(user)
+    print("test")
+    print(user)
     if user == []:
         # print("User not found")
-        return None
+        return 0
     
     else:
         # print("User found")
@@ -94,6 +95,25 @@ def retrieve_all(query, params=()):
     cursor = db.cursor()
     cursor.execute(query, params)
     return cursor.fetchall()
+
+# Used for sign in
+def create_token(email):
+    db = get_db()
+    cursor = db.cursor()
+
+    # query = """
+    # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+    # VALUES (?, ?, ?, ?, ?, ?, ?)
+    # """
+
+    query = """
+    INSERT INTO tokens (email) VALUES (?)
+    """
+    params = email
+    cursor.execute(query, params)
+    db.commit()
+    cursor.close()
+    db.close()
 
 
 # Used for sign out

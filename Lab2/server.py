@@ -91,9 +91,8 @@ def sign_in():
     password = request.json['password']
 
     user = get_user(email)
-    print(user[1])
-
-    if user == None:
+    
+    if user == 0:
         return (
             jsonify({"success": False, "message": "User not found"}),
             404,
@@ -119,7 +118,7 @@ def sign_up():
     # print(email)
     # print("checking if user exist")
     if (user_exist(email)) == False:
-        print("user does not exist")
+        # print("user does not exist")2e
         first_name = request.json["firstName"]
         last_name = request.json["familyName"]
         gender = request.json["gender"]
@@ -181,17 +180,6 @@ def user_exist(email):
 
     else:
         result = True
-
-    return result
-
-
-def verify_password(email, password):
-    checkPassword = get_user(email)
-    if password == checkPassword:
-        result = True
-
-    else:
-        result = False
 
     return result
 
