@@ -27,7 +27,7 @@ def get_user(email):
     # Query the DB
     # print(email)
     query = """
-    SELECT email FROM user WHERE email = ?
+    SELECT email, password FROM user WHERE email = ?
     """
 
     params = (email,)
@@ -37,11 +37,11 @@ def get_user(email):
     # print(user)
     if user == []:
         # print("User not found")
-        return False
+        return None
     
     else:
         # print("User found")
-        return True
+        return user[0]
     
 
 def insert_user(email, password, firstName, familyName, gender, city, country):

@@ -84,22 +84,22 @@ def retrieve_user():
 
 
 # # Defining all the necessary functions from serverstub
-@app.route("/user/sign_in", methods=["POST"])
+@app.route("/sign_in", methods=["POST"])
 def sign_in():
 
-    email = request.json("email")
-    password = request.json("password")
+    email = request.json['email']
+    password = request.json['password']
 
     user = get_user(email)
-    check = verify_password(email, password)
+    print(user[1])
 
-    if user == False:
+    if user == None:
         return (
             jsonify({"success": False, "message": "User not found"}),
             404,
         )
 
-    elif check == False:
+    elif user[1] != password:
         return (
             jsonify({"success": False, "message": "Wrong password"}),
             401,
@@ -107,7 +107,7 @@ def sign_in():
 
     else:
         return (
-            jsonify({"success": False, "message": "Sign In Successful"}),
+            jsonify({"success": True, "message": "Sign In Successful"}),
             200,
         )
 
@@ -173,7 +173,7 @@ def sign_out():
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
-    if exist == False:
+    if exist == email:
         result = False
 
     else:
