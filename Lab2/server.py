@@ -183,18 +183,29 @@ def user_exist(email):
 
     return result
 
+@app.route("/user/change_password", methods=["POST"])
+def change_password():
 
-# @app.route("/user/sign_out", methods=["POST"])
-# def sign_out():
-#     return (
-#         jsonify({"success": True, "message": "Sign Out Successful"}),
-#         500,
-#     )  # Placeholder
+    email = request.json["email"]
+    old_password = request.json["oldPassword"]
+    new_password = request.json["newPassword"]
 
-
-# @app.route("/user/change_password", methods=["POST"])
-# def change_password():
-#     return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
+    user = get_user(email)
+    if (user[1] != old_password):
+        return (
+            jsonify({"success": False, "message": "Wrong password"}),
+            401,
+        )
+    
+    elif (len(new_password)<4):
+        return (
+            jsonify({"success": False, "message": "Password must be at least 4 characters"}),
+            400,
+        )
+    
+    else:
+        update_password(email, new_password)
+        return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
 
 
 # @app.route("/user/get_user_data_by_email", methods=["GET"])
