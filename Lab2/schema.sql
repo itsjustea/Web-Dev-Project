@@ -16,3 +16,12 @@ CREATE TABLE IF NOT EXISTS messages (
     content TEXT NOT NULL,
     datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL,
+    created_at DATETIME ,
+    expiry_time INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);

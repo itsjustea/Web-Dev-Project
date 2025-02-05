@@ -20,9 +20,7 @@ def retrieve_all():
     """
 
     users = execute_query(query)
-    return (
-        jsonify([dict(row) for row in users])
-    )
+    return jsonify([dict(row) for row in users])
 
 
 # Inserts a dummy user - for testing
@@ -91,55 +89,64 @@ def sign_in():
 
     email = request.json("email")
     password = request.json("password")
-    
 
     user = get_user(email)
-    check = verify_password(email,password)
+    check = verify_password(email, password)
 
-
-    if user==False:
+    if user == False:
         return (
             jsonify({"success": False, "message": "User not found"}),
             404,
         )
-    
-    elif (check==False):
+
+    elif check == False:
         return (
             jsonify({"success": False, "message": "Wrong password"}),
             401,
-        )     
+        )
 
     else:
         return (
             jsonify({"success": False, "message": "Sign In Successful"}),
             200,
-        ) 
+        )
+
 
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
 
-    email = request.json['email']
+    email = request.json["email"]
     # print(email)
     # print("checking if user exist")
-    if ((user_exist(email))==False):
+    if (user_exist(email)) == False:
         print("user does not exist")
-        first_name = request.json['firstName']
-        last_name = request.json['familyName']
-        gender = request.json['gender']
-        city = request.json['city']
-        country = request.json['country']
-        password = request.json['password']
-        password_confirmation = request.json['password_confirmation']
+        first_name = request.json["firstName"]
+        last_name = request.json["familyName"]
+        gender = request.json["gender"]
+        city = request.json["city"]
+        country = request.json["country"]
+        password = request.json["password"]
+        password_confirmation = request.json["password_confirmation"]
 
-        if ((email != "") or (len(password) < 4) or (first_name != "") or (last_name !="") or (gender != "") or (city != "") or (country != "")):
-            
-            if (password == password_confirmation):
-                insert_user(email, password, first_name, last_name, gender, city, country)
+        if (
+            (email != "")
+            or (len(password) < 4)
+            or (first_name != "")
+            or (last_name != "")
+            or (gender != "")
+            or (city != "")
+            or (country != "")
+        ):
+
+            if password == password_confirmation:
+                insert_user(
+                    email, password, first_name, last_name, gender, city, country
+                )
                 # print("user created")
                 return (
-                jsonify({"success": True, "message": "Sign Up Successful"}),
-                500,
-            )  
+                    jsonify({"success": True, "message": "Sign Up Successful"}),
+                    500,
+                )
             else:
                 return (
                     jsonify({"success": False, "message": "Passwords do not match"}),
@@ -157,10 +164,16 @@ def sign_up():
             400,
         )
 
+
+@app.route("/sign_out", methods=["POST"])
+def sign_out():
+    print("Hello world")
+
+
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
-    if (exist == False):    
+    if exist == False:
         result = False
 
     else:
@@ -168,18 +181,16 @@ def user_exist(email):
 
     return result
 
-def verify_password(email,password):
+
+def verify_password(email, password):
     checkPassword = get_user(email)
-    if (password == checkPassword):
+    if password == checkPassword:
         result = True
-    
+
     else:
         result = False
-    
+
     return result
-
-
-
 
 
 # @app.route("/user/sign_out", methods=["POST"])
