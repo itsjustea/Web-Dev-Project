@@ -15,36 +15,38 @@ def hello_world():
 # Retrieves all the existing user - for testing
 @app.route("/retrieve_all")
 def retrieve_all():
-    users = retrieve_all("SELECT * FROM user")
+    query = """
+    SELECT * FROM user
+    """
+
+    users = execute_query(query)
     return (
         jsonify([dict(row) for row in users])
-        if users
-        else jsonify({"message": "No users found"})
     )
 
 
 # Inserts a dummy user - for testing
-@app.route("/insert_user", methods=["POST"])
-def insert_user():
-    query = """
-    INSERT INTO user (email, password, firstName, familyName, gender, city, country)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    """
-    params = (
-        "Test@r.c",
-        "password123",
-        "test first name",
-        "test last name",
-        "test gender",
-        "test city",
-        "test country",
-    )
+# @app.route("/insert_user", methods=["POST"])
+# def insert_user():
+#     query = """
+#     INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+#     VALUES (?, ?, ?, ?, ?, ?, ?)
+#     """
+#     params = (
+#         "Test@r.c",
+#         "password123",
+#         "test first name",
+#         "test last name",
+#         "test gender",
+#         "test city",
+#         "test country",
+#     )
 
-    try:
-        execute_query(query, params)
-        return jsonify({"success": True, "message": "User inserted successfully"}), 201
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+#     try:
+#         execute_query(query, params)
+#         return jsonify({"success": True, "message": "User inserted successfully"}), 201
+#     except Exception as e:
+#         return jsonify({"success": False, "message": str(e)}), 500
 
 
 # Retrieves a specific user based on email - can use later
@@ -84,20 +86,89 @@ def retrieve_user():
 
 
 # # Defining all the necessary functions from serverstub
-# @app.route("/user/sign_in", methods=["POST"])
-# def sign_in():
-#     return (
-#         jsonify({"success": False, "message": "Sign In Successful"}),
-#         500,
-#     )  # Placeholder
+@app.route("/user/sign_in", methods=["POST"])
+def sign_in():
+
+    email = request.json("email")
+    password = request.json("password")
+    query = """
+    SELECT * FROM user WHERE email = ? AND password = ?
+    """
+
+    params = (email, password)
+    user = execute_query(query, params)
+    if user==False:
+        return (
+            jsonify({"success": False, "message": "User not found"}),
+            404,
+        )
+    
+    elif password != user[0]['password']:
+        return (
+            jsonify({"success": False, "message": "Wrong password"}),
+            401,
+        )     
+
+    else:
+        return (
+            jsonify({"success": False, "message": "Sign In Successful"}),
+            200,
+        ) 
+
+@app.route("/sign_up", methods=["POST"])
+def sign_up():
+
+    email = request.json['email']
+    # print(email)
+    # print("checking if user exist")
+    if ((user_exist(email))==False):
+        print("user does not exist")
+        first_name = request.json['firstName']
+        last_name = request.json['familyName']
+        gender = request.json['gender']
+        city = request.json['city']
+        country = request.json['country']
+        password = request.json['password']
+        password_confirmation = request.json['password_confirmation']
+
+        if ((email != "") or (len(password) < 4) or (first_name != "") or (last_name !="") or (gender != "") or (city != "") or (country != "")):
+            
+            if (password == password_confirmation):
+                insert_user(email, password, first_name, last_name, gender, city, country)
+                # print("user created")
+                return (
+                jsonify({"success": True, "message": "Sign Up Successful"}),
+                500,
+            )  
+            else:
+                return (
+                    jsonify({"success": False, "message": "Passwords do not match"}),
+                    400,
+                )
+        else:
+            return (
+                jsonify({"success": False, "message": "All fields must be filled"}),
+                400,
+            )
+    else:
+        # print("user exist")
+        return (
+            jsonify({"success": False, "message": "User already exist"}),
+            400,
+        )
+
+# Check whether user exist
+def user_exist(email):
+    exist = get_user(email)
+    if (exist == False):    
+        result = False
+
+    else:
+        result = True
+
+    return result
 
 
-# @app.route("/user/sign_up", methods=["POST"])
-# def sign_in():
-#     return (
-#         jsonify({"success": True, "message": "Sign Up Successful"}),
-#         500,
-#     )  # Placeholder
 
 
 # @app.route("/user/sign_out", methods=["POST"])

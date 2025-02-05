@@ -23,7 +23,46 @@ def close_db(error=None):
     if db is not None:
         db.close()
 
+def get_user(email):
+    # Query the DB
+    # print(email)
+    query = """
+    SELECT email FROM user WHERE email = ?
+    """
 
+    params = (email,)
+    # print(params)
+
+    user = execute_query(query, params)
+    # print(user)
+    if user == []:
+        # print("User not found")
+        return False
+    
+    else:
+        # print("User found")
+        return True
+    
+
+def insert_user(email, password, firstName, familyName, gender, city, country):
+    print("insert")
+    params = (
+        email,
+        password,
+        firstName,
+        familyName,
+        gender,
+        city,
+        country,
+    )
+
+    query = """
+    INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    execute_query(query, params)
+    
+    
 def execute_query(query, params=()):
     # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
     # Sample usage (in server.py):
