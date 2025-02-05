@@ -91,19 +91,19 @@ def sign_in():
 
     email = request.json("email")
     password = request.json("password")
-    query = """
-    SELECT * FROM user WHERE email = ? AND password = ?
-    """
+    
 
-    params = (email, password)
-    user = execute_query(query, params)
+    user = get_user(email)
+    check = verify_password(email,password)
+
+
     if user==False:
         return (
             jsonify({"success": False, "message": "User not found"}),
             404,
         )
     
-    elif password != user[0]['password']:
+    elif (check==False):
         return (
             jsonify({"success": False, "message": "Wrong password"}),
             401,
@@ -167,6 +167,17 @@ def user_exist(email):
         result = True
 
     return result
+
+def verify_password(email,password):
+    checkPassword = get_user(email)
+    if (password == checkPassword):
+        result = True
+    
+    else:
+        result = False
+    
+    return result
+
 
 
 
