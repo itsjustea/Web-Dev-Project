@@ -224,13 +224,23 @@ def change_password():
 #     )
 
 
-# @app.route("/user/get_user_messages_by_email", methods=["GET"])
-# def get_user_messages_by_email():
-#     return (
-#         jsonify({"success": True, "message": "User Messages Retrieved Successfully"}),
-#         500,
-#     )
+@app.route("/user/get_user_messages_by_email", methods=["GET"])
+def get_user_messages_by_email():
 
+    email = request.json["email"]
+    messages = get_messages(email)
+    if messages == 0:
+        return (
+            jsonify({"success": False, "message": "No messages found"}),
+            404,
+        )
+    
+    else:
+        return (
+            messages,
+            jsonify({"success": True, "message": "User Messages Retrieved Successfully"}),
+            500,
+        )
 
 @app.route("/messages/post_message", methods=["POST"])
 def post_message():

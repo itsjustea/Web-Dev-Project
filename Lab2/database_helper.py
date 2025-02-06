@@ -60,6 +60,16 @@ def insert_user(email, password, firstName, familyName, gender, city, country):
     """
     execute_query(query, params)
 
+def get_messages(receiver_email):
+    query = """
+    SELECT sender_email, content FROM messages WHERE receiver_email = ?
+    """
+    params = (receiver_email,)
+    messages = retrieve_all(query, params)
+    if messages == []:
+        return 0
+    else:
+        return messages
 
 def execute_query(query, params=()):
     # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
@@ -141,6 +151,7 @@ def insert_messages(sender, receiver, content):
     """
     params = (sender, receiver, content)
     execute_query(query, params)
+
 
 
 # Can uncomment if you need this, but should be don't need. You can use the retrieve_all() function to perform SELECT with WHERE.
