@@ -232,9 +232,15 @@ def change_password():
 #     )
 
 
-# @app.route("/messages/post_message", methods=["POST"])
-# def post_message():
-#     return (jsonify({"success": True, "message": "Message Posted Successfully"}), 500)
+@app.route("/messages/post_message", methods=["POST"])
+def post_message():
+
+    sender_email = request.json["sender_email"]
+    receiver_email = request.json["receiver_email"]
+    content = request.json["content"]
+    
+    insert_messages(sender_email, receiver_email, content)
+    return (jsonify({"success": True, "message": "Message Posted Successfully"}), 500)
 
 
 # # Defining base routes (users and messages)

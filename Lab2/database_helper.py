@@ -134,6 +134,15 @@ def update_password(email, password):
     execute_query(query, params)
 
 
+def insert_messages(sender, receiver, content):    
+    query = """
+    INSERT INTO messages (sender_email, receiver_email, content)
+    VALUES (?, ?, ?)
+    """
+    params = (sender, receiver, content)
+    execute_query(query, params)
+
+
 # Can uncomment if you need this, but should be don't need. You can use the retrieve_all() function to perform SELECT with WHERE.
 # def retrieve_one(query, params=()):
 #     # Retrieves only one row from the database based on the query and params.
