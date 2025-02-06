@@ -17,9 +17,12 @@ CREATE TABLE IF NOT EXISTS messages (
     datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- DROP TABLE IF EXISTS tokens;
+-- DROP TABLE IF EXISTS messages;
 
--- CREATE TABLE IF NOT EXISTS tokens (
---     email TEXT NOT NULL PRIMARY KEY,
---     token TEXT NOT NULL UNIQUE
+-- CREATE TABLE IF NOT EXISTS messages (
+--     id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     sender_email TEXT NOT NULL,
+--     receiver_email TEXT NOT NULL,
+--     content TEXT NOT NULL,
+--     datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 -- );
