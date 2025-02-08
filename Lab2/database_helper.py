@@ -102,24 +102,37 @@ def retrieve_all(query, params=()):
     cursor.execute(query, params)
     return cursor.fetchall()
 
+# # Used for sign in
+# def create_token(email):
+#     db = get_db()
+#     cursor = db.cursor()
+
+#     # query = """
+#     # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+#     # VALUES (?, ?, ?, ?, ?, ?, ?)
+#     # """
+
+#     query = """
+#     INSERT INTO tokens (email) VALUES (?)
+#     """
+#     params = email
+#     cursor.execute(query, params)
+#     db.commit()
+#     cursor.close()
+#     db.close()
+
 # Used for sign in
-def create_token(email):
-    db = get_db()
-    cursor = db.cursor()
+def store_token(email, token):
+    try:
+        query = """
+        INSERT INTO tokens (email, token) VALUES (?, ?)
+        """
+        params = (email, token)
+        execute_query(query, params)
+        return True
 
-    # query = """
-    # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
-    # VALUES (?, ?, ?, ?, ?, ?, ?)
-    # """
-
-    query = """
-    INSERT INTO tokens (email) VALUES (?)
-    """
-    params = email
-    cursor.execute(query, params)
-    db.commit()
-    cursor.close()
-    db.close()
+    except:
+        return False
 
 
 # Used for sign out
@@ -135,6 +148,16 @@ def delete_token(email):
     cursor.close()
     db.close()
 
+def get_token(email):
+    query = """
+    SELECT token FROM tokens WHERE email = ?
+    """
+    params = (email,)
+    token = execute_query(query, params)
+    if token == []:
+        return 0
+    else:
+        return token[0]
 
 def update_password(email, password):
     query = """
@@ -155,8 +178,8 @@ def insert_messages(sender, receiver, content):
         return True
     
     except:
-        
         return False
+    
 
 
 
