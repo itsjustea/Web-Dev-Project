@@ -22,31 +22,6 @@ def retrieve_all():
     users = execute_query(query)
     return jsonify([dict(row) for row in users])
 
-
-# Inserts a dummy user - for testing
-# @app.route("/insert_user", methods=["POST"])
-# def insert_user():
-#     query = """
-#     INSERT INTO user (email, password, firstName, familyName, gender, city, country)
-#     VALUES (?, ?, ?, ?, ?, ?, ?)
-#     """
-#     params = (
-#         "Test@r.c",
-#         "password123",
-#         "test first name",
-#         "test last name",
-#         "test gender",
-#         "test city",
-#         "test country",
-#     )
-
-#     try:
-#         execute_query(query, params)
-#         return jsonify({"success": True, "message": "User inserted successfully"}), 201
-#     except Exception as e:
-#         return jsonify({"success": False, "message": str(e)}), 500
-
-
 # Retrieves a specific user based on email - can use later
 @app.route("/retrieve_user", methods=["GET"])
 def retrieve_user():
@@ -115,10 +90,7 @@ def sign_in():
 def sign_up():
 
     email = request.json["email"]
-    # print(email)
-    # print("checking if user exist")
     if (user_exist(email)) == False:
-        # print("user does not exist")2e
         first_name = request.json["firstName"]
         last_name = request.json["familyName"]
         gender = request.json["gender"]
@@ -175,7 +147,6 @@ def sign_out():
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
-    #print(exist[0])
 
     if exist[0] == email: # if exist
         result = True
@@ -252,7 +223,6 @@ def post_message():
     content = request.json["content"]
 
     receiver = user_exist(receiver_email)
-    #print(receiver)
     if receiver == False:
         return (
             jsonify({"success": False, "message": "Receiver does not exist"}),
