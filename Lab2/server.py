@@ -23,6 +23,7 @@ def retrieve_all():
     users = execute_query(query)
     return jsonify([dict(row) for row in users])
 
+
 # Retrieves a specific user based on email - can use later
 @app.route("/retrieve_user", methods=["GET"])
 def retrieve_user():
@@ -81,10 +82,18 @@ def sign_in():
         )
 
     else:
-        return (
-            jsonify({"success": True, "message": "Sign In Successful"}),
-            200,
-        )
+        token = token_generator()
+        result = store_token(email, token)
+        if result == True:
+            return (
+                jsonify({"success": True, "message": "Sign In Successful", 'data': token}),
+                200,
+            )
+        else:
+            return (
+                jsonify({"success": False, "message": "Sign In Failed", 'data': token}),
+                500,
+            )
 
 
 @app.route("/sign_up", methods=["POST"])
