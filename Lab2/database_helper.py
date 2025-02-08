@@ -145,12 +145,18 @@ def update_password(email, password):
 
 
 def insert_messages(sender, receiver, content):    
-    query = """
-    INSERT INTO messages (sender_email, receiver_email, content)
-    VALUES (?, ?, ?)
-    """
-    params = (sender, receiver, content)
-    execute_query(query, params)
+    try:
+        query = """
+        INSERT INTO messages (sender_email, receiver_email, content)
+        VALUES (?, ?, ?)
+        """
+        params = (sender, receiver, content)
+        execute_query(query, params)
+        return True
+    
+    except:
+        
+        return False
 
 
 

@@ -175,11 +175,13 @@ def sign_out():
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
-    if exist == email:
-        result = False
+    #print(exist[0])
+
+    if exist[0] == email: # if exist
+        result = True
 
     else:
-        result = True
+        result = False
 
     return result
 
@@ -224,7 +226,7 @@ def change_password():
 #     )
 
 
-@app.route("/user/get_user_messages_by_email", methods=["GET"])
+@app.route("/get_user_messages_by_email", methods=["GET"])
 def get_user_messages_by_email():
 
     email = request.json["email"]
@@ -242,15 +244,30 @@ def get_user_messages_by_email():
             500,
         )
 
-@app.route("/messages/post_message", methods=["POST"])
+@app.route("/post_message", methods=["POST"])
 def post_message():
 
     sender_email = request.json["sender_email"]
     receiver_email = request.json["receiver_email"]
     content = request.json["content"]
+
+    receiver = user_exist(receiver_email)
+    #print(receiver)
+    if receiver == False:
+        return (
+            jsonify({"success": False, "message": "Receiver does not exist"}),
+            404,
+        )
     
-    insert_messages(sender_email, receiver_email, content)
-    return (jsonify({"success": True, "message": "Message Posted Successfully"}), 500)
+    #Pending add token verification
+    else:
+        result = insert_messages(sender_email, receiver_email, content)
+        if result == True:
+            return (jsonify({"success": True, "message": "Message Posted Successfully"}), 500)
+        
+        else:
+            return (jsonify({"success": False, "message": "Message could not be posted"}), 400)
+    
 
 
 # # Defining base routes (users and messages)
