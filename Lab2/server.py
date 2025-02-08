@@ -2,6 +2,7 @@
 
 from database_helper import *
 from flask import Flask, jsonify, render_template, request
+import random
 
 app = Flask(__name__)
 
@@ -260,6 +261,18 @@ def show_routes():
             {"endpoint": rule.endpoint, "methods": list(rule.methods), "url": str(rule)}
         )
     return jsonify(routes)
+
+
+# For token generation
+def token_generator():
+    LENGTH_TOKEN =  30
+    STRING_TOKEN = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    token = ""
+
+    for i in range(0,LENGTH_TOKEN):
+        token += STRING_TOKEN[random.randint(0, len(STRING_TOKEN)-1)]
+
+    return token
 
 
 if __name__ == "__main__":
