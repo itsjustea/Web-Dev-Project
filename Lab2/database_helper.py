@@ -110,12 +110,15 @@ def retrieve_all(query, params=()):
 
 # Insert token into token table - Used for sign in
 def store_token(email, token):
+    print(email, token)
     try:
         query = """
-        INSERT INTO tokens (email, token) VALUES (?, ?)
+        INSERT INTO tokens (email, token)
+        VALUES (?, ?)
         """
         params = (email, token)
-        execute_query(query, params)
+        test = execute_query(query, params)
+        # print(test)
         return True
 
     except:

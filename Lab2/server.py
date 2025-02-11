@@ -23,10 +23,10 @@ def retrieve_all():
     return jsonify([dict(row) for row in users])
 
 # Retrieves all the existing tokens - for testing
-# @app.route("/retrieve_all_tokens", methods=["GET"])
-# def retrieve_all_tokens():
-#     result = get_all_tokens()
-#     return jsonify([dict(row) for row in result])
+@app.route("/retrieve_all_tokens", methods=["GET"])
+def retrieve_all_tokens():
+    result = get_all_tokens()
+    return jsonify([dict(row) for row in result])
 
 
 # Retrieves a specific user based on email - can use later
@@ -87,17 +87,18 @@ def sign_in():
         token = token_generator()
         result = store_token(email, token)
         # set header token
-        response = request.header.set("token", token)
+        # response = request.headers.set("token", token)
+        print(result)
         if result == True:
             return (
                 jsonify(
-                    {"success": True, "message": "Sign In Successful", "token": response}
+                    {"success": True, "message": "Sign In Successful", "token": token}
                 ),
                 200,
             )
         else:
             return (
-                jsonify({"success": False, "message": "Sign In Failed", "token": response}),
+                jsonify({"success": False, "message": "Sign In Failed", "token": token}),
                 500,
             )
 
@@ -156,7 +157,7 @@ def sign_out():
     email = request.json["email"]
     token = get_token_by_email(email)
     result = delete_token(token[0][0])
-    removed = request.header.remove("token");
+    # removed = request.headers.remove("token")
 
     if result == True:
         return jsonify({"success": True, "message": "Successfully signed out"}), 500
@@ -231,7 +232,7 @@ def get_userdata_by_email():
 # Get user data by token
 @app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
-    token = request.header.get("token")
+    token = request.headers.get("token")
     if user_exist(token) == True:
         userData = get_user_data_by_token(token)
         return (
