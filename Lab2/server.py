@@ -217,7 +217,7 @@ def change_password():
         )
 
 
-# Get user data by email
+# Get user data by email -- tested
 @app.route("/get_userdata_by_email", methods=["GET"])
 def get_userdata_by_email():
     email = request.json["email"]
