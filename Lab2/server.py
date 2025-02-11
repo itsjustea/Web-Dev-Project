@@ -207,13 +207,13 @@ def get_userdata_by_email():
     if user_exist(email) == True:
         print("check")
         userData = get_user_data_by_email(email)
-        # print(userData[0])
+        print(userData[0])
         return (
             jsonify(
                 {
                     "success": True,
                     "message": "User Data Retrieved Successfully",
-                    "data": userData,
+                    "data": dict(userData[0]),
                 }
             ),
             500,
