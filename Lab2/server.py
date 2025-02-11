@@ -14,13 +14,13 @@ def hello_world():
 
 
 # Retrieves all the existing user - for testing
-# @app.route("/retrieve_all")
-# def retrieve_all():
-#     query = """
-#     SELECT * FROM user
-#     """
-#     users = execute_query(query)
-#     return jsonify([dict(row) for row in users])
+@app.route("/retrieve_all")
+def retrieve_all():
+    query = """
+    SELECT * FROM user
+    """
+    users = execute_query(query)
+    return jsonify([dict(row) for row in users])
 
 # Retrieves all the existing tokens - for testing
 # @app.route("/retrieve_all_tokens", methods=["GET"])
@@ -30,38 +30,38 @@ def hello_world():
 
 
 # Retrieves a specific user based on email - can use later
-@app.route("/retrieve_user", methods=["GET"])
-def retrieve_user():
-    query = """
-    SELECT * FROM user WHERE email = ?
-    """
-    params = ("Test@r.c",)  # Make sure this is a tuple, not a string
-    try:
-        result = execute_query(query, params)
-        if result:  # Check if the result is not empty
-            user = result[0]  # Assuming only one user matches
-            return (
-                jsonify(
-                    {
-                        "success": True,
-                        "user": {
-                            "id": user[0],
-                            "email": user[1],
-                            "firstName": user[2],
-                            "familyName": user[3],
-                            "gender": user[4],
-                            "city": user[5],
-                            "country": user[6],
-                        },
-                    }
-                ),
-                200,
-            )
-        else:
-            return jsonify({"success": False, "message": "User not found"}), 404
+# @app.route("/retrieve_user", methods=["GET"])
+# def retrieve_user():
+#     query = """
+#     SELECT * FROM user WHERE email = ?
+#     """
+#     params = ("Test@r.c",)  # Make sure this is a tuple, not a string
+#     try:
+#         result = execute_query(query, params)
+#         if result:  # Check if the result is not empty
+#             user = result[0]  # Assuming only one user matches
+#             return (
+#                 jsonify(
+#                     {
+#                         "success": True,
+#                         "user": {
+#                             "id": user[0],
+#                             "email": user[1],
+#                             "firstName": user[2],
+#                             "familyName": user[3],
+#                             "gender": user[4],
+#                             "city": user[5],
+#                             "country": user[6],
+#                         },
+#                     }
+#                 ),
+#                 200,
+#             )
+#         else:
+#             return jsonify({"success": False, "message": "User not found"}), 404
 
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+#     except Exception as e:
+#         return jsonify({"success": False, "message": str(e)}), 500
 
 
 # Defining all the necessary functions from serverstub
@@ -165,6 +165,7 @@ def sign_out():
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
+    # print(exist)
     if exist[0] == email:  # if exist
         result = True
     else:
@@ -200,11 +201,13 @@ def change_password():
 
 
 # Get user data by email
-@app.route("/get_user_data_by_email", methods=["GET"])
-def get_user_data_by_email():
+@app.route("/get_userdata_by_email", methods=["GET"])
+def get_userdata_by_email():
     email = request.json["email"]
     if user_exist(email) == True:
+        print("check")
         userData = get_user_data_by_email(email)
+        # print(userData[0])
         return (
             jsonify(
                 {
