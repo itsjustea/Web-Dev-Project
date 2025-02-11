@@ -86,16 +86,18 @@ def sign_in():
     else:
         token = token_generator()
         result = store_token(email, token)
+        # set header token
+        response = request.header.set("token", token)
         if result == True:
             return (
                 jsonify(
-                    {"success": True, "message": "Sign In Successful", "data": token}
+                    {"success": True, "message": "Sign In Successful", "token": response}
                 ),
                 200,
             )
         else:
             return (
-                jsonify({"success": False, "message": "Sign In Failed", "data": token}),
+                jsonify({"success": False, "message": "Sign In Failed", "token": response}),
                 500,
             )
 
@@ -154,6 +156,7 @@ def sign_out():
     email = request.json["email"]
     token = get_token_by_email(email)
     result = delete_token(token[0][0])
+    removed = request.header.remove("token");
 
     if result == True:
         return jsonify({"success": True, "message": "Successfully signed out"}), 500
@@ -228,7 +231,7 @@ def get_userdata_by_email():
 # Get user data by token
 @app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
-    token = request.json["token"]
+    token = request.header.get("token")
     if user_exist(token) == True:
         userData = get_user_data_by_token(token)
         return (
