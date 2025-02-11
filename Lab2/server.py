@@ -67,7 +67,7 @@ def retrieve_all_tokens():
 # Defining all the necessary functions from serverstub
 
 
-# Sign in function
+# Sign in function -- tested
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
     email = request.json["email"]
@@ -103,11 +103,11 @@ def sign_in():
             )
 
 
-# Sign up function
+# Sign up function -- tested
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
     email = request.json["email"]
-    if (user_exist(email)) == False:
+    if ((user_exist(email)) == False):
         first_name = request.json["firstName"]
         last_name = request.json["familyName"]
         gender = request.json["gender"]
@@ -151,38 +151,42 @@ def sign_up():
         )
 
 
-# Sign out function
+# Sign out function -- tested
 @app.route("/sign_out", methods=["POST"])
 def sign_out():
     email = request.json["email"]
     token = get_token_by_email(email)
-    result = delete_token(token[0][0])
-    # removed = request.headers.remove("token")
+    if token != 0:
+        result = delete_token(token[0][0])
+        # removed = request.headers.remove("token")
 
-    if result == True:
-        return jsonify({"success": True, "message": "Successfully signed out"}), 500
+        if result == True:
+            return jsonify({"success": True, "message": "Successfully signed out"}), 500
 
+        else:
+            return jsonify({"success": False, "message": "Sign out failed"}), 400
     else:
         return jsonify({"success": False, "message": "Sign out failed"}), 400
 
 
-# Check whether user exist
+# Check whether user exist -- tested
 def user_exist(email):
     exist = get_user(email)
-    # print(exist)
-    if exist == email:  # if exist
-        result = True
-    else:
+    if  exist == 0 or exist[0] != email:  # if not exist
         result = False
+    else:
+        result = True
+
     return result
 
 
-# Change password function
+# Change password function -- tested
 @app.route("/change_password", methods=["POST"])
 def change_password():
     email = request.json["email"]
     old_password = request.json["oldPassword"]
     new_password = request.json["newPassword"]
+    check_new_password = request.json["checkNewPassword"]
     user = get_user(email)
     if user[1] != old_password:
         return (
@@ -196,6 +200,15 @@ def change_password():
             ),
             400,
         )
+    
+    elif new_password != check_new_password:
+        return (
+             jsonify(
+                {"success": False, "message": "New password not matching with the reconfirm password"}
+            ),
+            400,
+        )
+
     else:
         update_password(email, new_password)
         return (
