@@ -23,6 +23,11 @@ def retrieve_all():
     users = execute_query(query)
     return jsonify([dict(row) for row in users])
 
+# Retrieves all the existing tokens - for testing
+@app.route("/retrieve_all_tokens", methods=["GET"])
+def retrieve_all_tokens():
+    result = get_all_tokens()
+    return jsonify([dict(row) for row in result])
 
 # Retrieves a specific user based on email - can use later
 @app.route("/retrieve_user", methods=["GET"])
@@ -149,10 +154,14 @@ def sign_up():
 @app.route("/sign_out", methods=["POST"])
 def sign_out():
     email = request.json["email"]
-    # TODO: Add If/else to see if email exists in the database. If yes, delete. If no, return false.
-    delete_token(email)
-    return jsonify({"success": True, "message": "Successfully signed out"}), 500
+    token = get_token_by_email(email)    
+    result = delete_token(token[0][0])
 
+    if result == True:
+        return jsonify({"success": True, "message": "Successfully signed out"}), 500
+
+    else: 
+        return jsonify({"success": False, "message": "Sign out failed"}), 400
 
 # Check whether user exist
 def user_exist(email):

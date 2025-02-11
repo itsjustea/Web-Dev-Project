@@ -136,19 +136,34 @@ def store_token(email, token):
 
 
 # Used for sign out
-def delete_token(email):
+def delete_token(token):
     db = get_db()
     cursor = db.cursor()
     query = """
-    DELETE FROM tokens WHERE email = ?
+    SELECT * FROM tokens WHERE token = ?
     """
-    params = email
-    cursor.execute(query, params)
-    db.commit()
-    cursor.close()
-    db.close()
+    params = (token,)
+    result = execute_query(query, params)
+    if (result != None):
+        query = """
+        DELETE FROM tokens WHERE token = ?
+        """
+        params = (token,)
+        cursor.execute(query, params)
+        db.commit()
+        cursor.close()
+        db.close()
+        print("1")
+        return True
+    else:
+        print("2")
+        db.commit()
+        cursor.close()
+        db.close()
+        return False
 
-def get_token(email):
+# Just for checking if the token exists during testing, wont be used for presentation
+def get_token_by_email(email):
     query = """
     SELECT token FROM tokens WHERE email = ?
     """
@@ -157,7 +172,18 @@ def get_token(email):
     if token == []:
         return 0
     else:
-        return token[0]
+        return token
+    
+def get_all_tokens():
+    query = """
+    SELECT * FROM tokens
+    """
+
+    tokens = execute_query(query, params=())
+    if tokens == []:
+        return 0
+    else:
+        return tokens
 
 def update_password(email, password):
     query = """
