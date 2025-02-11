@@ -117,12 +117,12 @@ def sign_up():
         password_confirmation = request.json["password_confirmation"]
         if (
             (email != "")
-            or (len(password) > 4)
-            or (first_name != "")
-            or (last_name != "")
-            or (gender != "")
-            or (city != "")
-            or (country != "")
+            and (len(password) > 4)
+            and (first_name != "")
+            and (last_name != "")
+            and (gender != "")
+            and (city != "")
+            and (country != "")
         ):
             if password == password_confirmation:
                 insert_user(
