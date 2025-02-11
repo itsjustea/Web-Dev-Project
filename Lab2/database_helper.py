@@ -5,11 +5,9 @@
 # database_helper.py .
 
 import sqlite3
-
 from flask import g, request
 
 DATABASE = "database.db"
-
 
 def get_db():
     if "db" not in g:
@@ -17,12 +15,10 @@ def get_db():
         g.db.row_factory = sqlite3.Row  # Allows column access by name
     return g.db
 
-
 def close_db(error=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
-
 
 def get_user(email):
     # Query the DB
@@ -30,17 +26,14 @@ def get_user(email):
     query = """
     SELECT email, password FROM user WHERE email = ?
     """
-
     params = (email,)
     user = execute_query(query, params)
     # print("test")
     # print(user)
     if user == []:
         return 0
-    
     else:
         return user[0]
-    
 
 def insert_user(email, password, firstName, familyName, gender, city, country):
     # print("insert")
@@ -53,7 +46,6 @@ def insert_user(email, password, firstName, familyName, gender, city, country):
         city,
         country,
     )
-
     query = """
     INSERT INTO user (email, password, firstName, familyName, gender, city, country)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -70,6 +62,34 @@ def get_messages(receiver_email):
         return 0
     else:
         return messages
+    
+def get_user_data_by_email(email):
+    query = """
+    SELECT * FROM user WHERE email = ?
+    """
+    params = (email,)
+    user = execute_query(query, params)
+    if user == []:
+        return 0
+    else:
+        return user
+    
+def get_user_data_by_token(token):
+    query = """
+    SELECT email FROM tokens WHERE token = ?
+    """
+    params = (token,)
+    result = execute_query(query, params)
+    if result == []:
+        return 0
+    else:
+        email = result[0][0]
+        query = """
+        SELECT email FROM user WHERE email = ?
+        """
+        params = (email,)
+        user = execute_query(query, params)
+        return user
 
 def execute_query(query, params=()):
     # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
@@ -94,32 +114,12 @@ def execute_query(query, params=()):
 
     return cursor
 
-
 def retrieve_all(query, params=()):
     # Retrieves all the rows fromt he database based on the query and params.
     db = get_db()
     cursor = db.cursor()
     cursor.execute(query, params)
     return cursor.fetchall()
-
-# # Used for sign in
-# def create_token(email):
-#     db = get_db()
-#     cursor = db.cursor()
-
-#     # query = """
-#     # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
-#     # VALUES (?, ?, ?, ?, ?, ?, ?)
-#     # """
-
-#     query = """
-#     INSERT INTO tokens (email) VALUES (?)
-#     """
-#     params = email
-#     cursor.execute(query, params)
-#     db.commit()
-#     cursor.close()
-#     db.close()
 
 # Used for sign in
 def store_token(email, token):

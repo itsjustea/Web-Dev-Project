@@ -200,25 +200,39 @@ def change_password():
         return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
 
 
-# @app.route("/user/get_user_data_by_email", methods=["GET"])
-# def get_user_data_by_email():
-#     return (
-#         jsonify({"success": True, "message": "User Data Retrieved Successfully"}),
-#         500,
-#     )
+@app.route("/get_user_data_by_email", methods=["GET"])
+def get_user_data_by_email():
+    email = request.json["email"]
+    if (user_exist(email)==True):
+        userData = get_user_data_by_email(email)
+        return (
+            jsonify({"success": True, "message": "User Data Retrieved Successfully", "data": userData}),
+            500,
+        )
+    else:
+        return (
+            jsonify({"success": False, "message": "User does not exist"}),
+            404,
+        )
 
 
-# @app.route("/user/get_user_data_by_token", methods=["GET"])
-# def get_user_data_by_token():
-#     return (
-#         jsonify({"success": True, "message": "User Data Retrieved Successfully"}),
-#         500,
-#     )
-
+@app.route("/user/get_user_data_by_token", methods=["GET"])
+def get_user_data_by_token():
+    token = request.json["token"]
+    if (user_exist(token)==True):
+        userData = get_user_data_by_token(token)
+        return (
+        jsonify({"success": True, "message": "User Data Retrieved Successfully", "data": userData}),
+        500,
+    )
+    else:
+        return (
+            jsonify({"success": False, "message": "User does not exist"}),
+            404,
+        )
 
 @app.route("/get_user_messages_by_email", methods=["GET"])
 def get_user_messages_by_email():
-
     email = request.json["email"]
     messages = get_messages(email)
     if messages == 0:
@@ -226,7 +240,6 @@ def get_user_messages_by_email():
             jsonify({"success": False, "message": "No messages found"}),
             404,
         )
-    
     else:
         return (
             messages,
