@@ -236,7 +236,7 @@ def get_user_data_by_token():
                 {
                     "success": True,
                     "message": "User Data Retrieved Successfully",
-                    "data": userData,
+                    "data": dict(userData[0])
                 }
             ),
             500,
