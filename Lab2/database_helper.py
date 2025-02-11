@@ -20,21 +20,40 @@ def close_db(error=None):
     if db is not None:
         db.close()
 
+def execute_query(query, params=()):
+    # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
+    # Sample usage (in server.py):
+    # query = """
+    # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
+    # VALUES (?, ?, ?, ?, ?, ?, ?)
+    # """
+    # params = (email, password, first_name, last_name, gender, city, country)
+    # execute_query(query, params)
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(query, params)
+    db.commit()
+    if query.strip().upper().startswith("SELECT"):
+        result = (
+            cursor.fetchall()
+        )  # Fetch all rows that matches the query -  for SELECT queries only.
+        return result
+    return cursor
+
+# Query for email and password to check if the user exists
 def get_user(email):
-    # Query the DB
-    # print(email)
     query = """
     SELECT email, password FROM user WHERE email = ?
     """
     params = (email,)
     user = execute_query(query, params)
-    # print("test")
-    # print(user)
     if user == []:
         return 0
     else:
         return user[0]
 
+# Insert new user with their new data
 def insert_user(email, password, firstName, familyName, gender, city, country):
     # print("insert")
     params = (
@@ -51,18 +70,8 @@ def insert_user(email, password, firstName, familyName, gender, city, country):
     VALUES (?, ?, ?, ?, ?, ?, ?)
     """
     execute_query(query, params)
-
-def get_messages(receiver_email):
-    query = """
-    SELECT sender_email, content FROM messages WHERE receiver_email = ?
-    """
-    params = (receiver_email,)
-    messages = retrieve_all(query, params)
-    if messages == []:
-        return 0
-    else:
-        return messages
     
+# Query for user data by email
 def get_user_data_by_email(email):
     query = """
     SELECT * FROM user WHERE email = ?
@@ -73,7 +82,8 @@ def get_user_data_by_email(email):
         return 0
     else:
         return user
-    
+
+# Query for user data by token
 def get_user_data_by_token(token):
     query = """
     SELECT email FROM tokens WHERE token = ?
@@ -91,37 +101,14 @@ def get_user_data_by_token(token):
         user = execute_query(query, params)
         return user
 
-def execute_query(query, params=()):
-    # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
-    # Sample usage (in server.py):
-    # query = """
-    # INSERT INTO user (email, password, firstName, familyName, gender, city, country)
-    # VALUES (?, ?, ?, ?, ?, ?, ?)
-    # """
-    # params = (email, password, first_name, last_name, gender, city, country)
-    # execute_query(query, params)
-
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute(query, params)
-    db.commit()
-
-    if query.strip().upper().startswith("SELECT"):
-        result = (
-            cursor.fetchall()
-        )  # Fetch all rows that matches the query -  for SELECT queries only.
-        return result
-
-    return cursor
-
+# Retrieves all the rows from the database based on the query and params.
 def retrieve_all(query, params=()):
-    # Retrieves all the rows fromt he database based on the query and params.
     db = get_db()
     cursor = db.cursor()
     cursor.execute(query, params)
     return cursor.fetchall()
 
-# Used for sign in
+# Insert token into token table - Used for sign in
 def store_token(email, token):
     try:
         query = """
@@ -134,8 +121,7 @@ def store_token(email, token):
     except:
         return False
 
-
-# Used for sign out
+# Delete token from token table - Used for sign out
 def delete_token(token):
     db = get_db()
     cursor = db.cursor()
@@ -161,8 +147,8 @@ def delete_token(token):
         cursor.close()
         db.close()
         return False
-
-# Just for checking if the token exists during testing, wont be used for presentation
+    
+    # Just for checking if the token exists during testing, wont be used for presentation
 def get_token_by_email(email):
     query = """
     SELECT token FROM tokens WHERE email = ?
@@ -173,18 +159,19 @@ def get_token_by_email(email):
         return 0
     else:
         return token
-    
+
+# Just for checking if the token exists during testing, wont be used for presentation
 def get_all_tokens():
     query = """
     SELECT * FROM tokens
     """
-
     tokens = execute_query(query, params=())
     if tokens == []:
         return 0
     else:
         return tokens
 
+# Post password on table if password change is requested
 def update_password(email, password):
     query = """
     UPDATE user SET password = ? WHERE email = ?
@@ -192,7 +179,7 @@ def update_password(email, password):
     params = (password, email)
     execute_query(query, params)
 
-
+# Insert message into message table
 def insert_messages(sender, receiver, content):    
     try:
         query = """
@@ -202,10 +189,20 @@ def insert_messages(sender, receiver, content):
         params = (sender, receiver, content)
         execute_query(query, params)
         return True
-    
     except:
         return False
-    
+
+# Query for message data
+def get_messages(receiver_email):
+    query = """
+    SELECT sender_email, content FROM messages WHERE receiver_email = ?
+    """
+    params = (receiver_email,)
+    messages = retrieve_all(query, params)
+    if messages == []:
+        return 0
+    else:
+        return messages    
 
 
 
