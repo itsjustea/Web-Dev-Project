@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 
 @app.route("/")  # Initial landing page of the user.
-def hello_world():
+def index():
     return "Hello world"
     # return render_template('client.html')  # Change to this when integrating with our lab 1, this will render the client.html file upon loading.
 
@@ -117,7 +117,7 @@ def sign_up():
         password_confirmation = request.json["password_confirmation"]
         if (
             (email != "")
-            or (len(password) < 4)
+            or (len(password) > 4)
             or (first_name != "")
             or (last_name != "")
             or (gender != "")
@@ -170,7 +170,7 @@ def sign_out():
 def user_exist(email):
     exist = get_user(email)
     # print(exist)
-    if exist[0] == email:  # if exist
+    if exist == email:  # if exist
         result = True
     else:
         result = False
