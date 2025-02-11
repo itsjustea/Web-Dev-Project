@@ -1,33 +1,29 @@
 # This file shall contain all the server side services, implemented using Python and Flask
-
 from database_helper import *
 from flask import Flask, jsonify, render_template, request
 import random
 
 app = Flask(__name__)
 
-
 @app.route("/")  # Initial landing page of the user.
 def hello_world():
     return "Hello world"
     # return render_template('client.html')  # Change to this when integrating with our lab 1, this will render the client.html file upon loading.
 
-
 # Retrieves all the existing user - for testing
-@app.route("/retrieve_all")
-def retrieve_all():
-    query = """
-    SELECT * FROM user
-    """
-
-    users = execute_query(query)
-    return jsonify([dict(row) for row in users])
+# @app.route("/retrieve_all")
+# def retrieve_all():
+#     query = """
+#     SELECT * FROM user
+#     """
+#     users = execute_query(query)
+#     return jsonify([dict(row) for row in users])
 
 # Retrieves all the existing tokens - for testing
-@app.route("/retrieve_all_tokens", methods=["GET"])
-def retrieve_all_tokens():
-    result = get_all_tokens()
-    return jsonify([dict(row) for row in result])
+# @app.route("/retrieve_all_tokens", methods=["GET"])
+# def retrieve_all_tokens():
+#     result = get_all_tokens()
+#     return jsonify([dict(row) for row in result])
 
 # Retrieves a specific user based on email - can use later
 @app.route("/retrieve_user", methods=["GET"])
@@ -36,7 +32,6 @@ def retrieve_user():
     SELECT * FROM user WHERE email = ?
     """
     params = ("Test@r.c",)  # Make sure this is a tuple, not a string
-
     try:
         result = execute_query(query, params)
         if result:  # Check if the result is not empty
@@ -65,27 +60,24 @@ def retrieve_user():
         return jsonify({"success": False, "message": str(e)}), 500
 
 
-# # Defining all the necessary functions from serverstub
+# Defining all the necessary functions from serverstub
+
+# Sign in function
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
-
     email = request.json['email']
     password = request.json['password']
-
     user = get_user(email)
-    
     if user == 0:
         return (
             jsonify({"success": False, "message": "User not found"}),
             404,
         )
-
     elif user[1] != password:
         return (
             jsonify({"success": False, "message": "Wrong password"}),
             401,
         )
-
     else:
         token = token_generator()
         result = store_token(email, token)
@@ -100,10 +92,9 @@ def sign_in():
                 500,
             )
 
-
+# Sign up function
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
-
     email = request.json["email"]
     if (user_exist(email)) == False:
         first_name = request.json["firstName"]
@@ -113,7 +104,6 @@ def sign_up():
         country = request.json["country"]
         password = request.json["password"]
         password_confirmation = request.json["password_confirmation"]
-
         if (
             (email != "")
             or (len(password) < 4)
@@ -123,7 +113,6 @@ def sign_up():
             or (city != "")
             or (country != "")
         ):
-
             if password == password_confirmation:
                 insert_user(
                     email, password, first_name, last_name, gender, city, country
@@ -150,7 +139,7 @@ def sign_up():
             400,
         )
 
-
+# Sign out function
 @app.route("/sign_out", methods=["POST"])
 def sign_out():
     email = request.json["email"]
@@ -166,40 +155,34 @@ def sign_out():
 # Check whether user exist
 def user_exist(email):
     exist = get_user(email)
-
     if exist[0] == email: # if exist
         result = True
-
     else:
         result = False
-
     return result
 
-@app.route("/user/change_password", methods=["POST"])
+# Change password function
+@app.route("/change_password", methods=["POST"])
 def change_password():
-
     email = request.json["email"]
     old_password = request.json["oldPassword"]
     new_password = request.json["newPassword"]
-
     user = get_user(email)
     if (user[1] != old_password):
         return (
             jsonify({"success": False, "message": "Wrong password"}),
             401,
         )
-    
     elif (len(new_password)<4):
         return (
             jsonify({"success": False, "message": "Password must be at least 4 characters"}),
             400,
         )
-    
     else:
         update_password(email, new_password)
         return (jsonify({"success": True, "message": "Password Changed Successfully"}), 500)
-
-
+    
+# Get user data by email
 @app.route("/get_user_data_by_email", methods=["GET"])
 def get_user_data_by_email():
     email = request.json["email"]
@@ -215,8 +198,8 @@ def get_user_data_by_email():
             404,
         )
 
-
-@app.route("/user/get_user_data_by_token", methods=["GET"])
+# Get user data by token
+@app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
     token = request.json["token"]
     if (user_exist(token)==True):
@@ -231,6 +214,7 @@ def get_user_data_by_token():
             404,
         )
 
+# Get user messages by email
 @app.route("/get_user_messages_by_email", methods=["GET"])
 def get_user_messages_by_email():
     email = request.json["email"]
@@ -247,20 +231,19 @@ def get_user_messages_by_email():
             500,
         )
 
+# Post messages function
 @app.route("/post_message", methods=["POST"])
 def post_message():
 
     sender_email = request.json["sender_email"]
     receiver_email = request.json["receiver_email"]
     content = request.json["content"]
-
     receiver = user_exist(receiver_email)
     if receiver == False:
         return (
             jsonify({"success": False, "message": "Receiver does not exist"}),
             404,
         )
-    
     #Pending add token verification
     else:
         result = insert_messages(sender_email, receiver_email, content)
@@ -270,18 +253,26 @@ def post_message():
         else:
             return (jsonify({"success": False, "message": "Message could not be posted"}), 400)
     
-
-
 # # Defining base routes (users and messages)
 # @app.route("/user")
 # def users():
 #     return "User"  # Placeholder
 
-
 # @app.route("/messages")
 # def messages():
 #     return "Messages"  # Placeholder
 
+# For token generation
+def token_generator():
+    LENGTH_TOKEN =  30
+    STRING_TOKEN = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    token = ""
+    for i in range(0,LENGTH_TOKEN):
+        token += STRING_TOKEN[random.randint(0, len(STRING_TOKEN)-1)]
+    return token
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 # For us to see the existing routes only, not to be used in the final implementation
 @app.route("/routes", methods=["GET"])
@@ -292,19 +283,3 @@ def show_routes():
             {"endpoint": rule.endpoint, "methods": list(rule.methods), "url": str(rule)}
         )
     return jsonify(routes)
-
-
-# For token generation
-def token_generator():
-    LENGTH_TOKEN =  30
-    STRING_TOKEN = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    token = ""
-
-    for i in range(0,LENGTH_TOKEN):
-        token += STRING_TOKEN[random.randint(0, len(STRING_TOKEN)-1)]
-
-    return token
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
