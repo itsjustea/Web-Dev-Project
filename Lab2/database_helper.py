@@ -5,7 +5,7 @@
 # database_helper.py .
 
 import sqlite3
-from flask import g, request
+from flask import g, jsonify, request
 
 DATABASE = "database.db"
 
@@ -201,11 +201,20 @@ def get_messages(receiver_email):
     SELECT sender_email, content FROM messages WHERE receiver_email = ?
     """
     params = (receiver_email,)
-    messages = retrieve_all(query, params)
-    if messages == []:
-        return 0
+    messages_data = execute_query(query, params)
+
+    
+
+    # print(messages[0][1])
+
+    if messages_data[0][1] != []:
+        # return (
+        #     jsonify({"content": messages_data[0][1], "sender_email": messages_data[0][0]}),
+        #     messages_data   
+        # )
+        return messages_data
     else:
-        return messages    
+        return 0
 
 
 

@@ -269,20 +269,26 @@ def get_user_data_by_token():
 @app.route("/get_user_messages_by_email", methods=["GET"])
 def get_user_messages_by_email():
     email = request.json["email"]
-    messages = get_messages(email)
-    if messages == 0:
+    data = get_messages(email)
+    print(data)
+    if data != 0:
+        # print("test")
+    
         return (
-            jsonify({"success": False, "message": "No messages found"}),
-            404,
-        )
-    else:
-        return (
-            messages,
             jsonify(
-                {"success": True, "message": "User Messages Retrieved Successfully"}
+                {"success": True,
+                "message": "User Messages Retrieved Successfully",
+                "data": dict(data[0]),
+                }
             ),
             500,
         )
+    else:
+        
+        return (
+                jsonify({"success": False, "message": "No messages found"}),
+                404,
+            )
 
 
 # Post messages function
