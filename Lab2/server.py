@@ -2,7 +2,7 @@
 import random
 
 from database_helper import *
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, json, jsonify, render_template, request
 
 app = Flask(__name__)
 
@@ -21,6 +21,17 @@ def retrieve_all():
     """
     users = execute_query(query)
     return jsonify([dict(row) for row in users])
+
+
+# Retrieves all the existing messages - for testing
+@app.route("/retrieve_all_messages")
+def retrieve_all_messages():
+    query = """
+    SELECT * FROM messages
+    """
+    users = execute_query(query)
+    return jsonify([dict(row) for row in users])
+
 
 # Retrieves all the existing tokens - for testing
 @app.route("/retrieve_all_tokens", methods=["GET"])
@@ -98,7 +109,9 @@ def sign_in():
             )
         else:
             return (
-                jsonify({"success": False, "message": "Sign In Failed", "token": token}),
+                jsonify(
+                    {"success": False, "message": "Sign In Failed", "token": token}
+                ),
                 500,
             )
 
@@ -107,7 +120,7 @@ def sign_in():
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
     email = request.json["email"]
-    if ((user_exist(email)) == False):
+    if (user_exist(email)) == False:
         first_name = request.json["firstName"]
         last_name = request.json["familyName"]
         gender = request.json["gender"]
@@ -172,7 +185,7 @@ def sign_out():
 # Check whether user exist -- tested
 def user_exist(email):
     exist = get_user(email)
-    if  exist == 0 or exist[0] != email:  # if not exist
+    if exist == 0 or exist[0] != email:  # if not exist
         result = False
     else:
         result = True
@@ -200,11 +213,14 @@ def change_password():
             ),
             400,
         )
-    
+
     elif new_password != check_new_password:
         return (
-             jsonify(
-                {"success": False, "message": "New password not matching with the reconfirm password"}
+            jsonify(
+                {
+                    "success": False,
+                    "message": "New password not matching with the reconfirm password",
+                }
             ),
             400,
         )
@@ -245,15 +261,20 @@ def get_userdata_by_email():
 # Get user data by token
 @app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
-    token = request.headers.get("token")
-    if user_exist(token) == True:
-        userData = get_user_data_by_token(token)
+    # token = request.headers.get("token")
+    token = request.json["token"]
+    print(token)
+    email = get_user_data_bytoken(token)
+
+    if user_exist(email[0][0]) == True:
+        # userData = get_user_data_bytoken(token)
+        #  print(userData[0])
         return (
             jsonify(
                 {
                     "success": True,
                     "message": "User Data Retrieved Successfully",
-                    "data": dict(userData[0])
+                    "data": dict(email[0]),
                 }
             ),
             500,
@@ -270,6 +291,7 @@ def get_user_data_by_token():
 def get_user_messages_by_email():
     email = request.json["email"]
     messages = get_messages(email)
+
     if messages == 0:
         return (
             jsonify({"success": False, "message": "No messages found"}),
@@ -285,7 +307,7 @@ def get_user_messages_by_email():
         )
 
 
-# Post messages function
+# Post messages function -- tested
 @app.route("/post_message", methods=["POST"])
 def post_message():
 
