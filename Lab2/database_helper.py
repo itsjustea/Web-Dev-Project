@@ -9,16 +9,19 @@ from flask import g, jsonify, request
 
 DATABASE = "database.db"
 
+
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row  # Allows column access by name
     return g.db
 
+
 def close_db(error=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
+
 
 def execute_query(query, params=()):
     # This is a generic execute function where we can run CRUD functions. The params are defined in the server.py file
@@ -41,6 +44,7 @@ def execute_query(query, params=()):
         return result
     return cursor
 
+
 # Query for email and password to check if the user exists
 def get_user(email):
     query = """
@@ -52,6 +56,7 @@ def get_user(email):
         return 0
     else:
         return user[0]
+
 
 # Insert new user with their new data
 def insert_user(email, password, firstName, familyName, gender, city, country):
@@ -70,7 +75,8 @@ def insert_user(email, password, firstName, familyName, gender, city, country):
     VALUES (?, ?, ?, ?, ?, ?, ?)
     """
     execute_query(query, params)
-    
+
+
 # Query for user data by email
 def get_user_data_by_email(email):
     query = """
@@ -83,13 +89,16 @@ def get_user_data_by_email(email):
     else:
         return user
 
+
 # Query for user data by token
-def get_user_data_by_token(token):
+def get_user_data_bytoken(token):
+    print(token)
     query = """
     SELECT email FROM tokens WHERE token = ?
     """
     params = (token,)
     result = execute_query(query, params)
+    print(result)
     if result == []:
         return 0
     else:
@@ -99,7 +108,9 @@ def get_user_data_by_token(token):
         """
         params = (email,)
         user = execute_query(query, params)
+        print(user)
         return user
+
 
 # Retrieves all the rows from the database based on the query and params.
 def retrieve_all(query, params=()):
@@ -107,6 +118,7 @@ def retrieve_all(query, params=()):
     cursor = db.cursor()
     cursor.execute(query, params)
     return cursor.fetchall()
+
 
 # Insert token into token table - Used for sign in
 def store_token(email, token):
@@ -124,6 +136,7 @@ def store_token(email, token):
     except:
         return False
 
+
 # Delete token from token table - Used for sign out
 def delete_token(token):
     db = get_db()
@@ -133,7 +146,7 @@ def delete_token(token):
     """
     params = (token,)
     result = execute_query(query, params)
-    if (result != None):
+    if result != None:
         query = """
         DELETE FROM tokens WHERE token = ?
         """
@@ -150,8 +163,10 @@ def delete_token(token):
         cursor.close()
         db.close()
         return False
-    
+
     # Just for checking if the token exists during testing, wont be used for presentation
+
+
 def get_token_by_email(email):
     query = """
     SELECT token FROM tokens WHERE email = ?
@@ -162,6 +177,7 @@ def get_token_by_email(email):
         return 0
     else:
         return token
+
 
 # Just for checking if the token exists during testing, wont be used for presentation
 def get_all_tokens():
@@ -174,6 +190,7 @@ def get_all_tokens():
     else:
         return tokens
 
+
 # Post password on table if password change is requested
 def update_password(email, password):
     query = """
@@ -182,8 +199,9 @@ def update_password(email, password):
     params = (password, email)
     execute_query(query, params)
 
+
 # Insert message into message table
-def insert_messages(sender, receiver, content):    
+def insert_messages(sender, receiver, content):
     try:
         query = """
         INSERT INTO messages (sender_email, receiver_email, content)
@@ -194,6 +212,7 @@ def insert_messages(sender, receiver, content):
         return True
     except:
         return False
+
 
 # Query for message data
 def get_messages(receiver_email):
@@ -215,7 +234,6 @@ def get_messages(receiver_email):
         return messages_data
     else:
         return 0
-
 
 
 # Can uncomment if you need this, but should be don't need. You can use the retrieve_all() function to perform SELECT with WHERE.
