@@ -1,6 +1,6 @@
 # This file shall contain all the server side services, implemented using Python and Flask
 import random
-
+import re
 from database_helper import *
 from flask import Flask, json, jsonify, render_template, request
 
@@ -115,11 +115,18 @@ def sign_in():
                 500,
             )
 
+def valid_email(email):
+    return bool (re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
+
 
 # Sign up function -- tested
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
     email = request.json["email"]
+    if not valid_email(email):
+        return jsonify({"success": False, "message": "Invalid email format"}), 400
+
+
     if (user_exist(email)) == False:
         first_name = request.json["firstName"]
         last_name = request.json["familyName"]
