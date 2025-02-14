@@ -26,3 +26,10 @@ CREATE TABLE IF NOT EXISTS messages (
 --     content TEXT NOT NULL,
 --     datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 -- );
+
+
+-- Clear DB
+
+DELETE * FROM user;
+DELETE * FROM messages;
+DELETE * FROM tokens;
