@@ -181,20 +181,31 @@ def sign_up():
 # Sign out function -- tested
 @app.route("/sign_out", methods=["POST"])
 def sign_out():
-    email = request.json["email"]
-    token = get_token_by_email(email)
-    if token != 0:
-        result = delete_token(token[0][0])
-        # removed = request.headers.remove("token")
-
-        if result == True:
-            return jsonify({"success": True, "message": "Successfully signed out"}), 500
-
+    # email = request.json["email"]
+    try:
+        token = request.json["token"]
+        result = get_user_data_bytoken(token)
+        print(result)
+        print(result[0][0])
+        if (result[0][0] == 0):
+            return (
+                jsonify({"success": False, "message": "Invalid Token"}),
+                404,
+            )
+        # token = get_token_by_email(email)
         else:
-            return jsonify({"success": False, "message": "Sign out failed"}), 400
-    else:
-        return jsonify({"success": False, "message": "Sign out failed"}), 400
+            result = delete_token(token)
+            # removed = request.headers.remove("token")
+            if result == True:
+                return jsonify({"success": True, "message": "Successfully signed out"}), 500
 
+            else:
+                return jsonify({"success": False, "message": "Sign out failed"}), 400
+    except:
+        return (
+                jsonify({"success": False, "message": "Invalid Token"}),
+                404,
+            )
 
 # Check whether user exist -- tested
 def user_exist(email):
@@ -210,50 +221,56 @@ def user_exist(email):
 # Change password function -- tested
 @app.route("/change_password", methods=["POST"])
 def change_password():
-    # try:
-    email = request.json["email"]
-    old_password = request.json["oldPassword"]
-    new_password = request.json["newPassword"]
-    check_new_password = request.json["checkNewPassword"]
-    token = request.json["token"]
-    result = get_user_data_bytoken(token)
-    if (result[0][0] == 0):
+    try:
+    
+        old_password = request.json["oldPassword"]
+        new_password = request.json["newPassword"]
+        check_new_password = request.json["checkNewPassword"]
+        token = request.json["token"]
+        result = get_user_data_bytoken(token)
+        if (result[0][0] == 0):
+            return (
+                jsonify({"success": False, "message": "Invalid Token"}),
+                404,
+            )
+        else:
+
+            user = get_user(result[0][0])
+            if user[1] != old_password:
+                return (
+                    jsonify({"success": False, "message": "Wrong password"}),
+                    401,
+                )
+            elif len(new_password) < 4:
+                return (
+                    jsonify(
+                        {"success": False, "message": "Password must be at least 4 characters"}
+                    ),
+                    400,
+                )
+
+            elif new_password != check_new_password:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": "New password not matching with the reconfirm password",
+                        }
+                    ),
+                    400,
+                )
+
+            else:
+                update_password(result[0][0], new_password)
+                return (
+                    jsonify({"success": True, "message": "Password Changed Successfully"}),
+                    500,
+                )
+    except:
         return (
             jsonify({"success": False, "message": "Invalid Token"}),
-            404,
+            400,
         )
-    else:
-        user = get_user(email)
-        if user[1] != old_password:
-            return (
-                jsonify({"success": False, "message": "Wrong password"}),
-                401,
-            )
-        elif len(new_password) < 4:
-            return (
-                jsonify(
-                    {"success": False, "message": "Password must be at least 4 characters"}
-                ),
-                400,
-            )
-
-        elif new_password != check_new_password:
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "message": "New password not matching with the reconfirm password",
-                    }
-                ),
-                400,
-            )
-
-        else:
-            update_password(email, new_password)
-            return (
-                jsonify({"success": True, "message": "Password Changed Successfully"}),
-                500,
-            )
 
 
 # Get user data by email -- tested
