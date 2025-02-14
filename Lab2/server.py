@@ -327,6 +327,13 @@ def post_message():
             404,
         )
     # Pending add token verification
+
+    elif (content == ""):
+        return (
+           jsonify({"success": False, "message": "Message is empty."}),
+            404, 
+        )
+
     else:
         result = insert_messages(sender_email, receiver_email, content)
         if result == True:
