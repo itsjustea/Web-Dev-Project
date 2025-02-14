@@ -84,6 +84,7 @@ def get_user_data_by_email(email):
     """
     params = (email,)
     user = execute_query(query, params)
+    print(user)
     if user == []:
         return 0
     else:
@@ -92,13 +93,14 @@ def get_user_data_by_email(email):
 
 # Query for user data by token
 def get_user_data_bytoken(token):
-    print(token)
+    # print(token)
+    # try:
     query = """
     SELECT email FROM tokens WHERE token = ?
     """
     params = (token,)
     result = execute_query(query, params)
-    print(result)
+    # print("test " + result[0][0])
     if result == []:
         return 0
     else:
@@ -108,9 +110,16 @@ def get_user_data_bytoken(token):
         """
         params = (email,)
         user = execute_query(query, params)
+        # print(user[0][0])
+        # print("test db")
         print(user)
         return user
-
+    
+    # except:
+    #     return (
+    #             jsonify({"message": "Invalid token"}),
+    #             400,
+    #         )
 
 # Retrieves all the rows from the database based on the query and params.
 def retrieve_all(query, params=()):
@@ -221,19 +230,20 @@ def get_messages(receiver_email):
     """
     params = (receiver_email,)
     messages_data = execute_query(query, params)
-
+    print(messages_data)
     
 
-    # print(messages[0][1])
+    # print(messages_data[0][1])
 
-    if messages_data[0][1] != []:
+    if len(messages_data) == 0:
         # return (
         #     jsonify({"content": messages_data[0][1], "sender_email": messages_data[0][0]}),
         #     messages_data   
         # )
-        return messages_data
-    else:
         return 0
+    
+    else:
+        return messages_data
 
 
 # Can uncomment if you need this, but should be don't need. You can use the retrieve_all() function to perform SELECT with WHERE.

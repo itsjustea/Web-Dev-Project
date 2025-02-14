@@ -123,52 +123,59 @@ def valid_email(email):
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
     email = request.json["email"]
-    if not valid_email(email):
-        return jsonify({"success": False, "message": "Invalid email format"}), 400
+    try:
+        if not valid_email(email):
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
 
 
-    if (user_exist(email)) == False:
-        first_name = request.json["firstName"]
-        last_name = request.json["familyName"]
-        gender = request.json["gender"]
-        city = request.json["city"]
-        country = request.json["country"]
-        password = request.json["password"]
-        password_confirmation = request.json["password_confirmation"]
-        if (
-            (email != "")
-            and (len(password) > 4)
-            and (first_name != "")
-            and (last_name != "")
-            and (gender != "")
-            and (city != "")
-            and (country != "")
-        ):
-            if password == password_confirmation:
-                insert_user(
-                    email, password, first_name, last_name, gender, city, country
-                )
-                # print("user created")
-                return (
-                    jsonify({"success": True, "message": "Sign Up Successful"}),
-                    500,
-                )
+        if (user_exist(email)) == False:
+            first_name = request.json["firstName"]
+            last_name = request.json["familyName"]
+            gender = request.json["gender"]
+            city = request.json["city"]
+            country = request.json["country"]
+            password = request.json["password"]
+            password_confirmation = request.json["password_confirmation"]
+            if (
+                (email != "")
+                and (len(password) > 4)
+                and (first_name != "")
+                and (last_name != "")
+                and (gender != "")
+                and (city != "")
+                and (country != "")
+            ):
+                if password == password_confirmation:
+                    insert_user(
+                        email, password, first_name, last_name, gender, city, country
+                    )
+                    # print("user created")
+                    return (
+                        jsonify({"success": True, "message": "Sign Up Successful"}),
+                        500,
+                    )
+                else:
+                    return (
+                        jsonify({"success": False, "message": "Passwords do not match"}),
+                        400,
+                    )
             else:
                 return (
-                    jsonify({"success": False, "message": "Passwords do not match"}),
+                    jsonify({"success": False, "message": "All fields must be filled"}),
                     400,
                 )
         else:
+            # print("user exist")
             return (
-                jsonify({"success": False, "message": "All fields must be filled"}),
+                jsonify({"success": False, "message": "User already exist"}),
                 400,
             )
-    else:
-        # print("user exist")
-        return (
-            jsonify({"success": False, "message": "User already exist"}),
-            400,
-        )
+    except:
+         return (
+                jsonify({"success": False, "message": "missing field"}),
+                400,
+            )
+
 
 
 # Sign out function -- tested
@@ -203,155 +210,264 @@ def user_exist(email):
 # Change password function -- tested
 @app.route("/change_password", methods=["POST"])
 def change_password():
+    # try:
     email = request.json["email"]
     old_password = request.json["oldPassword"]
     new_password = request.json["newPassword"]
     check_new_password = request.json["checkNewPassword"]
-    user = get_user(email)
-    if user[1] != old_password:
+    token = request.json["token"]
+    result = get_user_data_bytoken(token)
+    if (result[0][0] == 0):
         return (
-            jsonify({"success": False, "message": "Wrong password"}),
-            401,
+            jsonify({"success": False, "message": "Invalid Token"}),
+            404,
         )
-    elif len(new_password) < 4:
-        return (
-            jsonify(
-                {"success": False, "message": "Password must be at least 4 characters"}
-            ),
-            400,
-        )
-
-    elif new_password != check_new_password:
-        return (
-            jsonify(
-                {
-                    "success": False,
-                    "message": "New password not matching with the reconfirm password",
-                }
-            ),
-            400,
-        )
-
     else:
-        update_password(email, new_password)
-        return (
-            jsonify({"success": True, "message": "Password Changed Successfully"}),
-            500,
-        )
+        user = get_user(email)
+        if user[1] != old_password:
+            return (
+                jsonify({"success": False, "message": "Wrong password"}),
+                401,
+            )
+        elif len(new_password) < 4:
+            return (
+                jsonify(
+                    {"success": False, "message": "Password must be at least 4 characters"}
+                ),
+                400,
+            )
+
+        elif new_password != check_new_password:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "message": "New password not matching with the reconfirm password",
+                    }
+                ),
+                400,
+            )
+
+        else:
+            update_password(email, new_password)
+            return (
+                jsonify({"success": True, "message": "Password Changed Successfully"}),
+                500,
+            )
 
 
 # Get user data by email -- tested
 @app.route("/get_userdata_by_email", methods=["GET"])
 def get_userdata_by_email():
-    email = request.json["email"]
-    if user_exist(email) == True:
-        print("check")
-        userData = get_user_data_by_email(email)
-        print(userData[0])
+    
+    try:
+        email = request.json["email"]
+        token = request.json["token"]
+        result = get_user_data_bytoken(token)
+        if (result[0][0] == 0):
+            return (
+                jsonify({"success": False, "message": "Invalid Token"}),
+                404,
+            )
+        # searched_user = result[0][0]
+        else:
+            if user_exist(email) == True:
+                print("check")
+                userData = get_user_data_by_email(email)
+                print(userData[0])
+                return (
+                    jsonify(
+                        {
+                            "success": True,
+                            "message": "User Data Retrieved Successfully",
+                            "data": [dict(row) for row in userData],
+                        }
+                    ),
+                    500,
+                )
+            else:
+                return (
+                    jsonify({"success": False, "message": "Searched User does not exist"}),
+                    404,
+                )
+    except:
         return (
-            jsonify(
-                {
-                    "success": True,
-                    "message": "User Data Retrieved Successfully",
-                    "data": dict(userData[0]),
-                }
-            ),
-            500,
-        )
-    else:
-        return (
-            jsonify({"success": False, "message": "User does not exist"}),
-            404,
-        )
-
+                jsonify({"success": False, "message": "Invalid Token"}),
+                404,
+            )
 
 # Get user data by token -- tested
 @app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
     # token = request.headers.get("token")
-    token = request.json["token"]
-    print(token)
-    email = get_user_data_bytoken(token)
-
-    if user_exist(email[0][0]) == True:
-        # userData = get_user_data_bytoken(token)
-        #  print(userData[0])
+    try:
+        token = request.json["token"]
+        data = get_user_data_bytoken(token)
+        # data = get_user_data_by_email(email)
+        print(data[0][0])
+        userData = get_user_data_by_email(data[0][0])
+        if user_exist(data[0][0]) == True:
+            # userData = get_user_data_bytoken(token)
+            #  print(userData[0])
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "message": "User Data Retrieved Successfully",
+                        "data": [dict(row) for row in userData],
+                        
+                    }
+                ),
+                500,
+            )
+        else:
+            return (
+                jsonify({"success": False, "message": "User does not exist"}),
+                404,
+            )
+    except:
         return (
-            jsonify(
-                {
-                    "success": True,
-                    "message": "User Data Retrieved Successfully",
-                    "data": dict(email[0]),
-                }
-            ),
-            500,
-        )
-    else:
-        return (
-            jsonify({"success": False, "message": "User does not exist"}),
-            404,
-        )
-
+                jsonify({"success": False, "message": "Invalid token"}),
+                400,
+            )
 
 # Get user messages by email -- tested
 @app.route("/get_user_messages_by_email", methods=["GET"])
 def get_user_messages_by_email():
-    email = request.json["email"]
-    data = get_messages(email)
-    print(data)
-    if data != 0:
+    try:
+        token = request.json["token"]
+        email = request.json["email"]
+        result = get_user_data_bytoken(token)
+        current_user = result[0][0]
+        # print(current_user)
+        if (user_exist(email)== False):
+            return (
+                jsonify({"success": False, "message": "Email not found"}),
+                400,
+            )
+        
+        else:
+            data = get_messages(email)
+            if (current_user[0][0] == 0):
+                return (
+                    jsonify({"success": False, "message": "Invalid token"}),
+                    400,
+                )
+            elif data != 0:
+                # print("test")
+
+                return (
+                    jsonify(
+                        {
+                            "success": True,
+                            "message": "User Messages Retrieved Successfully",
+                            "data": [dict(row) for row in data],
+                        }
+                    ),
+                    500,
+                )
+            else:
+
+                return (
+                    jsonify({"success": False, "message": "No messages found"}),
+                    404,
+                )
+    except:
+        return (
+                jsonify({"success": False, "message": "Invalid token"}),
+                400,
+            )
+
+#get user messages by token    
+@app.route("/get_user_messages_by_token", methods=["GET"])
+def get_user_messages_by_token():
+    try:
+        token = request.json["token"]
+        current_user = get_user_data_bytoken(token)
         # print("test")
+        print(current_user[0][0])
 
+
+        if (user_exist(current_user[0][0])== False):
+            return (
+                jsonify({"success": False, "message": "Invalid token"}),
+                400,
+            )
+        
+        else:
+            data = get_messages(current_user[0][0]) # error
+                                
+            if data != 0:
+                # print("test")
+
+                return (
+                    jsonify(
+                        {
+                            "success": True,
+                            "message": "User Messages Retrieved Successfully",
+                            "data": [dict(row) for row in data],
+                        }
+                    ),
+                    500,
+                )
+            else:
+
+                return (
+                    jsonify({"success": False, "message": "No messages found"}),
+                    404,
+                )
+    except:
         return (
-            jsonify(
-                {
-                    "success": True,
-                    "message": "User Messages Retrieved Successfully",
-                    "data": dict(data[0]),
-                }
-            ),
-            500,
-        )
-    else:
-
-        return (
-            jsonify({"success": False, "message": "No messages found"}),
-            404,
-        )
-
+                jsonify({"success": False, "message": "Invalid Token"}),
+                400,
+            )    
 
 # Post messages function -- tested
 @app.route("/post_message", methods=["POST"])
 def post_message():
-
-    sender_email = request.json["sender_email"]
-    receiver_email = request.json["receiver_email"]
-    content = request.json["content"]
-    receiver = user_exist(receiver_email)
-    if receiver == False:
-        return (
-            jsonify({"success": False, "message": "Receiver does not exist"}),
-            404,
-        )
-    # Pending add token verification
-
-    elif (content == ""):
-        return (
-           jsonify({"success": False, "message": "Message is empty."}),
-            404, 
-        )
-
-    else:
-        result = insert_messages(sender_email, receiver_email, content)
-        if result == True:
+    try:
+        # sender_email = request.json["sender_email"]
+        receiver_email = request.json["email"]
+        message = request.json["message"]
+        token = request.json["token"]
+        print(token)
+        sender_email = get_user_data_bytoken(token)
+        # print("test")
+        # print(sender_email)
+        receiver = user_exist(receiver_email)
+        if receiver == False:
             return (
-                jsonify({"success": True, "message": "Message Posted Successfully"}),
-                500,
+                jsonify({"success": False, "message": "Receiver does not exist"}),
+                404,
+            )
+        # Pending add token verification
+        elif (sender_email==0):
+            return (
+                jsonify({"success": False, "message": "Incorrect Token"}),
+                404,
+            )
+        elif (message == ""):
+            return (
+            jsonify({"success": False, "message": "Message is empty."}),
+                404, 
             )
 
         else:
-            return (
-                jsonify({"success": False, "message": "Message could not be posted"}),
+            result = insert_messages(sender_email, receiver_email, message)
+            if result == True:
+                return (
+                    jsonify({"success": True, "message": "Message Posted Successfully"}),
+                    500,
+                )
+
+            else:
+                return (
+                    jsonify({"success": False, "message": "Message could not be posted"}),
+                    400,
+                )
+    except: 
+         return (
+                jsonify({"success": False, "message": "Invalid token"}),
                 400,
             )
 
