@@ -40,48 +40,13 @@ def retrieve_all_tokens():
     return jsonify([dict(row) for row in result])
 
 
-# Retrieves a specific user based on email - can use later
-# @app.route("/retrieve_user", methods=["GET"])
-# def retrieve_user():
-#     query = """
-#     SELECT * FROM user WHERE email = ?
-#     """
-#     params = ("Test@r.c",)  # Make sure this is a tuple, not a string
-#     try:
-#         result = execute_query(query, params)
-#         if result:  # Check if the result is not empty
-#             user = result[0]  # Assuming only one user matches
-#             return (
-#                 jsonify(
-#                     {
-#                         "success": True,
-#                         "user": {
-#                             "id": user[0],
-#                             "email": user[1],
-#                             "firstName": user[2],
-#                             "familyName": user[3],
-#                             "gender": user[4],
-#                             "city": user[5],
-#                             "country": user[6],
-#                         },
-#                     }
-#                 ),
-#                 200,
-#             )
-#         else:
-#             return jsonify({"success": False, "message": "User not found"}), 404
-
-#     except Exception as e:
-#         return jsonify({"success": False, "message": str(e)}), 500
-
-
 # Defining all the necessary functions from serverstub
 
 
 # Sign in function -- tested
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
-    email = request.json["email"]
+    email = request.json["username"]
     password = request.json["password"]
     user = get_user(email)
     if user == 0:
@@ -99,7 +64,7 @@ def sign_in():
         result = store_token(email, token)
         # set header token
         # response = request.headers.set("token", token)
-        print(result)
+        
         if result == True:
             return (
                 jsonify(
@@ -149,7 +114,7 @@ def sign_up():
                     insert_user(
                         email, password, first_name, last_name, gender, city, country
                     )
-                    # print("user created")
+                    
                     return (
                         jsonify({"success": True, "message": "Sign Up Successful"}),
                         500,
@@ -165,14 +130,14 @@ def sign_up():
                     400,
                 )
         else:
-            # print("user exist")
+            
             return (
                 jsonify({"success": False, "message": "User already exist"}),
                 400,
             )
     except:
          return (
-                jsonify({"success": False, "message": "missing field"}),
+                jsonify({"success": False, "message": "Invalid data field"}),
                 400,
             )
 
@@ -185,8 +150,7 @@ def sign_out():
     try:
         token = request.json["token"]
         result = get_user_data_bytoken(token)
-        print(result)
-        print(result[0][0])
+        
         if (result[0][0] == 0):
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
@@ -274,8 +238,8 @@ def change_password():
 
 
 # Get user data by email -- tested
-@app.route("/get_userdata_by_email", methods=["GET"])
-def get_userdata_by_email():
+@app.route("/get_user_data_by_email", methods=["GET"])
+def get_user_data_by_email():
     
     try:
         email = request.json["email"]
@@ -289,9 +253,9 @@ def get_userdata_by_email():
         # searched_user = result[0][0]
         else:
             if user_exist(email) == True:
-                print("check")
-                userData = get_user_data_by_email(email)
-                print(userData[0])
+                
+                userData = get_user_data_byemail(email)
+                
                 return (
                     jsonify(
                         {
@@ -320,12 +284,8 @@ def get_user_data_by_token():
     try:
         token = request.json["token"]
         data = get_user_data_bytoken(token)
-        # data = get_user_data_by_email(email)
-        print(data[0][0])
-        userData = get_user_data_by_email(data[0][0])
+        userData = get_user_data_byemail(data[0][0])
         if user_exist(data[0][0]) == True:
-            # userData = get_user_data_bytoken(token)
-            #  print(userData[0])
             return (
                 jsonify(
                     {
@@ -356,7 +316,7 @@ def get_user_messages_by_email():
         email = request.json["email"]
         result = get_user_data_bytoken(token)
         current_user = result[0][0]
-        # print(current_user)
+        
         if (user_exist(email)== False):
             return (
                 jsonify({"success": False, "message": "Email not found"}),
@@ -371,8 +331,7 @@ def get_user_messages_by_email():
                     400,
                 )
             elif data != 0:
-                # print("test")
-
+               
                 return (
                     jsonify(
                         {
@@ -401,10 +360,7 @@ def get_user_messages_by_token():
     try:
         token = request.json["token"]
         current_user = get_user_data_bytoken(token)
-        # print("test")
-        print(current_user[0][0])
-
-
+        
         if (user_exist(current_user[0][0])== False):
             return (
                 jsonify({"success": False, "message": "Invalid token"}),
@@ -415,8 +371,7 @@ def get_user_messages_by_token():
             data = get_messages(current_user[0][0]) # error
                                 
             if data != 0:
-                # print("test")
-
+                
                 return (
                     jsonify(
                         {
@@ -447,22 +402,14 @@ def post_message():
         receiver_email = request.json["email"]
         message = request.json["message"]
         token = request.json["token"]
-        print(token)
         sender_email = get_user_data_bytoken(token)
-        # print("test")
-        # print(sender_email)
         receiver = user_exist(receiver_email)
         if receiver == False:
             return (
                 jsonify({"success": False, "message": "Receiver does not exist"}),
                 404,
             )
-        # Pending add token verification
-        elif (sender_email==0):
-            return (
-                jsonify({"success": False, "message": "Incorrect Token"}),
-                404,
-            )
+        
         elif (message == ""):
             return (
             jsonify({"success": False, "message": "Message is empty."}),
@@ -470,7 +417,7 @@ def post_message():
             )
 
         else:
-            result = insert_messages(sender_email, receiver_email, message)
+            result = insert_messages(sender_email[0][0], receiver_email, message)
             if result == True:
                 return (
                     jsonify({"success": True, "message": "Message Posted Successfully"}),

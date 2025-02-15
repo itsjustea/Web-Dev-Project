@@ -60,7 +60,7 @@ def get_user(email):
 
 # Insert new user with their new data
 def insert_user(email, password, firstName, familyName, gender, city, country):
-    # print("insert")
+    
     params = (
         email,
         password,
@@ -78,13 +78,12 @@ def insert_user(email, password, firstName, familyName, gender, city, country):
 
 
 # Query for user data by email
-def get_user_data_by_email(email):
+def get_user_data_byemail(email):
     query = """
     SELECT * FROM user WHERE email = ?
     """
     params = (email,)
     user = execute_query(query, params)
-    print(user)
     if user == []:
         return 0
     else:
@@ -93,14 +92,12 @@ def get_user_data_by_email(email):
 
 # Query for user data by token
 def get_user_data_bytoken(token):
-    # print(token)
-    # try:
+    
     query = """
     SELECT email FROM tokens WHERE token = ?
     """
     params = (token,)
     result = execute_query(query, params)
-    # print("test " + result[0][0])
     if result == []:
         return 0
     else:
@@ -110,16 +107,7 @@ def get_user_data_bytoken(token):
         """
         params = (email,)
         user = execute_query(query, params)
-        # print(user[0][0])
-        # print("test db")
-        print(user)
         return user
-    
-    # except:
-    #     return (
-    #             jsonify({"message": "Invalid token"}),
-    #             400,
-    #         )
 
 # Retrieves all the rows from the database based on the query and params.
 def retrieve_all(query, params=()):
@@ -131,7 +119,7 @@ def retrieve_all(query, params=()):
 
 # Insert token into token table - Used for sign in
 def store_token(email, token):
-    print(email, token)
+    
     try:
         query = """
         INSERT INTO tokens (email, token)
@@ -139,7 +127,7 @@ def store_token(email, token):
         """
         params = (email, token)
         test = execute_query(query, params)
-        # print(test)
+        print(test)
         return True
 
     except:
@@ -230,11 +218,6 @@ def get_messages(receiver_email):
     """
     params = (receiver_email,)
     messages_data = execute_query(query, params)
-    print(messages_data)
-    
-
-    # print(messages_data[0][1])
-
     if len(messages_data) == 0:
         # return (
         #     jsonify({"content": messages_data[0][1], "sender_email": messages_data[0][0]}),
