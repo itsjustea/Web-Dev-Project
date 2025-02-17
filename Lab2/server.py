@@ -255,13 +255,14 @@ def get_user_data_by_email():
             if user_exist(email) == True:
                 
                 userData = get_user_data_byemail(email)
-                
+                data =  [dict(row) for row in userData]
+
                 return (
                     jsonify(
                         {
                             "success": True,
                             "message": "User Data Retrieved Successfully",
-                            "data": [dict(row) for row in userData],
+                            "data": data[0],
                         }
                     ),
                     500,
@@ -285,13 +286,16 @@ def get_user_data_by_token():
         token = request.json["token"]
         data = get_user_data_bytoken(token)
         userData = get_user_data_byemail(data[0][0])
+        user = [dict(row) for row in userData]
+
+
         if user_exist(data[0][0]) == True:
             return (
                 jsonify(
                     {
                         "success": True,
                         "message": "User Data Retrieved Successfully",
-                        "data": [dict(row) for row in userData],
+                        "data": user[0],
                         
                     }
                 ),
