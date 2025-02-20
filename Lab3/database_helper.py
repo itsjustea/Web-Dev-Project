@@ -119,7 +119,6 @@ def retrieve_all(query, params=()):
 
 # Insert token into token table - Used for sign in
 def store_token(email, token):
-    
     try:
         query = """
         INSERT INTO tokens (email, token)
@@ -127,7 +126,7 @@ def store_token(email, token):
         """
         params = (email, token)
         test = execute_query(query, params)
-        print(test)
+        # print(test)
         return True
 
     except:
@@ -152,10 +151,10 @@ def delete_token(token):
         db.commit()
         cursor.close()
         db.close()
-        print("1")
+        # print("1")
         return True
     else:
-        print("2")
+        # print("2")
         db.commit()
         cursor.close()
         db.close()
@@ -236,3 +235,40 @@ def get_messages(receiver_email):
 #     cursor = db.cursor()
 #     cursor.execute(query, params)
 #     return cursor.fetchone()
+
+def delete_all_token():
+    db = get_db()
+    cursor = db.cursor()
+    query = """
+    SELECT * FROM tokens
+    """
+    params = ()
+    result = execute_query(query, params)
+    if result != None:
+        query = """
+        DELETE FROM tokens
+        """
+        params = ()
+        cursor.execute(query, params)
+        db.commit()
+        cursor.close()
+        db.close()
+        # print("1")
+        return True
+    else:
+        # print("2")
+        db.commit()
+        cursor.close()
+        db.close()
+        return False
+    
+def get_email_by_token(token):
+    query = """
+    SELECT email from tokens where token = ?
+    """
+    email = execute_query(query, params=())
+    print(email)
+    if token == []:
+        return 0
+    else:
+        return email

@@ -8,11 +8,8 @@ var displayView = {
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
         if (id == "profile") {
-            useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
-            useremail = server.
-           
-           
-            showMyProfile();
+            // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
+            showMyProfile();    
             attachHandler();
             homeTab = document.getElementById("hometab");
             homeTab.className = "tab-cur";
@@ -31,6 +28,38 @@ var initlocalstorage = function(){
 }
 
 
+//code for websocket
+function connectSocket(token){
+    // console.log("socket  " + token);
+    // var ws = new WebSocket("ws://127.0.0.1:5000/api");
+    var ws = new WebSocket("ws://127.0.0.1:5000/echo");
+    ws.onopen = function () {
+        console.log("connection sent " + token);
+        ws.send(token);
+        // console.log("end of sent");
+    };
+    
+    ws.onmessage = function(response) {
+            //logout without closing
+        console.log("Server " + response.data)
+        // if (JSON.parse(response.data)=="logout"){
+        //     // ws.send("close");
+        //     localStorage.removeItem("token");
+        //     displayView(document.getElementById("welcomeView"));
+        //     feedback("You have been logged out from another device");
+        // }
+
+        //only closing
+        // if (JSON.parse(response.data)=="close"){
+        //     ws.send("close");
+        // }
+    }
+
+    ws.onerror = function() {
+        console.log("Error with sockets.");
+    }
+}
+
 //code that is executed as the page is loaded.
 window.onload = function() {
     initlocalstorage();
@@ -38,7 +67,12 @@ window.onload = function() {
     if(JSON.parse(localStorage.getItem("token")).length == 0){
         displayView.show("welcome");
     }else{
+        token = JSON.parse(localStorage.getItem("token"))
+        // console.log(typeof token)
+        connectSocket(token);
+        // connectSocket();
         displayView.show("profile");
+        document.getElementById("defaultOpen").click();
     }
 };
 
@@ -68,19 +102,57 @@ function pwValidation() {
 
 // Adding the signin mechanism - Step 5
 var login = function(){
-    var email = document.getElementById('login-email').value;
-    var password = document.getElementById('login-pw').value;
-    var loginResult = serverstub.signIn(email,password);
-    document.getElementById("signinalert").innerText = loginResult.message;
-    var token = "";
-    if (loginResult.success){
-        token = loginResult.data;
-        localStorage.setItem("token", JSON.stringify(token));
-        displayView.hide("welcome");
-        displayView.show("profile");
+    if (true) {
+        var email = document.getElementById('login-email').value;
+        var password = document.getElementById('login-pw').value;
+        var httpReq = new XMLHttpRequest();
+        httpReq.onreadystatechange = function(){
+            if (httpReq.status==200){
+                // console.log(httpReq.responseText);
+                var httpResp = JSON.parse(httpReq.responseText);
+                // console.log("test");
+                // console.log(httpResp.token);
+                if (httpResp.success){
+                    result = httpResp.token;
+                    token = JSON.stringify(result);
+                    // console.log("result " + result);
+                    // console.log("token " + token);
+                    // console.log("hi "  + JSON.parse(token));
+                    // console.log("line 117  " + typeof token);
+                    // localStorage.setItem("email", email);
+                    localStorage.setItem("token", token);
+                    connectSocket(result);
+                    displayView.hide("welcome");
+                    displayView.show("profile");
+                }
+                else {
+                    feedback(httpResp.message);
+                }
+            }
+        };
+        postRequest(httpReq, "sign_in" ,JSON.stringify({'username' : email, 'password' : password}));
+        return false;
     }
-    // alert('Form submitted successfully!');
 }
+
+function postRequest(request, url, data, token){
+    request.open("POST", url, true);
+    if (token !=null) {
+        request.setRequestHeader("token", token);
+    }
+    request.setRequestHeader("Content-type","application/json; charset=utf-8");
+    request.send(data);
+}
+
+function getRequest(request, url, data){
+    request.open("GET", url, true);
+    if (data!=null) {
+            // console.log('why')
+            request.setRequestHeader("token", data);
+    }
+    request.setRequestHeader("Content-type","application/json; charset=utf-8");
+    request.send(data);
+  }
 
 // Adding the signup mechanism - Step 4
 var signup = function() {
@@ -140,18 +212,44 @@ var changePassword = function(){
 
 // function to show current useremail's profile
 function showMyProfile(){  
+    // console.log("string " + localStorage.getItem("token"));
     var token = JSON.parse(localStorage.getItem("token"));
-    var loggedInUser = serverstub.getUserDataByEmail(token, useremail);
+    var httpReq = new XMLHttpRequest();
+    loggedInUser = getRequest(httpReq, "get_user_data_by_token", token);
+
+    var httpReq = new XMLHttpRequest();
+        httpReq.onreadystatechange = function(){
+            if (httpReq.readyState === 4 && httpReq.status === 200) {
+                var httpResp = JSON.parse(httpReq.responseText);
+                console.log("line 246 " + httpResp);
+                // console.log(httpResp.token);
+                if (httpResp.success){
+                    document.getElementById("profileemail").innerHTML = httpResp.data.email;
+                    document.getElementById("profilefname").innerHTML = httpResp.data.firstname;
+                    document.getElementById("profilefamname").innerHTML = httpResp.data.familyname;
+                    document.getElementById("profilegender").innerHTML =httpResp.data.gender;
+                    document.getElementById("profilecity").innerHTML = httpResp.data.city;
+                    document.getElementById("profilecountry").innerHTML = httpResp.data.country;
+                }
+                else {
+                    feedback(httpResp.message);
+                }
+            }
+        };
+    
+
+    // console.log("test" + loggedInUser.success);
+
     document.getElementById("postalert").innerText = "";
-    if (loggedInUser.success) {
-        // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-        document.getElementById("profileemail").innerHTML = loggedInUser.data.email;
-        document.getElementById("profilefname").innerHTML = loggedInUser.data.firstname;
-        document.getElementById("profilefamname").innerHTML = loggedInUser.data.familyname;
-        document.getElementById("profilegender").innerHTML =loggedInUser.data.gender;
-        document.getElementById("profilecity").innerHTML = loggedInUser.data.city;
-        document.getElementById("profilecountry").innerHTML = loggedInUser.data.country;
-    }
+    // if (loggedInUser.success) {
+    //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
+    //     document.getElementById("profileemail").innerHTML = loggedInUser.data.email;
+    //     document.getElementById("profilefname").innerHTML = loggedInUser.data.firstname;
+    //     document.getElementById("profilefamname").innerHTML = loggedInUser.data.familyname;
+    //     document.getElementById("profilegender").innerHTML =loggedInUser.data.gender;
+    //     document.getElementById("profilecity").innerHTML = loggedInUser.data.city;
+    //     document.getElementById("profilecountry").innerHTML = loggedInUser.data.country;
+    // }
     document.getElementById("profileheader").innerHTML = "Your Profile";
     document.getElementById("postheader").innerHTML = "Post a message";      
 }
@@ -223,9 +321,9 @@ var postMessage = function(){
 // function to refresh the message board
 var refreshboard =  function (email) {
     var token = JSON.parse(localStorage.getItem("token"));
-    var refreshresult = serverstub.getUserMessagesByEmail(token,email);
+    // var refreshresult = serverstub.getUserMessagesByEmail(token,email);
     var wall = document.getElementById("messageboard");
-    document.getElementById("messageboard").innertext = refreshresult.message;
+    // document.getElementById("messageboard").innertext = refreshresult.message;
 
     if (email === useremail) {
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
@@ -323,3 +421,15 @@ var attachHandler = function () {
         }
     },false);
 }
+
+
+
+////// for test
+function clearTokens() {
+    displayView.hide("profile");
+    displayView.show("welcome");
+    var httpReq = new XMLHttpRequest();
+    postRequest(httpReq, "deletealltoken" ,null, null);
+    localStorage.clear();
+    localStorage.removeItem("token", JSON.stringify(token));
+};

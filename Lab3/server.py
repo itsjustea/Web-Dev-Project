@@ -3,12 +3,33 @@ import random
 import re
 from database_helper import *
 from flask import Flask, json, jsonify, render_template, request
+# from gevent.pywsgi import WSGIServer
+from flask_sockets import Sockets
+from geventwebsocket import WebSocketError
+from gevent import pywsgi
+from geventwebsocket.handler import WebSocketHandler
 
 app = Flask(__name__)
+sockets = Sockets(app)
+active_sockets = {}
+
+# @app.route("/api")
+# def api():
+#     print("WebSocket connection attempt...")
+
+#     if request.environ.get('wsgi.websocket'):
+#         ws = request.environ['wsgi.websocket']
+#         while True:
+#             try:
+#                 message = ws.receive()
+#                 active_sockets[message] = ws
+
+#             except WebSocketError:
+#                 return 'ERROR'
 
 @app.route("/")  # Initial landing page of the user.
 def index():
-    print("welcome")
+    # print("welcome")
     return render_template('client.html')
     
 
@@ -23,6 +44,7 @@ def retrieve_all():
     SELECT * FROM user
     """
     users = execute_query(query)
+    # print(users)
     return jsonify([dict(row) for row in users])
 
 
@@ -50,6 +72,7 @@ def retrieve_all_tokens():
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
     email = request.json["username"]
+    # print(email)
     password = request.json["password"]
     user = get_user(email)
     if user == 0:
@@ -241,7 +264,7 @@ def change_password():
 
 
 # Get user data by email -- tested
-@app.route("/get_user_data_by_email", methods=["GET"])
+@app.route("/get_user_data_by_email", methods=["POST"])
 def get_user_data_by_email():
     
     try:
@@ -268,7 +291,7 @@ def get_user_data_by_email():
                             "data": data[0],
                         }
                     ),
-                    500,
+                    200,
                 )
             else:
                 return (
@@ -284,12 +307,16 @@ def get_user_data_by_email():
 # Get user data by token -- tested
 @app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
-    # token = request.headers.get("token")
+    token = request.headers.get('token')
+    # print("test1  " + token)
+    
+
     try:
-        token = request.json["token"]
         data = get_user_data_bytoken(token)
+        # print(data)
         userData = get_user_data_byemail(data[0][0])
         user = [dict(row) for row in userData]
+        # print(user)
 
 
         if user_exist(data[0][0]) == True:
@@ -302,7 +329,7 @@ def get_user_data_by_token():
                         
                     }
                 ),
-                500,
+                200,
             )
         else:
             return (
@@ -442,18 +469,6 @@ def post_message():
                 400,
             )
 
-
-# Defining base routes (users and messages)
-@app.route("/user/<tokenID>")
-def users(tokenID):
-    return "User token: " + tokenID  # Placeholder
-
-
-# @app.route("/messages")
-# def messages():
-#     return "Messages"  # Placeholder
-
-# For token generation
 def token_generator():
     LENGTH_TOKEN = 30
     STRING_TOKEN = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
@@ -474,6 +489,68 @@ def show_routes():
         )
     return jsonify(routes)
 
+@app.route("/deletealltoken", methods=["POST"])
+def deletealltoken():
+    delete_all_token()
+    return True
+
+
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+#     server = pywsgi.WSGIServer(("127.0.0.1", 5000), app, handler_class=WebSocketHandler)
+#     print("WebSocket server running on ws://127.0.0.1:5000/api")
+#     server.serve_forever()
+
+
+@sockets.route('/echo')
+def echo_socket(ws):
+    # if request.environ.get('wsgi.websocket'):
+    # ws = request.environ['wsgi.websocket']
+    while True:
+        try:
+            message = ws.receive()
+            if message:
+                print(f"Received message: {message}")
+                ws.send(f"Echo: {message}")  # Echo the message back to the client
+                
+                # Example of broadcasting message to other clients
+                active_sockets[message] = ws
+                for user in active_sockets.values():
+                    user.send(f"Current active sockets: {len(active_sockets)}")
+
+        except WebSocketError as e:
+            print("WebSocketError:", e)
+            break
+        except Exception as e:
+            print("Error:", e)
+            break
+
+        finally:
+            print("Closing the connection.")
+            ws.close()
+
+    # print("WebSocket connection established.")
+    # while True:
+    #     try:
+    #         message = ws.receive()
+    #         ws.send(f"Echo: {message}")
+    #         print("receive  " + message)
+    #         if message != None:
+    #             active_sockets[message] = ws
+
+    #         print("keys" + active_sockets)
+
+    #         for user in active_sockets.keys():
+    #             # print "logging in " + str(len(ws_dic.keys()))
+    #             active_sockets[user].send(str(len(active_sockets.keys())))
+        
+    #     except WebSocketError:
+    #         print("WebSocket error occurred")
+    #         return 'ERROR'
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Start the server with gevent-websocket handler
+    server = pywsgi.WSGIServer(('127.0.0.1', 5000), app, handler_class=WebSocketHandler)
+    print("WebSocket server running on ws://127.0.0.1:5000/echo")
+    server.serve_forever()

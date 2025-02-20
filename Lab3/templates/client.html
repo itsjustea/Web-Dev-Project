@@ -20,12 +20,12 @@
                         <form id="signin-form" method="post" action = "javascript:login()">
                             <div class="form-group">
                                 <label for="email">Email:</label>
-                                <input type="email" name="login-email" id="login-email" required="" type="text">
+                                <input type="email" name="login-email" id="login-email" required="" type="text" value="tony@email.com">
                                 <br>
                             </div>
                             <div class="form-group">
                                 <label for="password">Password:</label>
-                                <input type="password" id="login-pw" name="password" required="" type="text">
+                                <input type="password" id="login-pw" name="password" required="" type="text" value="password123">
                             </div>
                             <div class="form-group-button">
                                 <button type="submit">Login</button>
@@ -90,6 +90,7 @@
                 </div>
             </div>  
         </script>
+        <button onclick=clearTokens()>THIS BUTTON IS TO CLEAR ALL TOKENS</button>
         <script id = "profileView" type = "text/view">
             <title>Profile</title>
             <div id = "navbar">
@@ -142,7 +143,7 @@
                 <h2 id="postheader"></h2>
                 <div id = "postmessage">
                     <form id = "postmessageform" action = "javascript:postMessage()">
-                        <textarea id="addmessage" required=""></textarea>
+                        <textarea id="addmessage" required="" value = ""></textarea>
                         <div id="postmessagebutton">
                             <button id="sendmessage" type = "submit" form = "postmessageform">Submit</button>
                         </div>
