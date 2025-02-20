@@ -266,9 +266,10 @@ def get_email_by_token(token):
     query = """
     SELECT email from tokens where token = ?
     """
-    email = execute_query(query, params=())
-    print(email)
-    if token == []:
+    params = (token,)
+    email = execute_query(query, params)
+    # print("line 271 " + email[0][0])
+    if email == []:
         return 0
     else:
-        return email
+        return email[0][0]

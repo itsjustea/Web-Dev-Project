@@ -29,35 +29,40 @@ var initlocalstorage = function(){
 
 
 //code for websocket
-function connectSocket(token){
+function connectSocket(token, callback){
     // console.log("socket  " + token);
     // var ws = new WebSocket("ws://127.0.0.1:5000/api");
-    var ws = new WebSocket("ws://127.0.0.1:5000/echo");
+    // const socket = new WebSocket('ws://' + location.host + '/echo');
+    const ws = new WebSocket("ws://127.0.0.1:5000/echo");
     ws.onopen = function () {
-        console.log("connection sent " + token);
-        ws.send(token);
-        // console.log("end of sent");
+        if (ws.readyState === WebSocket.OPEN) {
+            console.log("Sending message..." + token);
+            ws.send(token, (err) => {
+                if (err) {
+                    console.error("Send error:", err);
+                } else {
+                    console.log("Message sent successfully.");
+                }
+            });
+        } else {
+            console.error("WebSocket is not open:", ws.readyState);
+        }
+        console.log("line 50: ws.readyState"+ ws.readyState)
+        if (callback) {
+            console.log("Callback line 52")
+            callback();
+        }
     };
     
-    ws.onmessage = function(response) {
-            //logout without closing
-        console.log("Server " + response.data)
-        // if (JSON.parse(response.data)=="logout"){
-        //     // ws.send("close");
-        //     localStorage.removeItem("token");
-        //     displayView(document.getElementById("welcomeView"));
-        //     feedback("You have been logged out from another device");
-        // }
+    ws.onmessage = function (event){
+        console.log("Message received from server:", event.data);
+        // ws.send("ACK: " + event.data); // Send acknowledgment back
+    };
+    
 
-        //only closing
-        // if (JSON.parse(response.data)=="close"){
-        //     ws.send("close");
-        // }
-    }
-
-    ws.onerror = function() {
-        console.log("Error with sockets.");
-    }
+    ws.onerror = function(event) {
+        console.error('WebSocket error:', event);
+    };
 }
 
 //code that is executed as the page is loaded.
@@ -69,9 +74,11 @@ window.onload = function() {
     }else{
         token = JSON.parse(localStorage.getItem("token"))
         // console.log(typeof token)
-        connectSocket(token);
+        connectSocket(token, function() {
+            displayView.hide("welcome");
+            displayView.show("profile");
+        });
         // connectSocket();
-        displayView.show("profile");
         document.getElementById("defaultOpen").click();
     }
 };
@@ -121,9 +128,11 @@ var login = function(){
                     // console.log("line 117  " + typeof token);
                     // localStorage.setItem("email", email);
                     localStorage.setItem("token", token);
-                    connectSocket(result);
-                    displayView.hide("welcome");
-                    displayView.show("profile");
+                    connectSocket(result, function() {
+                        displayView.hide("welcome");
+                        displayView.show("profile");
+                    });
+                    
                 }
                 else {
                     feedback(httpResp.message);
@@ -322,6 +331,7 @@ var postMessage = function(){
 var refreshboard =  function (email) {
     var token = JSON.parse(localStorage.getItem("token"));
     // var refreshresult = serverstub.getUserMessagesByEmail(token,email);
+
     var wall = document.getElementById("messageboard");
     // document.getElementById("messageboard").innertext = refreshresult.message;
 
@@ -409,15 +419,34 @@ var attachHandler = function () {
 
     // Sign out function executed when button with id = logout is clicked
     document.getElementById("logout").addEventListener("click",function(){
-        var token = JSON.parse(localStorage.getItem("token"));
-        var signoutresult = serverstub.signOut(token);
-        if(signoutresult.success){
-            displayView.hide("profile");
-            displayView.show("welcome");
-            localStorage.setItem("token","[]");
-            useremail = "";
-            searchemail = "";
-            document.getElementById("loginalert").innerHTML = signoutresult.message;
+        if (true) {
+            // var token = JSON.parse(localStorage.getItem("token"));
+            var httpReq = new XMLHttpRequest();
+            
+            httpReq.onreadystatechange = function(){
+        
+            if (httpReq.status==200){
+                    var httpResp = JSON.parse(httpReq.responseText);
+                    if (httpResp.success){
+                        result = httpResp.token;
+                        token = JSON.stringify(result);
+                        console.log("client js line 432 " + token);
+                        displayView.hide("profile");
+                        displayView.show("welcome");
+                        localStorage.clear();
+                        localStorage.removeItem("token", JSON.stringify(token));
+                        localStorage.setItem("token","[]");
+                        useremail = "";
+                        searchemail = "";
+                        document.getElementById("loginalert").innerHTML = signoutresult.message;
+                    }
+                    else {
+                        feedback(httpResp.message);
+                    }
+                }
+            };
+            postRequest(httpReq, "sign_out" ,JSON.stringify({'token' : result}), null);
+            return false;
         }
     },false);
 }
