@@ -47,7 +47,7 @@ function connectSocket(token, callback){
         } else {
             console.error("WebSocket is not open:", ws.readyState);
         }
-        console.log("line 50: ws.readyState"+ ws.readyState)
+        
         if (callback) {
             console.log("Callback line 52")
             callback();
@@ -218,61 +218,74 @@ var changePassword = function(){
     var oldPassword = document.getElementById('oldPassword').value;
     var newPassword = document.getElementById('newPassword').value;
     var confirmNewPassword = document.getElementById('confirmNewPassword').value;
-    if (newPassword !== confirmNewPassword) {
-        document.getElementById("accountalert").innerText = "ERROR: New passwords do not match. Please try again.";
-        return;
-    }
+    var httpReq = new XMLHttpRequest();
+    httpReq.onreadystatechange = function(){
+        console.log("Ready State " + httpReq.readyState)
+        console.log("Status " + httpReq.status)
+        var httpResp = JSON.parse(httpReq.responseText);
+        if (httpReq.status === 200) {
+            console.log(httpResp);
+            userData = httpResp.data;
+            console.log("HTTP RESP SUCCESS " + httpResp.success)
+            console.log("USER DATA " + userData);        
+            if (httpResp.success){
+                console.log("SUCCESS: Change PW Message:" +  changePWResult.message);
+                document.getElementById("accountalert").innerText = "Password Changed Successfully!";
+                // if (newPassword !== confirmNewPassword) {
+                //     document.getElementById("accountalert").innerText = "ERROR: New passwords do not match. Please try again.";
+                //     return;
+                // }
+        
+                // else{
+                //     console.log("FAILED: Change PW Message:" +  changePWResult.message);
+                //     document.getElementById("accountalert").innerText = "ERROR: Password not changed. Please try again.";
+                // }
 
-    let changePWResult = serverstub.changePassword(token, oldPassword, newPassword);
-    if(changePWResult.success){
-        console.log("SUCCESS: Change PW Message:" +  changePWResult.message);
-        document.getElementById("accountalert").innerText = "Password Changed Successfully!";
-    }else{
-        console.log("FAILED: Change PW Message:" +  changePWResult.message);
-        document.getElementById("accountalert").innerText = "ERROR: Password not changed. Please try again.";
-    }
+            }
+            else {
+                // feedback(httpResp.message);
+                console.log(httpResp.message);
+                document.getElementById("accountalert").innerText = httpResp.message;
+            }
+        }
+        else{
+            console.log(httpResp.message);
+            document.getElementById("accountalert").innerText = httpResp.message;
+        }
+    };
+    postRequest(httpReq, "change_password", JSON.stringify({'oldPassword' : oldPassword, 'newPassword' : newPassword, 'checkNewPassword' : confirmNewPassword}) , token);
 }
 
 // function to show current useremail's profile
-function showMyProfile(){  
-    // console.log("string " + localStorage.getItem("token"));
+function showMyProfile(){
     var token = JSON.parse(localStorage.getItem("token"));
     var httpReq = new XMLHttpRequest();
-    loggedInUser = getRequest(httpReq, "get_user_data_by_token", token);
-
-    var httpReq = new XMLHttpRequest();
-        httpReq.onreadystatechange = function(){
-            if (httpReq.readyState === 4 && httpReq.status === 200) {
-                var httpResp = JSON.parse(httpReq.responseText);
-                console.log("line 246 " + httpResp);
-                // console.log(httpResp.token);
-                if (httpResp.success){
-                    document.getElementById("profileemail").innerHTML = httpResp.data.email;
-                    document.getElementById("profilefname").innerHTML = httpResp.data.firstname;
-                    document.getElementById("profilefamname").innerHTML = httpResp.data.familyname;
-                    document.getElementById("profilegender").innerHTML =httpResp.data.gender;
-                    document.getElementById("profilecity").innerHTML = httpResp.data.city;
-                    document.getElementById("profilecountry").innerHTML = httpResp.data.country;
-                }
-                else {
-                    feedback(httpResp.message);
-                }
+    httpReq.onreadystatechange = function(){
+        console.log("Ready State " + httpReq.readyState)
+        console.log("Status " + httpReq.status)
+        var httpResp = JSON.parse(httpReq.responseText);
+        if (httpReq.readyState === 4 && httpReq.status === 200) {
+            console.log(httpResp);
+            userData = httpResp.data;
+            console.log("HTTP RESP SUCCESS " + httpResp.success)
+            console.log("USER DATA " + userData);        
+            if (httpResp.success){
+                document.getElementById("profileemail").innerHTML = userData.email;
+                document.getElementById("profilefname").innerHTML = userData.firstName;
+                document.getElementById("profilefamname").innerHTML = userData.familyName;
+                document.getElementById("profilegender").innerHTML =userData.gender;
+                document.getElementById("profilecity").innerHTML = userData.city;
+                document.getElementById("profilecountry").innerHTML = userData.country;
+                useremail = userData.email
+                console.log("email " + useremail);
             }
-        };
-    
-
-    // console.log("test" + loggedInUser.success);
-
+            else {
+                feedback(httpResp.message);
+            }
+        }
+    };
+    getRequest(httpReq, "get_user_data_by_token", token);
     document.getElementById("postalert").innerText = "";
-    // if (loggedInUser.success) {
-    //     // Display user information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-    //     document.getElementById("profileemail").innerHTML = loggedInUser.data.email;
-    //     document.getElementById("profilefname").innerHTML = loggedInUser.data.firstname;
-    //     document.getElementById("profilefamname").innerHTML = loggedInUser.data.familyname;
-    //     document.getElementById("profilegender").innerHTML =loggedInUser.data.gender;
-    //     document.getElementById("profilecity").innerHTML = loggedInUser.data.city;
-    //     document.getElementById("profilecountry").innerHTML = loggedInUser.data.country;
-    // }
     document.getElementById("profileheader").innerHTML = "Your Profile";
     document.getElementById("postheader").innerHTML = "Post a message";      
 }
@@ -280,40 +293,78 @@ function showMyProfile(){
 // function to show other profile when searching
 var showOtherProfile = function(email){    
     var token = JSON.parse(localStorage.getItem("token"));
-    var searchedData = serverstub.getUserDataByEmail(token, email);
+    // var searchedData = serverstub.getUserDataByEmail(token, email);
     document.getElementById("postalert").innerText = "";
-    if (searchedData.success) {
-        // Display searched email's information via global variable - to change after implementing lab 2's data retrieval via serverstub.js
-        document.getElementById("profileemail").innerHTML = searchedData.data.email;
-        document.getElementById("profilefname").innerHTML = searchedData.data.firstname;
-        document.getElementById("profilefamname").innerHTML = searchedData.data.familyname;
-        document.getElementById("profilegender").innerHTML = searchedData.data.gender;
-        document.getElementById("profilecity").innerHTML = searchedData.data.city;
-        document.getElementById("profilecountry").innerHTML = searchedData.data.country;
-    }
-    document.getElementById("profileheader").innerHTML = searchedData.data.firstname + "'s Profile";    
+    var httpReq = new XMLHttpRequest();
+    httpReq.onreadystatechange = function(){
+        var httpResp = JSON.parse(httpReq.responseText);
+        if (httpReq.readyState === 4 && httpReq.status === 200) {
+            console.log(httpResp);
+            var searchUserData = httpResp.data;      
+            if (httpResp.success){
+                // searchemail = searchUserData.email;
+                document.getElementById("profileemail").innerHTML = searchUserData.email;
+                document.getElementById("profilefname").innerHTML = searchUserData.firstName;
+                document.getElementById("profilefamname").innerHTML = searchUserData.familyName;
+                document.getElementById("profilegender").innerHTML = searchUserData.gender;
+                document.getElementById("profilecity").innerHTML = searchUserData.city;
+                document.getElementById("profilecountry").innerHTML = searchUserData.country;
+                document.getElementById("profileheader").innerHTML = searchUserData.firstName + "'s Profile"; 
+                document.getElementById("homecontent").className = "content-cur";   
+            }
+            else {
+                // feedback(httpResp.message);
+                document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
+                // document.getElementById("homecontent").className ="content";
+            }
+        }
+    };
+    postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'email' : email}), token);   
 }
 
 // function to search the user by the email, retrieves the info and the message board
 var searchuser = function(){
     var token = JSON.parse(localStorage.getItem("token"));
-    searchemail = document.getElementById("searchemail").value;
-    var result = serverstub.getUserDataByEmail(token, searchemail);
-    if (result.success){
-        document.getElementById("searchalert").innerHTML = "";
-        if (searchemail === useremail){
-            showMyProfile();
+    var trysearchemail = document.getElementById("searchemail").value;
+    var httpReq = new XMLHttpRequest();
+    httpReq.onreadystatechange = function(){
+        // console.log("Ready State " + httpReq.readyState);
+        // console.log("Status " + httpReq.status);
+        var httpResp = JSON.parse(httpReq.responseText);
+        if (httpReq.status === 200) {
+            console.log(httpResp);
+            var searchUserData = httpResp.data;
+            console.log("HTTP RESP SUCCESS " + httpResp.success)
+            console.log("Searched user DATA " + searchUserData);    
+            console.log(httpResp.success)   
+            if (httpResp.success){
+                document.getElementById("searchalert").innerHTML = "";
+                if (searchUserData.email === useremail){
+                    showMyProfile();
+                }
+                else {
+                    console.log("before i display : " + searchUserData.email);
+                    showOtherProfile(searchUserData.email);
+                }
+                // document.getElementById("homecontent").className ="content-cur";
+                refreshboard(searchUserData.email);
+            }
+            else {
+                // No such user is found
+                console.log("no user found message :" + httpResp.message)
+                document.getElementById("searchalert").innerHTML = httpResp.message;
+                document.getElementById("homecontent").className ="content";
+                // feedback(httpResp.message);
+            }
         }
         else {
-            showOtherProfile(searchemail);
+           // No such user is found
+            console.log("no user found message :" + httpResp.message);
+            document.getElementById("searchalert").innerHTML = httpResp.message;
+            document.getElementById("homecontent").className ="content";
         }
-        refreshboard(searchemail);
-        document.getElementById("homecontent").className ="content-cur";
-    }else{
-        // No such uer is found
-        document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
-        document.getElementById("homecontent").className ="content";
-    }
+    };
+    postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'email' : trysearchemail}), token);
 }
 
 // function to post the message on either own wall or other email wall
@@ -480,3 +531,14 @@ function clearTokens() {
     localStorage.clear();
     localStorage.removeItem("token", JSON.stringify(token));
 };
+
+/* Function to display a message for the user
+*  arg[0] = string of text to be displayed.
+*/
+// function feedback(text) {
+
+//     var feedback = document.getElementById('feedback');
+//     var message = document.getElementById('errorMessage');
+//     message.innerHTML = text;
+//     feedback.style.display = "block";
+// }

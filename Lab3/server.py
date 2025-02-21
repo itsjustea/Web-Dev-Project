@@ -221,7 +221,8 @@ def change_password():
         old_password = request.json["oldPassword"]
         new_password = request.json["newPassword"]
         check_new_password = request.json["checkNewPassword"]
-        token = request.json["token"]
+        # token = request.json["token"]
+        token = request.headers.get('token')
         result = get_user_data_bytoken(token)
         if (result[0][0] == 0):
             return (
@@ -259,7 +260,7 @@ def change_password():
                 update_password(result[0][0], new_password)
                 return (
                     jsonify({"success": True, "message": "Password Changed Successfully"}),
-                    500,
+                    200,
                 )
     except:
         return (
@@ -271,10 +272,10 @@ def change_password():
 # Get user data by email -- tested
 @app.route("/get_user_data_by_email", methods=["POST"])
 def get_user_data_by_email():
-    
+    token = request.headers.get('token')
     try:
         email = request.json["email"]
-        token = request.json["token"]
+        # token = request.json["token"]
         result = get_user_data_bytoken(token)
         if (result[0][0] == 0):
             return (
@@ -345,10 +346,11 @@ def get_user_data_by_token():
             )
 
 # Get user messages by email -- tested
-@app.route("/get_user_messages_by_email", methods=["GET"])
+@app.route("/get_user_messages_by_email", methods=["POST"])
 def get_user_messages_by_email():
     try:
-        token = request.json["token"]
+        # token = request.json["token"]
+        token = request.headers.get('token')
         email = request.json["email"]
         result = get_user_data_bytoken(token)
         current_user = result[0][0]
@@ -394,7 +396,8 @@ def get_user_messages_by_email():
 @app.route("/get_user_messages_by_token", methods=["GET"])
 def get_user_messages_by_token():
     try:
-        token = request.json["token"]
+        # token = request.json["token"]
+        token = request.headers.get('token')
         current_user = get_user_data_bytoken(token)
         
         if (user_exist(current_user[0][0])== False):
@@ -437,7 +440,8 @@ def post_message():
         # sender_email = request.json["sender_email"]
         receiver_email = request.json["email"]
         message = request.json["message"]
-        token = request.json["token"]
+        # token = request.json["token"]
+        token = request.headers.get('token')
         sender_email = get_user_data_bytoken(token)
         receiver = user_exist(receiver_email)
         if receiver == False:
@@ -530,12 +534,12 @@ def echo_socket(ws):
                         print("closing websocket")
                         delete_token(token)
                         break 
+                
 
 
-                    
             except WebSocketError as e:
                 print("Client Disconnected Websocket")
-    
+        
     except WebSocketError as e:
         print("WebSocketError:", e)
     
