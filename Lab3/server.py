@@ -180,7 +180,7 @@ def sign_out():
         print(token)
         # token = request.headers.get('token')
         result = get_user_data_bytoken(token)
-        
+        email = get_email_by_token(token)
         if (result[0][0] == 0):
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
@@ -188,6 +188,7 @@ def sign_out():
             )
         # token = get_token_by_email(email)
         else:
+            active_sockets[email].send(json.dumps("close"))
             result = delete_token(token)
             # removed = request.headers.remove("token")
             if result == True:
@@ -510,6 +511,7 @@ def echo_socket(ws):
                 try:
                     active_sockets[email].send(json.dumps("logout"))
                     print("Active Websocket deleted: " + email)
+
                 except:
                     print("Active Websocket deleted (due to reload): " + email)
 
@@ -519,6 +521,20 @@ def echo_socket(ws):
             else:
                 active_sockets[email] = ws
                 print("New Active Websocket added: " + email)
+
+
+            try:
+                while True:
+                    message = ws.receive()
+                    if message == "close":
+                        print("closing websocket")
+                        delete_token(token)
+                        break 
+
+
+                    
+            except WebSocketError as e:
+                print("Client Disconnected Websocket")
     
     except WebSocketError as e:
         print("WebSocketError:", e)

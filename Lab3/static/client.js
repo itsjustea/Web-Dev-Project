@@ -54,11 +54,24 @@ function connectSocket(token, callback){
         }
     };
     
-    ws.onmessage = function (event){
-        console.log("Message received from server:", event.data);
+    ws.onmessage = function (response){
+        console.log("Message received from server:", response.data);
         // ws.send("ACK: " + event.data); // Send acknowledgment back
+        if (response.data=="logout"){
+            //logout without closing connection
+            ws.send("close");
+            feedback("Logged out from another device")
+        }
+
+        if (response.data == "close"){
+            // only for closing 
+            ws.send("close");
+        }
     };
-    
+
+    ws.onclose = function() {
+        console.log("connection closed");
+    }
 
     ws.onerror = function(event) {
         console.error('WebSocket error:', event);
@@ -122,13 +135,14 @@ var login = function(){
                 if (httpResp.success){
                     result = httpResp.token;
                     token = JSON.stringify(result);
+                    tokenSocket = JSON.parse(token)
                     // console.log("result " + result);
                     // console.log("token " + token);
                     // console.log("hi "  + JSON.parse(token));
                     // console.log("line 117  " + typeof token);
                     // localStorage.setItem("email", email);
                     localStorage.setItem("token", token);
-                    connectSocket(result, function() {
+                    connectSocket(tokenSocket, function() {
                         displayView.hide("welcome");
                         displayView.show("profile");
                     });
@@ -420,22 +434,26 @@ var attachHandler = function () {
     // Sign out function executed when button with id = logout is clicked
     document.getElementById("logout").addEventListener("click",function(){
         if (true) {
-            // var token = JSON.parse(localStorage.getItem("token"));
+            var tokenSignout = JSON.parse(localStorage.getItem("token"));
+            console.log(tokenSignout);
+            var result = localStorage.getItem("token");
             var httpReq = new XMLHttpRequest();
-            
             httpReq.onreadystatechange = function(){
         
-            if (httpReq.status==200){
+            if (httpReq.readyState == 4 && httpReq.status==200){
                     var httpResp = JSON.parse(httpReq.responseText);
                     if (httpResp.success){
-                        result = httpResp.token;
+                        // result = httpResp.token;
                         token = JSON.stringify(result);
+                        // tokenSignout = JSON.parse(token) // used for postrequest
+                        
                         console.log("client js line 432 " + token);
+                        console.log("client js line 433 " + result);
                         displayView.hide("profile");
                         displayView.show("welcome");
-                        localStorage.clear();
+                        // localStorage.clear();
                         localStorage.removeItem("token", JSON.stringify(token));
-                        localStorage.setItem("token","[]");
+                        // localStorage.setItem("token","[]");
                         useremail = "";
                         searchemail = "";
                         document.getElementById("loginalert").innerHTML = signoutresult.message;
@@ -445,7 +463,7 @@ var attachHandler = function () {
                     }
                 }
             };
-            postRequest(httpReq, "sign_out" ,JSON.stringify({'token' : result}), null);
+            postRequest(httpReq, "sign_out" ,JSON.stringify({'token' : tokenSignout}), null);
             return false;
         }
     },false);
