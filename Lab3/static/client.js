@@ -178,7 +178,6 @@ function postRequest(request, url, data, token){
 function getRequest(request, url, data){
     request.open("GET", url, true);
     if (data!=null) {
-            // console.log('why')
             request.setRequestHeader("token", data);
     }
     request.setRequestHeader("Content-type","application/json; charset=utf-8");
@@ -244,8 +243,8 @@ var changePassword = function(){
             console.log("HTTP RESP SUCCESS " + httpResp.success)
             console.log("USER DATA " + userData);        
             if (httpResp.success){
-                console.log("SUCCESS: Change PW Message:" +  changePWResult.message);
-                document.getElementById("accountalert").innerText = "Password Changed Successfully!";
+                console.log("SUCCESS: Change PW Message:" +  httpResp.message);
+                document.getElementById("accountalert").innerText = httpResp.message;
             }
             else {
                 // feedback(httpResp.message);

@@ -1,15 +1,16 @@
 # This file shall contain all the server side services, implemented using Python and Flask
 import random
 import re
+
 from database_helper import *
 from flask import Flask, json, jsonify, render_template, request
+from flask_sock import Sock
+from gevent import pywsgi
+
 # from gevent.pywsgi import WSGIServer
 # from flask_sockets import Sockets
 from geventwebsocket import WebSocketError
-from gevent import pywsgi
 from geventwebsocket.handler import WebSocketHandler
-from flask_sock import Sock
-
 
 app = Flask(__name__)
 sock = Sock(app)
@@ -29,11 +30,11 @@ active_sockets = dict()
 #             except WebSocketError:
 #                 return 'ERROR'
 
+
 @app.route("/")  # Initial landing page of the user.
 def index():
     # print("welcome")
-    return render_template('client.html')
-    
+    return render_template("client.html")
 
 
 # Change to this when integrating with our lab 1, this will render the client.html file upon loading.
@@ -80,19 +81,19 @@ def sign_in():
     if user == 0:
         return (
             jsonify({"success": False, "message": "User not found"}),
-            404,
+            401,
         )
     elif user[1] != password:
         return (
             jsonify({"success": False, "message": "Wrong password"}),
-            403,
+            401,
         )
     else:
         token = token_generator()
         result = store_token(email, token)
         # set header token
         # response = request.headers.set("token", token)
-        
+
         if result == True:
             return (
                 jsonify(
@@ -108,8 +109,9 @@ def sign_in():
                 500,
             )
 
+
 def valid_email(email):
-    return bool (re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
+    return bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
 
 
 # Sign up function -- tested
@@ -119,7 +121,6 @@ def sign_up():
     try:
         if not valid_email(email):
             return jsonify({"success": False, "message": "Invalid email format"}), 400
-
 
         if (user_exist(email)) == False:
             first_name = request.json["firstName"]
@@ -142,14 +143,21 @@ def sign_up():
                     insert_user(
                         email, password, first_name, last_name, gender, city, country
                     )
-                    
+
                     return (
-                        jsonify({"success": True, "message": "Sign Up Successful, please enter login credentials above."}),
+                        jsonify(
+                            {
+                                "success": True,
+                                "message": "Sign Up Successful, please enter login credentials above.",
+                            }
+                        ),
                         200,
                     )
                 else:
                     return (
-                        jsonify({"success": False, "message": "Passwords do not match"}),
+                        jsonify(
+                            {"success": False, "message": "Passwords do not match"}
+                        ),
                         400,
                     )
             else:
@@ -158,17 +166,16 @@ def sign_up():
                     400,
                 )
         else:
-            
+
             return (
                 jsonify({"success": False, "message": "User already exist"}),
                 400,
             )
     except:
-         return (
-                jsonify({"success": False, "message": "Invalid data field"}),
-                400,
-            )
-
+        return (
+            jsonify({"success": False, "message": "Invalid data field"}),
+            400,
+        )
 
 
 # Sign out function -- tested
@@ -181,7 +188,7 @@ def sign_out():
         # token = request.headers.get('token')
         result = get_user_data_bytoken(token)
         email = get_email_by_token(token)
-        if (result[0][0] == 0):
+        if result[0][0] == 0:
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
                 400,
@@ -192,15 +199,19 @@ def sign_out():
             result = delete_token(token)
             # removed = request.headers.remove("token")
             if result == True:
-                return jsonify({"success": True, "message": "Successfully signed out"}), 200
+                return (
+                    jsonify({"success": True, "message": "Successfully signed out"}),
+                    200,
+                )
 
             else:
                 return jsonify({"success": False, "message": "Sign out failed"}), 400
     except:
         return (
-                jsonify({"success": False, "message": "Invalid Token"}),
-                400,
-            )
+            jsonify({"success": False, "message": "Invalid Token"}),
+            400,
+        )
+
 
 # Check whether user exist -- tested
 def user_exist(email):
@@ -218,14 +229,14 @@ def user_exist(email):
 @app.route("/change_password", methods=["POST"])
 def change_password():
     try:
-    
+
         old_password = request.json["oldPassword"]
         new_password = request.json["newPassword"]
         check_new_password = request.json["checkNewPassword"]
         # token = request.json["token"]
-        token = request.headers.get('token')
+        token = request.headers.get("token")
         result = get_user_data_bytoken(token)
-        if (result[0][0] == 0):
+        if result[0][0] == 0:
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
                 400,
@@ -233,19 +244,25 @@ def change_password():
         else:
 
             user = get_user(result[0][0])
-            if user[1] != old_password:
+            print(user[0])
+            print(user[1])
+            if len(new_password) < 4:
+                print("goes into less than 4")
+                print(new_password)
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": "Password must be at least 4 characters",
+                        }
+                    ),
+                    400,
+                )
+            elif user[1] != old_password:  # user[0] is username, user[1] is password
                 return (
                     jsonify({"success": False, "message": "Wrong password"}),
                     403,
                 )
-            elif len(new_password) < 4:
-                return (
-                    jsonify(
-                        {"success": False, "message": "Password must be at least 4 characters"}
-                    ),
-                    400,
-                )
-
             elif new_password != check_new_password:
                 return (
                     jsonify(
@@ -256,11 +273,22 @@ def change_password():
                     ),
                     400,
                 )
-
+            elif old_password == new_password:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": "New password is the same as the old password",
+                        }
+                    ),
+                    400,
+                )
             else:
                 update_password(result[0][0], new_password)
                 return (
-                    jsonify({"success": True, "message": "Password Changed Successfully"}),
+                    jsonify(
+                        {"success": True, "message": "Password Changed Successfully"}
+                    ),
                     200,
                 )
     except:
@@ -273,12 +301,12 @@ def change_password():
 # Get user data by email -- tested
 @app.route("/get_user_data_by_email", methods=["POST"])
 def get_user_data_by_email():
-    token = request.headers.get('token')
+    token = request.headers.get("token")
     try:
         email = request.json["email"]
         # token = request.json["token"]
         result = get_user_data_bytoken(token)
-        if (result[0][0] == 0):
+        if result[0][0] == 0:
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
                 400,
@@ -286,9 +314,9 @@ def get_user_data_by_email():
         # searched_user = result[0][0]
         else:
             if user_exist(email) == True:
-                
+
                 userData = get_user_data_byemail(email)
-                data =  [dict(row) for row in userData]
+                data = [dict(row) for row in userData]
 
                 return (
                     jsonify(
@@ -302,26 +330,28 @@ def get_user_data_by_email():
                 )
             else:
                 return (
-                    jsonify({"success": False, "message": "Searched User does not exist"}),
+                    jsonify(
+                        {"success": False, "message": "Searched User does not exist"}
+                    ),
                     404,
                 )
     except:
         return (
-                jsonify({"success": False, "message": "Invalid Token"}),
-                400,
-            )
+            jsonify({"success": False, "message": "Invalid Token"}),
+            400,
+        )
+
 
 # Get user data by token -- tested
 @app.route("/get_user_data_by_token", methods=["GET"])
 def get_user_data_by_token():
-    token = request.headers.get('token')
+    token = request.headers.get("token")
     try:
         data = get_user_data_bytoken(token)
         # print(data[0][0])
         userData = get_user_data_byemail(data[0][0])
         user = [dict(row) for row in userData]
         # print(user)
-
 
         if user_exist(data[0][0]) == True:
             return (
@@ -330,7 +360,6 @@ def get_user_data_by_token():
                         "success": True,
                         "message": "User Data Retrieved Successfully",
                         "data": user[0],
-                        
                     }
                 ),
                 200,
@@ -342,9 +371,10 @@ def get_user_data_by_token():
             )
     except:
         return (
-                jsonify({"success": False, "message": "Invalid token"}),
-                400,
-            )
+            jsonify({"success": False, "message": "Invalid token"}),
+            400,
+        )
+
 
 # Get user messages by email -- tested
 @app.route("/get_user_messages_by_email", methods=["POST"])
@@ -357,12 +387,12 @@ def get_user_messages_by_email():
     current_user = result[0][0]
     print(email)
     print(token)
-    if (user_exist(email)== False):
+    if user_exist(email) == False:
         return (
             jsonify({"success": False, "message": "Email not found"}),
             400,
         )
-    
+
     else:
         data = get_messages(email)
         # if (current_user[0][0] == 0):
@@ -371,7 +401,7 @@ def get_user_messages_by_email():
         #         400,
         #     )
         if data != 0:
-            
+
             return (
                 jsonify(
                     {
@@ -394,25 +424,26 @@ def get_user_messages_by_email():
     #             400,
     #         )
 
-#get user messages by token    
+
+# get user messages by token
 @app.route("/get_user_messages_by_token", methods=["POST"])
 def get_user_messages_by_token():
     try:
         # token = request.json["token"]
-        token = request.headers.get('token')
+        token = request.headers.get("token")
         current_user = get_user_data_bytoken(token)
-        
-        if (user_exist(current_user[0][0])== False):
+
+        if user_exist(current_user[0][0]) == False:
             return (
                 jsonify({"success": False, "message": "Invalid token"}),
                 400,
             )
-        
+
         else:
-            data = get_messages(current_user[0][0]) # error
-                                
+            data = get_messages(current_user[0][0])  # error
+
             if data != 0:
-                
+
                 return (
                     jsonify(
                         {
@@ -431,9 +462,10 @@ def get_user_messages_by_token():
                 )
     except:
         return (
-                jsonify({"success": False, "message": "Invalid Token"}),
-                400,
-            )    
+            jsonify({"success": False, "message": "Invalid Token"}),
+            400,
+        )
+
 
 # Post messages function -- tested
 @app.route("/post_message", methods=["POST"])
@@ -443,7 +475,7 @@ def post_message():
         receiver_email = request.json["email"]
         message = request.json["message"]
         # token = request.json["token"]
-        token = request.headers.get('token')
+        token = request.headers.get("token")
         sender_email = get_user_data_bytoken(token)
         receiver = user_exist(receiver_email)
         if receiver == False:
@@ -451,31 +483,36 @@ def post_message():
                 jsonify({"success": False, "message": "Receiver does not exist"}),
                 404,
             )
-        
-        elif (not message.strip()):
+
+        elif not message.strip():
             return (
-            jsonify({"success": False, "message": "Message is empty."}),
-                404, 
+                jsonify({"success": False, "message": "Message is empty."}),
+                404,
             )
 
         else:
             result = insert_messages(sender_email[0][0], receiver_email, message)
             if result == True:
                 return (
-                    jsonify({"success": True, "message": "Message Posted Successfully"}),
+                    jsonify(
+                        {"success": True, "message": "Message Posted Successfully"}
+                    ),
                     500,
                 )
 
             else:
                 return (
-                    jsonify({"success": False, "message": "Message could not be posted"}),
+                    jsonify(
+                        {"success": False, "message": "Message could not be posted"}
+                    ),
                     400,
                 )
-    except: 
-         return (
-                jsonify({"success": False, "message": "Invalid token"}),
-                400,
-            )
+    except:
+        return (
+            jsonify({"success": False, "message": "Invalid token"}),
+            400,
+        )
+
 
 def token_generator():
     LENGTH_TOKEN = 30
@@ -484,7 +521,6 @@ def token_generator():
     for i in range(0, LENGTH_TOKEN):
         token += STRING_TOKEN[random.randint(0, len(STRING_TOKEN) - 1)]
     return token
-
 
 
 # For us to see the existing routes only, not to be used in the final implementation
@@ -497,12 +533,14 @@ def show_routes():
         )
     return jsonify(routes)
 
+
 @app.route("/deletealltoken", methods=["POST"])
 def deletealltoken():
     delete_all_token()
     return True
 
-@sock.route('/echo')
+
+@sock.route("/echo")
 def echo_socket(ws):
     print("WebSocket connection established")  # Debugging print
     token = None
@@ -511,7 +549,7 @@ def echo_socket(ws):
             token = ws.receive()
             print(f"Received message: {token}")  # Debugging print
             ws.send(f"{token}")  # Echo back to client
-            email = get_email_by_token(token) #current line of error
+            email = get_email_by_token(token)  # current line of error
             # print("line 504 " + email)
             if email in active_sockets:
                 try:
@@ -528,32 +566,30 @@ def echo_socket(ws):
                 active_sockets[email] = ws
                 print("New Active Websocket added: " + email)
 
-
             try:
                 while True:
                     message = ws.receive()
                     if message == "close":
                         print("closing websocket")
                         delete_token(token)
-                        break 
-                
-
+                        break
 
             except WebSocketError as e:
                 print("Client Disconnected Websocket")
-        
+
     except WebSocketError as e:
         print("WebSocketError:", e)
-    
+
     except Exception as e:
         print("Unexpected error:", e)
-    
+
     finally:
         print(f"Closing connection. Last received message: {token}")
         ws.close()
 
+
 if __name__ == "__main__":
     # Start the server with gevent-websocket handler
-    server = pywsgi.WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler)
+    server = pywsgi.WSGIServer(("0.0.0.0", 5000), app, handler_class=WebSocketHandler)
     print("WebSocket server running on ws://0.0.0.0:5000/echo")
     server.serve_forever()
