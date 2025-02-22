@@ -12,7 +12,9 @@ var displayView = {
             attachHandler();
             homeTab = document.getElementById("hometab");
             homeTab.className = "tab-cur";
+            useremail = localStorage.getItem("email");
             refreshboard(useremail);
+            console.log("user email during first display " + useremail);
         }
     },
     hide: function (id) {
@@ -29,9 +31,7 @@ var initlocalstorage = function(){
 
 //code for websocket
 function connectSocket(token, callback){
-    // console.log("socket  " + token);
-    // var ws = new WebSocket("ws://127.0.0.1:5000/api");
-    // const socket = new WebSocket('ws://' + location.host + '/echo');
+    console.log("Socket associated with token:  " + token);
     const ws = new WebSocket("ws://127.0.0.1:5000/echo");
     ws.onopen = function () {
         if (ws.readyState === WebSocket.OPEN) {
@@ -80,46 +80,47 @@ function connectSocket(token, callback){
 //code that is executed as the page is loaded.
 window.onload = function() {
     initlocalstorage();
+    var token = JSON.parse(localStorage.getItem("token"))
     // var token = JSON.parse(localStorage.getItem("token"));
     //only when the user is logged out, it will shows the welcome view
     if(JSON.parse(localStorage.getItem("token")).length == 0){
         displayView.show("welcome");
     }else{
-        var token = JSON.parse(localStorage.getItem("token"))
         console.log("token when onload : " + token)
+        useremail = localStorage.getItem("email");
+        console.log("email when onload : " + useremail)
         // console.log(typeof token)
         connectSocket(token, function() {
             displayView.hide("welcome");
             displayView.show("profile");
         });
-        // connectSocket();
         document.getElementById("defaultOpen").click();
     }
 };
 
 // User field validation - Step 3
-function pwValidation() {
-    const entered_pw = document.getElementById('signup-pw');
-    const confirm_pw = document.getElementById('signup-repeatPSW');
+// function pwValidation() {
+//     const entered_pw = document.getElementById('signup-pw');
+//     const confirm_pw = document.getElementById('signup-repeatPSW');
 
-    // 3. Both password fields must contain the same string
-    if (entered_pw.value !== confirm_pw.value) {
-        alert('Passwords do not match. Please re-enter your password.');
-        entered_pw.value = ''; // Clear the password fields
-        confirm_pw.value = '';
-        return false;
-    }
-    // 4. The password must be at least X characters long (assume X = 8)
-    if (entered_pw.value.length < 8 || confirm_pw.value.length < 8) {
-        alert('Entered password must be at least 8 characters long.');
-        entered_pw.value = ''; // Clear the password fields
-        confirm_pw.value = '';
-        return false;
-    }
+//     // 3. Both password fields must contain the same string
+//     if (entered_pw.value !== confirm_pw.value) {
+//         alert('Passwords do not match. Please re-enter your password.');
+//         entered_pw.value = ''; // Clear the password fields
+//         confirm_pw.value = '';
+//         return false;
+//     }
+//     // 4. The password must be at least X characters long (assume X = 8)
+//     if (entered_pw.value.length < 8 || confirm_pw.value.length < 8) {
+//         alert('Entered password must be at least 8 characters long.');
+//         entered_pw.value = ''; // Clear the password fields
+//         confirm_pw.value = '';
+//         return false;
+//     }
 
-    console.log('Passwords match, proceed!');
-    return true;
-}
+//     console.log('Passwords match, proceed!');
+//     return true;
+// }
 
 // Adding the signin mechanism - Step 5
 var login = function(){
@@ -143,15 +144,21 @@ var login = function(){
                     // console.log("line 117  " + typeof token);
                     // localStorage.setItem("email", email);
                     localStorage.setItem("token", token);
+                    localStorage.setItem("email", email);
                     connectSocket(tokenSocket, function() {
                         displayView.hide("welcome");
                         displayView.show("profile");
                     });
                     useremail = httpResp.data.email;
+                    document.getElementById("signinalert").innerText = httpResp.message;
                 }
                 else {
-                    feedback(httpResp.message);
+                    // feedback(httpResp.message);
+                    document.getElementById("signinalert").innerText = httpResp.message;
                 }
+            }
+            else{
+                document.getElementById("signinalert").innerText = httpResp.message;
             }
         };
         postRequest(httpReq, "sign_in" ,JSON.stringify({'username' : email, 'password' : password}), null);
@@ -180,37 +187,44 @@ function getRequest(request, url, data){
 
 // Adding the signup mechanism - Step 4
 var signup = function() {
-    var validateCheck = pwValidation();
-    if(!validateCheck){
-        return false;
-    }
-    // Get values from the form inputs
     var email = document.getElementById('signup-email').value;
     var password = document.getElementById('signup-pw').value;
+    var password_confirmation = document.getElementById('signup-repeatPSW').value;
     var firstname = document.getElementById('signup-fname').value;
     var familyname = document.getElementById('signup-famname').value;
     var gender = document.getElementById('signup-gender').value;
     var city = document.getElementById('signup-city').value;
     var country = document.getElementById('signup-country').value;
     var newUser = {email, password, firstname, familyname, gender, city, country};
-    var submitResult = serverstub.signUp(newUser);
-    document.getElementById("signupalert").innerText = submitResult.message;
-
-    if (submitResult.success){
-        var token = "";
-        var loginResult = serverstub.signIn(email,password);
-        if (loginResult.success){
-            token = loginResult.data;
-            localStorage.setItem("token", JSON.stringify(token));
-            displayView.hide("welcome");
-            displayView.show("profile");
-            useremail = email;
-            // Set the currently logged in user in this session - change after lab 2.
-            localStorage.setItem("loggedInUser", JSON.stringify(newUser));
-            showMyProfile();
+    // var submitResult = serverstub.signUp(newUser);   
+    var httpReq = new XMLHttpRequest();
+    httpReq.onreadystatechange = function(){
+        var httpResp = JSON.parse(httpReq.responseText); // error same as login
+        console.log(httpResp);
+        if (httpReq.status === 200 && httpReq.readyState == 4) {
+            console.log("sign up status " + httpResp.success); 
+            if (httpResp.success){
+                // useremail = httpResp.data.email;
+                document.getElementById("signupalert").innerText = httpResp.message;
+            }
+            else {
+                document.getElementById("signupalert").innerText = httpResp.message;
+            }
         }
-    }
-    alert('Form submitted successfully!');
+        else{
+            document.getElementById("signupalert").innerText = httpResp.message;
+        }
+    };
+    postRequest(httpReq, "sign_up", JSON.stringify({'email' : email,
+                                                    'firstName': firstname,
+                                                    'familyName': familyname,
+                                                    'gender' : gender,
+                                                    'city' : city,
+                                                    'country': country,
+                                                    'password_confirmation': password_confirmation,
+                                                    'password' : password}) , null);
+    
+    // alert('Form submitted successfully!');
 }
 
 // Allows user to change password in the Account page.
@@ -252,12 +266,12 @@ function showMyProfile(){
     var token = JSON.parse(localStorage.getItem("token"));
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        console.log("Ready State " + httpReq.readyState)
-        console.log("Status " + httpReq.status)
         var httpResp = JSON.parse(httpReq.responseText);
+        userData = httpResp.data;
+        console.log("Response when onload: " + httpResp)
         if (httpReq.readyState === 4 && httpReq.status === 200) {
-            console.log(httpResp);
-            userData = httpResp.data;
+            useremail = userData.email
+            console.log("email " + useremail);
             console.log("HTTP RESP SUCCESS " + httpResp.success)
             console.log("USER DATA " + userData);        
             if (httpResp.success){
@@ -267,11 +281,10 @@ function showMyProfile(){
                 document.getElementById("profilegender").innerHTML =userData.gender;
                 document.getElementById("profilecity").innerHTML = userData.city;
                 document.getElementById("profilecountry").innerHTML = userData.country;
-                useremail = userData.email
-                console.log("email " + useremail);
+                console.log(httpResp.message);
             }
             else {
-                feedback(httpResp.message);
+                console.log("error " + httpResp.message);
             }
         }
     };
@@ -371,8 +384,8 @@ var postMessage = function(){
     console.log("receiver email " + email);
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        console.log("Ready State " + httpReq.readyState)
-        console.log("Status " + httpReq.status)
+        // console.log("Ready State " + httpReq.readyState)
+        // console.log("Status " + httpReq.status)
         var httpResp = JSON.parse(httpReq.responseText);
         if (httpReq.status === 200) {
             console.log(httpResp);
@@ -407,22 +420,24 @@ var refreshboard =  function (email) {
     var wall = document.getElementById("messageboard");
     // document.getElementById("messageboard").innertext = refreshresult.message;
     if (email === useremail) {
+        console.log("user email when refresh board :" + email);
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
     }
     
     else{
+        console.log("user email when refresh board :" + email);
         document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
     }
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        console.log("Ready State " + httpReq.readyState)
-        console.log("Status " + httpReq.status)
+        // console.log("Ready State " + httpReq.readyState)
+        // console.log("Status " + httpReq.status)
         var httpResp = JSON.parse(httpReq.responseText);
         if (httpReq.status === 200) {
-            console.log(httpResp);
+            console.log("REFRESH BOARD RESPONSE : " + httpResp);
             userData = httpResp.data;
-            console.log("HTTP RESP SUCCESS " + httpResp.success)
-            console.log("USER DATA " + userData);        
+            // console.log("HTTP RESP SUCCESS " + httpResp.success)
+            // console.log("USER DATA " + userData);        
             if (httpResp.success){
                 // wall.innerHTML = httpResp.data
                 var messages = httpResp.data;
@@ -450,7 +465,7 @@ var refreshboard =  function (email) {
             wall.innerHTML = httpResp.message
         }
     };
-    postRequest(httpReq, "get_user_messages_by_email", JSON.stringify({'email' : email}), token);
+    postRequest(httpReq, "get_user_messages_by_email", JSON.stringify({'email' : email, 'token' : token}), token);
 }
 
 // button function when on submit
@@ -534,7 +549,7 @@ var attachHandler = function () {
                         // localStorage.setItem("token","[]");
                         useremail = "";
                         searchemail = "";
-                        document.getElementById("loginalert").innerHTML = signoutresult.message;
+                        // document.getElementById("loginalert").innerHTML = httpResp.message;
                     }
                     else {
                         feedback(httpResp.message);

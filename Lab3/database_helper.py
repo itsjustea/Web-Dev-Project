@@ -47,12 +47,14 @@ def execute_query(query, params=()):
 
 # Query for email and password to check if the user exists
 def get_user(email):
+    
     query = """
     SELECT email, password FROM user WHERE email = ?
     """
     params = (email,)
     user = execute_query(query, params)
-    print("get_user func " + user[0][0])
+    # print("Email " + email)
+    # print(user[0])
     if user == []:
         return 0
     else:
