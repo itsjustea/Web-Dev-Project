@@ -85,7 +85,7 @@ def sign_in():
     elif user[1] != password:
         return (
             jsonify({"success": False, "message": "Wrong password"}),
-            401,
+            403,
         )
     else:
         token = token_generator()
@@ -184,7 +184,7 @@ def sign_out():
         if (result[0][0] == 0):
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
-                404,
+                400,
             )
         # token = get_token_by_email(email)
         else:
@@ -199,7 +199,7 @@ def sign_out():
     except:
         return (
                 jsonify({"success": False, "message": "Invalid Token"}),
-                404,
+                400,
             )
 
 # Check whether user exist -- tested
@@ -228,7 +228,7 @@ def change_password():
         if (result[0][0] == 0):
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
-                404,
+                400,
             )
         else:
 
@@ -236,7 +236,7 @@ def change_password():
             if user[1] != old_password:
                 return (
                     jsonify({"success": False, "message": "Wrong password"}),
-                    401,
+                    403,
                 )
             elif len(new_password) < 4:
                 return (
@@ -281,7 +281,7 @@ def get_user_data_by_email():
         if (result[0][0] == 0):
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
-                404,
+                400,
             )
         # searched_user = result[0][0]
         else:
@@ -308,7 +308,7 @@ def get_user_data_by_email():
     except:
         return (
                 jsonify({"success": False, "message": "Invalid Token"}),
-                404,
+                400,
             )
 
 # Get user data by token -- tested
