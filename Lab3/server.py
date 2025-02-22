@@ -205,6 +205,7 @@ def sign_out():
 # Check whether user exist -- tested
 def user_exist(email):
     exist = get_user(email)
+    print("email exist " + exist[0])
     if exist == 0 or exist[0] != email:  # if not exist
         result = False
     else:
@@ -354,7 +355,7 @@ def get_user_messages_by_email():
         email = request.json["email"]
         result = get_user_data_bytoken(token)
         current_user = result[0][0]
-        
+        print(email)
         if (user_exist(email)== False):
             return (
                 jsonify({"success": False, "message": "Email not found"}),
@@ -363,12 +364,12 @@ def get_user_messages_by_email():
         
         else:
             data = get_messages(email)
-            if (current_user[0][0] == 0):
-                return (
-                    jsonify({"success": False, "message": "Invalid token"}),
-                    400,
-                )
-            elif data != 0:
+            # if (current_user[0][0] == 0):
+            #     return (
+            #         jsonify({"success": False, "message": "Invalid token"}),
+            #         400,
+            #     )
+            if data != 0:
                
                 return (
                     jsonify(
@@ -378,7 +379,7 @@ def get_user_messages_by_email():
                             "data": [dict(row) for row in data],
                         }
                     ),
-                    500,
+                    200,
                 )
             else:
 
@@ -450,7 +451,7 @@ def post_message():
                 404,
             )
         
-        elif (message == ""):
+        elif (not message.strip()):
             return (
             jsonify({"success": False, "message": "Message is empty."}),
                 404, 

@@ -52,11 +52,11 @@ def get_user(email):
     """
     params = (email,)
     user = execute_query(query, params)
+    print("get_user func " + user[0][0])
     if user == []:
         return 0
     else:
         return user[0]
-
 
 # Insert new user with their new data
 def insert_user(email, password, firstName, familyName, gender, city, country):

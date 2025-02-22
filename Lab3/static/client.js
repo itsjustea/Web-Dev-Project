@@ -8,7 +8,6 @@ var displayView = {
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
         if (id == "profile") {
-            // useremail = serverstub.getUserDataByToken(JSON.parse(localStorage.getItem("token"))).data.email;
             showMyProfile();    
             attachHandler();
             homeTab = document.getElementById("hometab");
@@ -81,11 +80,13 @@ function connectSocket(token, callback){
 //code that is executed as the page is loaded.
 window.onload = function() {
     initlocalstorage();
+    // var token = JSON.parse(localStorage.getItem("token"));
     //only when the user is logged out, it will shows the welcome view
     if(JSON.parse(localStorage.getItem("token")).length == 0){
         displayView.show("welcome");
     }else{
-        token = JSON.parse(localStorage.getItem("token"))
+        var token = JSON.parse(localStorage.getItem("token"))
+        console.log("token when onload : " + token)
         // console.log(typeof token)
         connectSocket(token, function() {
             displayView.hide("welcome");
@@ -127,9 +128,9 @@ var login = function(){
         var password = document.getElementById('login-pw').value;
         var httpReq = new XMLHttpRequest();
         httpReq.onreadystatechange = function(){
+            var httpResp = JSON.parse(httpReq.responseText);
             if (httpReq.status==200){
                 // console.log(httpReq.responseText);
-                var httpResp = JSON.parse(httpReq.responseText);
                 // console.log("test");
                 // console.log(httpResp.token);
                 if (httpResp.success){
@@ -146,14 +147,14 @@ var login = function(){
                         displayView.hide("welcome");
                         displayView.show("profile");
                     });
-                    
+                    useremail = httpResp.data.email;
                 }
                 else {
                     feedback(httpResp.message);
                 }
             }
         };
-        postRequest(httpReq, "sign_in" ,JSON.stringify({'username' : email, 'password' : password}));
+        postRequest(httpReq, "sign_in" ,JSON.stringify({'username' : email, 'password' : password}), null);
         return false;
     }
 }
@@ -175,7 +176,7 @@ function getRequest(request, url, data){
     }
     request.setRequestHeader("Content-type","application/json; charset=utf-8");
     request.send(data);
-  }
+}
 
 // Adding the signup mechanism - Step 4
 var signup = function() {
@@ -231,16 +232,6 @@ var changePassword = function(){
             if (httpResp.success){
                 console.log("SUCCESS: Change PW Message:" +  changePWResult.message);
                 document.getElementById("accountalert").innerText = "Password Changed Successfully!";
-                // if (newPassword !== confirmNewPassword) {
-                //     document.getElementById("accountalert").innerText = "ERROR: New passwords do not match. Please try again.";
-                //     return;
-                // }
-        
-                // else{
-                //     console.log("FAILED: Change PW Message:" +  changePWResult.message);
-                //     document.getElementById("accountalert").innerText = "ERROR: Password not changed. Please try again.";
-                // }
-
             }
             else {
                 // feedback(httpResp.message);
@@ -293,7 +284,6 @@ function showMyProfile(){
 // function to show other profile when searching
 var showOtherProfile = function(email){    
     var token = JSON.parse(localStorage.getItem("token"));
-    // var searchedData = serverstub.getUserDataByEmail(token, email);
     document.getElementById("postalert").innerText = "";
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
@@ -302,7 +292,7 @@ var showOtherProfile = function(email){
             console.log(httpResp);
             var searchUserData = httpResp.data;      
             if (httpResp.success){
-                // searchemail = searchUserData.email;
+                searchemail = searchUserData.email;
                 document.getElementById("profileemail").innerHTML = searchUserData.email;
                 document.getElementById("profilefname").innerHTML = searchUserData.firstName;
                 document.getElementById("profilefamname").innerHTML = searchUserData.familyName;
@@ -371,35 +361,51 @@ var searchuser = function(){
 var postMessage = function(){
     var token = JSON.parse(localStorage.getItem("token"));
     var message = document.getElementById("addmessage").value;
-    var email = "";
+    var email;
     if (document.getElementById("browsetab").className === "tab-cur"){
         email = searchemail;
     }
     else {
         email = useremail;
     }
-
-    if (message === "") {
-        postresult.success === false;
-    }
-    else {
-        var postresult = serverstub.postMessage(token,message,email);
-        document.getElementById("postalert").innerText = postresult.message;
-        if (postresult.success){
-            refreshboard(email);
-            document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
+    console.log("receiver email " + email);
+    var httpReq = new XMLHttpRequest();
+    httpReq.onreadystatechange = function(){
+        console.log("Ready State " + httpReq.readyState)
+        console.log("Status " + httpReq.status)
+        var httpResp = JSON.parse(httpReq.responseText);
+        if (httpReq.status === 200) {
+            console.log(httpResp);
+            userData = httpResp.data;
+            console.log("HTTP RESP SUCCESS " + httpResp.success)
+            console.log("USER DATA " + userData);        
+            if (httpResp.success){
+                document.getElementById("postalert").innerText = postresult.message;
+                refreshboard(userData.email);
+                document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
+                
+            }
+            else {
+                console.log(httpResp.message)
+                document.getElementById("postalert").innerText = httpResp.message;
+            }
         }
-    }
+        else{
+            console.log(httpResp.message)
+            document.getElementById("postalert").innerText = httpResp.message;
+        }
+    };
+    postRequest(httpReq, "post_message", JSON.stringify({'email' : email, 'message' : message}) , token);
+
 }
 
 // function to refresh the message board
 var refreshboard =  function (email) {
+    console.log("email parsed in refresh board" + email);
     var token = JSON.parse(localStorage.getItem("token"));
     // var refreshresult = serverstub.getUserMessagesByEmail(token,email);
-
     var wall = document.getElementById("messageboard");
     // document.getElementById("messageboard").innertext = refreshresult.message;
-
     if (email === useremail) {
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
     }
@@ -407,23 +413,44 @@ var refreshboard =  function (email) {
     else{
         document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
     }
-
-    if (refreshresult.success) {
-        var messages = refreshresult.data;
-        if (messages.length === 0) {
-            // if user has no message, will display this message
-            wall.innerHTML = "No messages currently";
-        }
-        else {
-            var message = "";
-            wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
-            // for loop to iterate the messages
-            for(var i=0;i<messages.length;i++){
-                message = "<tr><td>" + messages[i].writer + "</td><td>" + messages[i].content + "</td></tr>" ;
-                wall.innerHTML += message;
+    var httpReq = new XMLHttpRequest();
+    httpReq.onreadystatechange = function(){
+        console.log("Ready State " + httpReq.readyState)
+        console.log("Status " + httpReq.status)
+        var httpResp = JSON.parse(httpReq.responseText);
+        if (httpReq.status === 200) {
+            console.log(httpResp);
+            userData = httpResp.data;
+            console.log("HTTP RESP SUCCESS " + httpResp.success)
+            console.log("USER DATA " + userData);        
+            if (httpResp.success){
+                // wall.innerHTML = httpResp.data
+                var messages = httpResp.data;
+                if (messages.length === 0) {
+                    // if user has no message, will display this message
+                    wall.innerHTML = "No messages currently";
+                }
+                else {
+                    var message = "";
+                    wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
+                    // for loop to iterate the messages
+                    for(var i=0;i<messages.length;i++){
+                        message = "<tr><td>" + messages[i].sender_email
+                        + "</td><td>" + messages[i].content + "</td></tr>" ;
+                        wall.innerHTML += message;
+                    }
+                }
+            }
+            else {
+                // feedback(httpResp.message);
+                wall.innerHTML = "No messages currently";
             }
         }
-    }
+        else{
+            wall.innerHTML = httpResp.message
+        }
+    };
+    postRequest(httpReq, "get_user_messages_by_email", JSON.stringify({'email' : email}), token);
 }
 
 // button function when on submit
