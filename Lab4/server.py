@@ -6,12 +6,13 @@ from database_helper import *
 from flask import Flask, json, jsonify, render_template, request
 from flask_sock import Sock
 from gevent import pywsgi
-# from gevent.pywsgi import WSGIServer
-# from flask_sockets import Sockets
 from geventwebsocket import WebSocketError
 from geventwebsocket.handler import WebSocketHandler
+import flask_bcrypt
+
 
 app = Flask(__name__)
+bcrypt = flask_bcrypt.Bcrypt(app)
 sock = Sock(app)
 active_sockets = dict()
 
@@ -55,36 +56,52 @@ def retrieve_all_tokens():
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
     email = request.json["username"]
-    # print(email)
     password = request.json["password"]
-    user = get_user(email)
-    if user == 0:
-        return (
-            jsonify({"success": False, "message": "User not found"}),
-            401,
-        )
-    elif user[1] != password:
-        return (
-            jsonify({"success": False, "message": "Wrong password"}),
-            401,
-        )
-    else:
-        token = token_generator()
-        result = store_token(email, token)
-        if result == True:
+    try:
+        result = get_user(email)
+        if result == 0:
             return (
-                jsonify(
-                    {"success": True, "message": "Sign In Successful", "token": token}
-                ),
-                200,
-            )
+                jsonify({"success": False, "message": "User not found"}),
+                401,
+        )
         else:
-            return (
-                jsonify(
-                    {"success": False, "message": "Sign In Failed", "token": token}
-                ),
-                500,
-            )
+            hashedPassword = result[1]
+            print(password)
+            print(hashedPassword)
+            try:
+                result = bcrypt.check_password_hash(hashedPassword, password)
+            except:
+                result = False
+
+            if(result & (hashedPassword != None)):
+                token = token_generator()
+                result = store_token(email, token)
+                if result == True:
+                    return (
+                        jsonify(
+                            {"success": True, "message": "Sign In Successful", "token": token}
+                        ),
+                        200,
+                    )
+                else:
+                    return (
+                        jsonify(
+                            {"success": False, "message": "Sign In Failed", "token": token}
+                        ),
+                        500,
+                    )                    
+            else:
+                return (
+                        jsonify({"success": False, "message": "Wrong password"}),
+                        401,
+                    )
+    except:
+        return (
+            jsonify(
+                {"success": False, "message": "Password or email is invalid", "token": token}
+            ),
+            401,
+        )
 
 def valid_email(email):
     return bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
@@ -115,8 +132,9 @@ def sign_up():
                 and (country != "")
             ):
                 if password == password_confirmation:
+                    hashedPassword = bcrypt.generate_password_hash(password).decode('utf-8')
                     insert_user(
-                        email, password, first_name, last_name, gender, city, country
+                        email, hashedPassword, first_name, last_name, gender, city, country
                     )
                     return (
                         jsonify(
@@ -209,6 +227,8 @@ def change_password():
     if (serverHash == hashedData): 
         try:
             result = get_user_data_bytoken(token)
+            oldPasswordHashed = get_user(result[0][0])[1]
+            hashPasswordCheck = bcrypt.check_password_hash(oldPasswordHashed,old_password)
             if result[0][0] == 0:
                 return (
                     jsonify({"success": False, "message": "Invalid Token"}),
@@ -228,11 +248,12 @@ def change_password():
                         ),
                         400,
                     )
-                elif user[1] != old_password:  # user[0] is username, user[1] is password
+                elif hashPasswordCheck == False:  # user[0] is username, user[1] is password
                     return (
                         jsonify({"success": False, "message": "Wrong password"}),
                         403,
                     )
+                
                 elif new_password != check_new_password:
                     return (
                         jsonify(
@@ -254,7 +275,9 @@ def change_password():
                         400,
                     )
                 else:
-                    update_password(result[0][0], new_password)
+                    newPasswordHashed = bcrypt.generate_password_hash(new_password).decode('utf-8')
+                    # database_helper.update_password(email, newPasswordHashed)
+                    update_password(result[0][0], newPasswordHashed)
                     return (
                         jsonify(
                             {"success": True, "message": "Password Changed Successfully"}
@@ -590,6 +613,12 @@ def server_hash(data, token):
     print("data before hash")
     print(data)
     return hashlib.sha256(data.encode('utf-8')).hexdigest()
+
+@app.route("/deleteall", methods=["POST"])
+def deleteall():
+    deleteAllData()
+    return True
+
 
 if __name__ == "__main__":
     # Start the server with gevent-websocket handler

@@ -275,3 +275,24 @@ def get_email_by_token(token):
         return 0
     else:
         return email[0][0]
+    
+
+def deleteAllData():
+    db = get_db()
+    cursor = db.cursor()
+    query = """
+    DELETE FROM user
+    """
+    params = ()
+    cursor.execute(query, params)
+    # if result != None:
+    #     query = """
+    #     DELETE FROM tokens
+    #     """
+    #     params = ()
+    #     cursor.execute(query, params)
+    db.commit()
+    cursor.close()
+    db.close()
+    # print("1")
+   

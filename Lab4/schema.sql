@@ -30,6 +30,6 @@ CREATE TABLE IF NOT EXISTS messages (
 
 -- Clear DB
 
-DELETE  FROM user;
+DELETE FROM user;
 DELETE FROM messages;
 DELETE FROM tokens;

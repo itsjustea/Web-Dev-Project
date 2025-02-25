@@ -126,7 +126,6 @@ var login = function(){
                 // do nothing
             }
             else {
-
                 var httpResp = JSON.parse(httpReq.responseText);
                 if (httpReq.status==200){
                     if (httpResp.success){
@@ -588,7 +587,11 @@ var attachHandler = function () {
     },false);
 }
 
-
+///hash
+function hashData(data) {
+    const hashedData = CryptoJS.SHA256(data).toString();
+    return hashedData;
+}
 
 ////// for test
 function clearTokens() {
@@ -600,8 +603,12 @@ function clearTokens() {
     localStorage.removeItem("token", JSON.stringify(token));
 };
 
-///hash
-function hashData(data) {
-    const hashedData = CryptoJS.SHA256(data).toString();
-    return hashedData;
-}
+////// for test
+function clearAllTable() {
+    displayView.hide("profile");
+    displayView.show("welcome");
+    var httpReq = new XMLHttpRequest();
+    postRequest(httpReq, "deleteall" ,null, null);
+    localStorage.clear();
+};
+
