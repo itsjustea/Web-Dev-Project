@@ -16,29 +16,9 @@ app = Flask(__name__)
 sock = Sock(app)
 active_sockets = dict()
 
-# @app.route("/api")
-# def api():
-#     print("WebSocket connection attempt...")
-
-#     if request.environ.get('wsgi.websocket'):
-#         ws = request.environ['wsgi.websocket']
-#         while True:
-#             try:
-#                 message = ws.receive()
-#                 active_sockets[message] = ws
-
-#             except WebSocketError:
-#                 return 'ERROR'
-
-
 @app.route("/")  # Initial landing page of the user.
 def index():
-    # print("welcome")
     return render_template("client.html")
-
-
-# Change to this when integrating with our lab 1, this will render the client.html file upon loading.
-
 
 # Retrieves all the existing user - for testing
 @app.route("/retrieve_all")
@@ -47,7 +27,6 @@ def retrieve_all():
     SELECT * FROM user
     """
     users = execute_query(query)
-    # print(users)
     return jsonify([dict(row) for row in users])
 
 
@@ -67,15 +46,10 @@ def retrieve_all_tokens():
     result = get_all_tokens()
     return jsonify([dict(row) for row in result])
 
-
-# Defining all the necessary functions from serverstub
-
-
 # Sign in function -- tested
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
     email = request.json["username"]
-    # print(email)
     password = request.json["password"]
     user = get_user(email)
     if user == 0:
@@ -184,8 +158,6 @@ def sign_out():
     # email = request.json["email"]
     try:
         token = request.json["token"]
-        print(token)
-        # token = request.headers.get('token')
         result = get_user_data_bytoken(token)
         email = get_email_by_token(token)
         if result[0][0] == 0:
@@ -216,7 +188,6 @@ def sign_out():
 # Check whether user exist -- tested
 def user_exist(email):
     exist = get_user(email)
-    # print("email exist " + exist[0])
     if exist == 0 or exist[0] != email:  # if not exist
         result = False
     else:
@@ -243,11 +214,7 @@ def change_password():
         else:
 
             user = get_user(result[0][0])
-            print(user[0])
-            print(user[1])
             if len(new_password) < 4:
-                print("goes into less than 4")
-                print(new_password)
                 return (
                     jsonify(
                         {
@@ -344,17 +311,11 @@ def get_user_data_by_email():
 # Get user data by token -- tested
 @app.route("/get_user_data_by_token", methods=["POST"])
 def get_user_data_by_token():
-    # token = request.headers.get("token")
     token = request.json['token']
-    print("token when get user data " )
-    print(token)
     try:
         result = get_user_data_bytoken(token)
-        print(result[0][0])
         userData = get_user_data_byemail(result[0][0])
         user = [dict(row) for row in userData]
-        print(user)
-
         if user_exist(result[0][0]) == True:
             return (
                 jsonify(
@@ -385,10 +346,6 @@ def get_user_messages_by_email():
     # token = request.headers.get('token')
     email = request.json["email"]
     try:  
-        # result = get_user_data_bytoken(token)
-        # current_user = result[0][0]
-        print(email)
-        print(token)
         if user_exist(email) == False:
             return (
                 jsonify({"success": False, "message": "Email not found"}),
@@ -499,7 +456,7 @@ def post_message():
                     jsonify(
                         {"success": True, "message": "Message Posted Successfully"}
                     ),
-                    500,
+                    200,
                 )
 
             else:
@@ -552,7 +509,6 @@ def echo_socket(ws):
             print(f"Received message: {token}")  # Debugging print
             ws.send(f"{token}")  # Echo back to client
             email = get_email_by_token(token)  # current line of error
-            # print("line 504 " + email)
             if email in active_sockets:
                 try:
                     active_sockets[email].send(json.dumps("logout"))
@@ -588,7 +544,6 @@ def echo_socket(ws):
     finally:
         print(f"Closing connection. Last received message: {token}")
         ws.close()
-
 
 if __name__ == "__main__":
     # Start the server with gevent-websocket handler
