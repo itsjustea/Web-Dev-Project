@@ -477,6 +477,11 @@ def post_message():
                     jsonify({"success": False, "message": "Message is empty."}),
                     404,
                 )
+            elif (message is None):
+                return (
+                    jsonify({"success": False, "message": "Message is empty."}),
+                    404,
+                )
             else:
                 result = insert_messages(result[0][0], receiver_email, message)
                 if result == True:

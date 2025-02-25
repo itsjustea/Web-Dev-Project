@@ -14,7 +14,6 @@ var displayView = {
             homeTab.className = "tab-cur";
             useremail = localStorage.getItem("email");
             refreshboard(useremail);
-            // console.log("user email during first display " + useremail);
         }
     },
     hide: function (id) {
@@ -48,7 +47,6 @@ function connectSocket(token, callback){
         }
         
         if (callback) {
-            // console.log("Callback line 52")
             callback();
         }
     };
@@ -81,15 +79,10 @@ function connectSocket(token, callback){
 window.onload = function() {
     initlocalstorage();
     var token = JSON.parse(localStorage.getItem("token"))
-    // var token = JSON.parse(localStorage.getItem("token"));
-    //only when the user is logged out, it will shows the welcome view
     if(JSON.parse(localStorage.getItem("token")).length == 0){
         displayView.show("welcome");
     }else{
-        // console.log("token when onload : " + token)
         useremail = localStorage.getItem("email");
-        // console.log("email when onload : " + useremail)
-        // console.log(typeof token)
         connectSocket(token, function() {
             displayView.hide("welcome");
             displayView.show("profile");
@@ -136,9 +129,6 @@ var login = function(){
 
                 var httpResp = JSON.parse(httpReq.responseText);
                 if (httpReq.status==200){
-                    // console.log(httpReq.responseText);
-                    // console.log("test");
-                    // console.log(httpResp.token);
                     if (httpResp.success){
                         result = httpResp.token;
                         token = JSON.stringify(result);
@@ -149,7 +139,7 @@ var login = function(){
                             displayView.hide("welcome");
                             displayView.show("profile");
                         });
-                        useremail = httpResp.data.email;
+                        useremail = email;
                         document.getElementById("signinalert").innerText = httpResp.message;
                     }
                     else {
@@ -289,12 +279,8 @@ function showMyProfile(){
             console.log(httpReq.responseText);
             var httpResp = JSON.parse(httpReq.responseText);
             userData = httpResp.data;
-            // console.log("Response when onload: " + httpResp)
             if (httpReq.readyState === 4 && httpReq.status === 200) {
-                useremail = userData.email
-                // console.log("email " + useremail);
-                // console.log("HTTP RESP SUCCESS " + httpResp.success)
-                // console.log("USER DATA " + userData);        
+                useremail = userData.email  
                 if (httpResp.success){
                     document.getElementById("profileemail").innerHTML = userData.email;
                     document.getElementById("profilefname").innerHTML = userData.firstName;
@@ -302,7 +288,6 @@ function showMyProfile(){
                     document.getElementById("profilegender").innerHTML =userData.gender;
                     document.getElementById("profilecity").innerHTML = userData.city;
                     document.getElementById("profilecountry").innerHTML = userData.country;
-                    // console.log(httpResp.message);
                 }
                 else {
                     console.log("error " + httpResp.message);
@@ -317,9 +302,7 @@ function showMyProfile(){
     var data = tokenData + tokenData;
     var hashedData = hashData(data);  
     console.log("data at client before hash " + data)
-
     postRequest(httpReq, "get_user_data_by_token", JSON.stringify({'token' : tokenData}), hashedData);
-    // getRequest(httpReq, "get_user_data_by_token", JSON.stringify({'token':tokenData}), hashedData);
     return false;
 }
 
@@ -333,10 +316,8 @@ var showOtherProfile = function(email){
             // do nothing
         }
         else {
-
             var httpResp = JSON.parse(httpReq.responseText);
             if (httpReq.readyState === 4 && httpReq.status === 200) {
-                // console.log(httpResp);
                 var searchUserData = httpResp.data;      
                 if (httpResp.success){
                     searchemail = searchUserData.email;
@@ -351,7 +332,6 @@ var showOtherProfile = function(email){
                 }
                 else { 
                     document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
-                    // document.getElementById("homecontent").className ="content";
                 }
             }
         }
@@ -375,44 +355,32 @@ var searchuser = function(){
             // do nothing
         }
         else {
-
-            // console.log("Ready State " + httpReq.readyState);
-            // console.log("Status " + httpReq.status);
             var httpResp = JSON.parse(httpReq.responseText);
             if (httpReq.status === 200) {
-                // console.log(httpResp);
                 var searchUserData = httpResp.data;
-                // console.log("HTTP RESP SUCCESS " + httpResp.success)
-                // console.log("Searched user DATA " + searchUserData);    
-                // console.log(httpResp.success)   
                 if (httpResp.success){
                     document.getElementById("searchalert").innerHTML = "";
                     if (searchUserData.email === useremail){
                         showMyProfile();
                     }
                     else {
-                        // console.log("before i display : " + searchUserData.email);
                         showOtherProfile(searchUserData.email);
                     }
-                    // document.getElementById("homecontent").className ="content-cur";
                     refreshboard(searchUserData.email);
                 }
                 else {
                     // No such user is found
-                    // console.log("no user found message :" + httpResp.message)
                     document.getElementById("searchalert").innerHTML = httpResp.message;
                     document.getElementById("homecontent").className ="content";
                 }
             }
             else {
                // No such user is found
-                // console.log("no user found message :" + httpResp.message);
                 document.getElementById("searchalert").innerHTML = httpResp.message;
                 document.getElementById("homecontent").className ="content";
             }
         }
     };
-    // console.log("type of search email " + typeof searchEmailString);
     var data = searchEmailString + tokenSearch;
     var hashedData = hashData(data);
     postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'token' : tokenSearch ,'email' : searchEmailString}), hashedData);
@@ -424,48 +392,50 @@ var postMessage = function(){
     var token = localStorage.getItem("token");
     var tokenMessage = JSON.parse(token);
     var message = document.getElementById("addmessage").value;
-    var email;
-    if (document.getElementById("browsetab").className === "tab-cur"){
-        email = searchemail;
+    if (typeof message === "undefined") {
+        // do nothing
+        return false;
     }
     else {
-        email = useremail;
-    }
-    // console.log("receiver email " + email);
-    var httpReq = new XMLHttpRequest();
-    httpReq.onreadystatechange = function(){
-        if (httpReq.responseText === "") {
-            // do nothing
+
+        var email;
+        if (document.getElementById("browsetab").className === "tab-cur"){
+            email = searchemail;
         }
         else {
-            // console.log("Ready State " + httpReq.readyState)
-            // console.log("Status " + httpReq.status)
-            var httpResp = JSON.parse(httpReq.responseText);
-            if (httpReq.status === 200) {
-                // console.log(httpResp);
-                userData = httpResp.data;
-                // console.log("HTTP RESP SUCCESS " + httpResp.success)
-                // console.log("USER DATA " + userData);        
-                if (httpResp.success){
-                    document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
-                    document.getElementById("postalert").innerText = httpResp.message;
-                    refreshboard(email);
-                    
-                }
-                else {
-                    // console.log(httpResp.message)
-                    document.getElementById("postalert").innerText = httpResp.message;
-                }
-            }
-            else{
-                // console.log(httpResp.message)
-                document.getElementById("postalert").innerText = httpResp.message;
-            }
+            email = useremail;
         }
-    };
+        var httpReq = new XMLHttpRequest();
+        httpReq.onreadystatechange = function(){
+            if (httpReq.responseText === "") {
+                // do nothing
+            }
+            else {
+                var httpResp = JSON.parse(httpReq.responseText);
+                if (httpReq.status === 200) {
+                    userData = httpResp.data;
+                    if (httpResp.success){
+                        document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
+                        document.getElementById("postalert").innerText = httpResp.message;
+                        refreshboard(email);
+                        
+                    }
+                    else {
+
+                        document.getElementById("addmessage").value = ""; 
+                        document.getElementById("postalert").innerText = httpResp.message;
+                    }
+                }
+                else{
+
+                    document.getElementById("addmessage").value = ""; 
+                    document.getElementById("postalert").innerText = httpResp.message;
+                }
+            }
+        };
+    }
 
     var data = email + message + tokenMessage;
-    console.log("post message data " + data)
     var hashedData = hashData(data);
     postRequest(httpReq, "post_message", JSON.stringify({'token': tokenMessage, 'email' : email, 'message' : message}) , hashedData);
     return false;
@@ -473,18 +443,13 @@ var postMessage = function(){
 
 // function to refresh the message board
 var refreshboard =  function (email) {
-    // console.log("email parsed in refresh board" + email);
-    var token = localStorage.getItem("token");
     var tokenMessage = JSON.parse(localStorage.getItem("token"));
     var wall = document.getElementById("messageboard");
-    // document.getElementById("messageboard").innertext = refreshresult.message;
     if (email === useremail) {
-        // console.log("user email when refresh board :" + email);
         document.getElementById("wallheader").innerHTML = "Your Message Wall:";
     }
     
     else{
-        // console.log("user email when refresh board :" + email);
         document.getElementById("wallheader").innerHTML = email + "'s Message Wall:";
     }
     var httpReq = new XMLHttpRequest();
@@ -494,11 +459,9 @@ var refreshboard =  function (email) {
         }else{
             var httpResp = JSON.parse(httpReq.responseText);
             if (httpReq.status === 200) {
-                // console.log("REFRESH BOARD RESPONSE : " + httpResp);
                 userData = httpResp.data;
          
                 if (httpResp.success){
-                    // wall.innerHTML = httpResp.data
                     var messages = httpResp.data;
                     if (messages.length === 0) {
                         // if user has no message, will display this message
@@ -525,9 +488,6 @@ var refreshboard =  function (email) {
         }
     };
     
-    // console.log("token" + token + " " + typeof token);
-    // console.log("email " + email + " " + typeof email)
-    // console.log("tokenMessage" + tokenMessage + " " + typeof tokenMessage);
     var data = email + tokenMessage;
     var hashedData = hashData(data);
     postRequest(httpReq, "get_user_messages_by_email", JSON.stringify({'email' : email, 'token' : tokenMessage}), hashedData);
@@ -595,7 +555,6 @@ var attachHandler = function () {
         if (true) {
             var token = localStorage.getItem("token")
             var tokenSignout = JSON.parse(token);
-            // console.log(tokenSignout);
             var result = localStorage.getItem("token");
             var httpReq = new XMLHttpRequest();
             httpReq.onreadystatechange = function(){
@@ -607,17 +566,10 @@ var attachHandler = function () {
                 if (httpReq.readyState == 4 && httpReq.status==200){
                         var httpResp = JSON.parse(httpReq.responseText);
                         if (httpResp.success){
-                            // result = httpResp.token;
                             token = JSON.stringify(result);
-                            // tokenSignout = JSON.parse(token) // used for postrequest
-                            
-                            // console.log("client js line 432 " + token);
-                            // console.log("client js line 433 " + result);
                             displayView.hide("profile");
                             displayView.show("welcome");
-                            // localStorage.clear();
-                            localStorage.removeItem("token", JSON.stringify(token));
-                            // localStorage.setItem("token","[]");
+                            localStorage.clear();
                             useremail = "";
                             searchemail = "";
                             // document.getElementById("loginalert").innerHTML = httpResp.message;
