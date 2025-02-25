@@ -267,25 +267,30 @@ function showMyProfile(){
     var tokenData = JSON.parse(token);
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        var httpResp = JSON.parse(httpReq.responseText);
-        userData = httpResp.data;
-        // console.log("Response when onload: " + httpResp)
-        if (httpReq.readyState === 4 && httpReq.status === 200) {
-            useremail = userData.email
-            // console.log("email " + useremail);
-            // console.log("HTTP RESP SUCCESS " + httpResp.success)
-            // console.log("USER DATA " + userData);        
-            if (httpResp.success){
-                document.getElementById("profileemail").innerHTML = userData.email;
-                document.getElementById("profilefname").innerHTML = userData.firstName;
-                document.getElementById("profilefamname").innerHTML = userData.familyName;
-                document.getElementById("profilegender").innerHTML =userData.gender;
-                document.getElementById("profilecity").innerHTML = userData.city;
-                document.getElementById("profilecountry").innerHTML = userData.country;
-                // console.log(httpResp.message);
-            }
-            else {
-                console.log("error " + httpResp.message);
+        if (httpReq.responseText === "") {
+            // do nothing
+        }else{
+            console.log(httpReq.responseText);
+            httpResp = JSON.parse(httpReq.responseText);
+            userData = httpResp.data;
+            // console.log("Response when onload: " + httpResp)
+            if (httpReq.readyState === 4 && httpReq.status === 200) {
+                useremail = userData.email
+                // console.log("email " + useremail);
+                // console.log("HTTP RESP SUCCESS " + httpResp.success)
+                // console.log("USER DATA " + userData);        
+                if (httpResp.success){
+                    document.getElementById("profileemail").innerHTML = userData.email;
+                    document.getElementById("profilefname").innerHTML = userData.firstName;
+                    document.getElementById("profilefamname").innerHTML = userData.familyName;
+                    document.getElementById("profilegender").innerHTML =userData.gender;
+                    document.getElementById("profilecity").innerHTML = userData.city;
+                    document.getElementById("profilecountry").innerHTML = userData.country;
+                    // console.log(httpResp.message);
+                }
+                else {
+                    console.log("error " + httpResp.message);
+                }
             }
         }
     };
@@ -410,9 +415,9 @@ var postMessage = function(){
             // console.log("HTTP RESP SUCCESS " + httpResp.success)
             // console.log("USER DATA " + userData);        
             if (httpResp.success){
+                document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
                 document.getElementById("postalert").innerText = postresult.message;
                 refreshboard(userData.email);
-                document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
                 
             }
             else {
@@ -451,35 +456,39 @@ var refreshboard =  function (email) {
     }
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        var httpResp = JSON.parse(httpReq.responseText);
-        if (httpReq.status === 200) {
-            // console.log("REFRESH BOARD RESPONSE : " + httpResp);
-            userData = httpResp.data;
-     
-            if (httpResp.success){
-                // wall.innerHTML = httpResp.data
-                var messages = httpResp.data;
-                if (messages.length === 0) {
-                    // if user has no message, will display this message
-                    wall.innerHTML = httpResp.message;
-                }
-                else {
-                    var message = "";
-                    wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
-                    // for loop to iterate the messages
-                    for(var i=0;i<messages.length;i++){
-                        message = "<tr><td>" + messages[i].sender_email
-                        + "</td><td>" + messages[i].content + "</td></tr>" ;
-                        wall.innerHTML += message;
+        if (httpReq.responseText === "") {
+            // do nothing
+        }else{
+            var httpResp = JSON.parse(httpReq.responseText);
+            if (httpReq.status === 200) {
+                // console.log("REFRESH BOARD RESPONSE : " + httpResp);
+                userData = httpResp.data;
+         
+                if (httpResp.success){
+                    // wall.innerHTML = httpResp.data
+                    var messages = httpResp.data;
+                    if (messages.length === 0) {
+                        // if user has no message, will display this message
+                        wall.innerHTML = httpResp.message;
+                    }
+                    else {
+                        var message = "";
+                        wall.innerHTML = "<tr><th>User</th><th>Message</th></tr>";
+                        // for loop to iterate the messages
+                        for(var i=0;i<messages.length;i++){
+                            message = "<tr><td>" + messages[i].sender_email
+                            + "</td><td>" + messages[i].content + "</td></tr>" ;
+                            wall.innerHTML += message;
+                        }
                     }
                 }
+                else {
+                    wall.innerHTML = httpResp.message;
+                }
             }
-            else {
-                wall.innerHTML = httpResp.message;
+            else{
+                wall.innerHTML = httpResp.message
             }
-        }
-        else{
-            wall.innerHTML = httpResp.message
         }
     };
     
