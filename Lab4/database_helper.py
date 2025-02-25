@@ -174,7 +174,7 @@ def get_token_by_email(email):
     if token == []:
         return 0
     else:
-        return token
+        return token[0][0]
 
 
 # Just for checking if the token exists during testing, wont be used for presentation
