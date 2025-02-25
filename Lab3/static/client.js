@@ -175,14 +175,14 @@ function postRequest(request, url, data, token){
     request.send(data);
 }
 
-function getRequest(request, url, data){
-    request.open("GET", url, true);
-    if (data!=null) {
-            request.setRequestHeader("token", data);
-    }
-    request.setRequestHeader("Content-type","application/json; charset=utf-8");
-    request.send(data);
-}
+// function getRequest(request, url, data){
+//     request.open("GET", url, true);
+//     if (data!=null) {
+//             request.setRequestHeader("token", data);
+//     }
+//     request.setRequestHeader("Content-type","application/json; charset=utf-8");
+//     request.send(data);
+// }
 
 // Adding the signup mechanism - Step 4
 var signup = function() {
@@ -257,7 +257,8 @@ var changePassword = function(){
             document.getElementById("accountalert").innerText = httpResp.message;
         }
     };
-    postRequest(httpReq, "change_password", JSON.stringify({'oldPassword' : oldPassword, 'newPassword' : newPassword, 'checkNewPassword' : confirmNewPassword}) , token);
+    postRequest(httpReq, "change_password", JSON.stringify({'token': token, 'oldPassword' : oldPassword, 'newPassword' : newPassword, 'checkNewPassword' : confirmNewPassword}) , token);
+    return false;
 }
 
 // function to show current useremail's profile
@@ -287,10 +288,13 @@ function showMyProfile(){
             }
         }
     };
-    getRequest(httpReq, "get_user_data_by_token", token);
     document.getElementById("postalert").innerText = "";
     document.getElementById("profileheader").innerHTML = "Your Profile";
-    document.getElementById("postheader").innerHTML = "Post a message";      
+    document.getElementById("postheader").innerHTML = "Post a message";   
+    
+    
+    postRequest(httpReq, "get_user_data_by_token", JSON.stringify({'token' : token}), token);
+    return false;   
 }
 
 // function to show other profile when searching
@@ -321,7 +325,8 @@ var showOtherProfile = function(email){
             }
         }
     };
-    postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'email' : email}), token);   
+    postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'token' : token , 'email' : email}), token);   
+    return false;
 }
 
 // function to search the user by the email, retrieves the info and the message board
@@ -366,7 +371,7 @@ var searchuser = function(){
             document.getElementById("homecontent").className ="content";
         }
     };
-    postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'email' : trysearchemail}), token);
+    postRequest(httpReq, "get_user_data_by_email", JSON.stringify({'token' : token, 'email' : trysearchemail}), token);
 }
 
 // function to post the message on either own wall or other email wall
@@ -407,8 +412,8 @@ var postMessage = function(){
             document.getElementById("postalert").innerText = httpResp.message;
         }
     };
-    postRequest(httpReq, "post_message", JSON.stringify({'email' : email, 'message' : message}) , token);
-
+    postRequest(httpReq, "post_message", JSON.stringify({'token' : token , 'email' : email, 'message' : message}) , token);
+    // return false;
 }
 
 // function to refresh the message board
@@ -465,6 +470,7 @@ var refreshboard =  function (email) {
         }
     };
     postRequest(httpReq, "get_user_messages_by_email", JSON.stringify({'email' : email, 'token' : token}), token);
+    return false;
 }
 
 // button function when on submit

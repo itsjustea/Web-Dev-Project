@@ -228,13 +228,12 @@ def user_exist(email):
 # Change password function -- tested
 @app.route("/change_password", methods=["POST"])
 def change_password():
+    old_password = request.json["oldPassword"]
+    new_password = request.json["newPassword"]
+    check_new_password = request.json["checkNewPassword"]
+    token = request.json["token"]
     try:
-
-        old_password = request.json["oldPassword"]
-        new_password = request.json["newPassword"]
-        check_new_password = request.json["checkNewPassword"]
-        # token = request.json["token"]
-        token = request.headers.get("token")
+        # token = request.headers.get("token")
         result = get_user_data_bytoken(token)
         if result[0][0] == 0:
             return (
@@ -301,10 +300,10 @@ def change_password():
 # Get user data by email -- tested
 @app.route("/get_user_data_by_email", methods=["POST"])
 def get_user_data_by_email():
-    token = request.headers.get("token")
+    # token = request.headers.get("token")
+    email = request.json["email"]
+    token = request.json["token"]
     try:
-        email = request.json["email"]
-        # token = request.json["token"]
         result = get_user_data_bytoken(token)
         if result[0][0] == 0:
             return (
@@ -343,17 +342,20 @@ def get_user_data_by_email():
 
 
 # Get user data by token -- tested
-@app.route("/get_user_data_by_token", methods=["GET"])
+@app.route("/get_user_data_by_token", methods=["POST"])
 def get_user_data_by_token():
-    token = request.headers.get("token")
+    # token = request.headers.get("token")
+    token = request.json['token']
+    print("token when get user data " )
+    print(token)
     try:
-        data = get_user_data_bytoken(token)
-        # print(data[0][0])
-        userData = get_user_data_byemail(data[0][0])
+        result = get_user_data_bytoken(token)
+        print(result[0][0])
+        userData = get_user_data_byemail(result[0][0])
         user = [dict(row) for row in userData]
-        # print(user)
+        print(user)
 
-        if user_exist(data[0][0]) == True:
+        if user_exist(result[0][0]) == True:
             return (
                 jsonify(
                     {
@@ -379,58 +381,58 @@ def get_user_data_by_token():
 # Get user messages by email -- tested
 @app.route("/get_user_messages_by_email", methods=["POST"])
 def get_user_messages_by_email():
-    # try:
     token = request.json["token"]
     # token = request.headers.get('token')
     email = request.json["email"]
-    result = get_user_data_bytoken(token)
-    current_user = result[0][0]
-    print(email)
-    print(token)
-    if user_exist(email) == False:
-        return (
-            jsonify({"success": False, "message": "Email not found"}),
-            400,
-        )
-
-    else:
-        data = get_messages(email)
-        # if (current_user[0][0] == 0):
-        #     return (
-        #         jsonify({"success": False, "message": "Invalid token"}),
-        #         400,
-        #     )
-        if data != 0:
-
+    try:  
+        # result = get_user_data_bytoken(token)
+        # current_user = result[0][0]
+        print(email)
+        print(token)
+        if user_exist(email) == False:
             return (
-                jsonify(
-                    {
-                        "success": True,
-                        "message": "User Messages Retrieved Successfully",
-                        "data": [dict(row) for row in data],
-                    }
-                ),
-                200,
+                jsonify({"success": False, "message": "Email not found"}),
+                400,
             )
+
         else:
+            data = get_messages(email)
+            # if (current_user[0][0] == 0):
+            #     return (
+            #         jsonify({"success": False, "message": "Invalid token"}),
+            #         400,
+            #     )
+            if data != 0:
 
-            return (
-                jsonify({"success": False, "message": "No messages found"}),
-                404,
+                return (
+                    jsonify(
+                        {
+                            "success": True,
+                            "message": "User Messages Retrieved Successfully",
+                            "data": [dict(row) for row in data],
+                        }
+                    ),
+                    200,
+                )
+            else:
+
+                return (
+                    jsonify({"success": False, "message": "No messages found"}),
+                    404,
+                )
+    except:
+        return (
+                jsonify({"success": False, "message": "Invalid token"}),
+                400,
             )
-    # except:
-    #     return (
-    #             jsonify({"success": False, "message": "Invalid token"}),
-    #             400,
-    #         )
 
 
 # get user messages by token
 @app.route("/get_user_messages_by_token", methods=["POST"])
 def get_user_messages_by_token():
+    token = request.json["token"]
     try:
-        # token = request.json["token"]
-        token = request.headers.get("token")
+        # token = request.headers.get("token")
         current_user = get_user_data_bytoken(token)
 
         if user_exist(current_user[0][0]) == False:
@@ -470,12 +472,12 @@ def get_user_messages_by_token():
 # Post messages function -- tested
 @app.route("/post_message", methods=["POST"])
 def post_message():
+    receiver_email = request.json["email"]
+    message = request.json["message"]
+    token = request.json["token"]
     try:
         # sender_email = request.json["sender_email"]
-        receiver_email = request.json["email"]
-        message = request.json["message"]
-        # token = request.json["token"]
-        token = request.headers.get("token")
+        # token = request.headers.get("token")
         sender_email = get_user_data_bytoken(token)
         receiver = user_exist(receiver_email)
         if receiver == False:
