@@ -484,7 +484,7 @@ def post_message():
                         jsonify(
                             {"success": True, "message": "Message Posted Successfully"}
                         ),
-                        500,
+                        200,
                     )
                 else:
                     return (

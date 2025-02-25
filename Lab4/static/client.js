@@ -94,7 +94,7 @@ window.onload = function() {
             displayView.hide("welcome");
             displayView.show("profile");
         });
-        document.getElementById("defaultOpen").click();
+        // document.getElementById("defaultOpen").click();
     }
 };
 
@@ -129,31 +129,37 @@ var login = function(){
         var password = document.getElementById('login-pw').value;
         var httpReq = new XMLHttpRequest();
         httpReq.onreadystatechange = function(){
-            var httpResp = JSON.parse(httpReq.responseText);
-            if (httpReq.status==200){
-                // console.log(httpReq.responseText);
-                // console.log("test");
-                // console.log(httpResp.token);
-                if (httpResp.success){
-                    result = httpResp.token;
-                    token = JSON.stringify(result);
-                    tokenSocket = JSON.parse(token)
-                    localStorage.setItem("token", token);
-                    localStorage.setItem("email", email);
-                    connectSocket(tokenSocket, function() {
-                        displayView.hide("welcome");
-                        displayView.show("profile");
-                    });
-                    useremail = httpResp.data.email;
-                    document.getElementById("signinalert").innerText = httpResp.message;
-                }
-                else {
-                    // feedback(httpResp.message);
-                    document.getElementById("signinalert").innerText = httpResp.message;
-                }
+            if (httpReq.responseText === "") {
+                // do nothing
             }
-            else{
-                document.getElementById("signinalert").innerText = httpResp.message;
+            else {
+
+                var httpResp = JSON.parse(httpReq.responseText);
+                if (httpReq.status==200){
+                    // console.log(httpReq.responseText);
+                    // console.log("test");
+                    // console.log(httpResp.token);
+                    if (httpResp.success){
+                        result = httpResp.token;
+                        token = JSON.stringify(result);
+                        tokenSocket = JSON.parse(token)
+                        localStorage.setItem("token", token);
+                        localStorage.setItem("email", email);
+                        connectSocket(tokenSocket, function() {
+                            displayView.hide("welcome");
+                            displayView.show("profile");
+                        });
+                        useremail = httpResp.data.email;
+                        document.getElementById("signinalert").innerText = httpResp.message;
+                    }
+                    else {
+                        // feedback(httpResp.message);
+                        document.getElementById("signinalert").innerText = httpResp.message;
+                    }
+                }
+                else{
+                    document.getElementById("signinalert").innerText = httpResp.message;
+                }
             }
         };
         postRequest(httpReq, "sign_in" ,JSON.stringify({'username' : email, 'password' : password}), null);
@@ -193,20 +199,25 @@ var signup = function() {
     // var submitResult = serverstub.signUp(newUser);   
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        var httpResp = JSON.parse(httpReq.responseText); // error same as login
-        console.log(httpResp);
-        if (httpReq.status === 200 && httpReq.readyState == 4) {
-            console.log("sign up status " + httpResp.success); 
-            if (httpResp.success){
-                // useremail = httpResp.data.email;
-                document.getElementById("signupalert").innerText = httpResp.message;
-            }
-            else {
-                document.getElementById("signupalert").innerText = httpResp.message;
-            }
+        if (httpReq.responseText === "") {
+            // do nothing
         }
-        else{
-            document.getElementById("signupalert").innerText = httpResp.message;
+        else {
+            var httpResp = JSON.parse(httpReq.responseText); // error same as login
+            console.log(httpResp);
+            if (httpReq.status === 200 && httpReq.readyState == 4) {
+                console.log("sign up status " + httpResp.success); 
+                if (httpResp.success){
+                    // useremail = httpResp.data.email;
+                    document.getElementById("signupalert").innerText = httpResp.message;
+                }
+                else {
+                    document.getElementById("signupalert").innerText = httpResp.message;
+                }
+            }
+            else{
+                document.getElementById("signupalert").innerText = httpResp.message;
+            }
         }
     };
     postRequest(httpReq, "sign_up", JSON.stringify({'email' : email,
@@ -230,30 +241,35 @@ var changePassword = function(){
     var confirmNewPassword = document.getElementById('confirmNewPassword').value;
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        console.log("Ready State " + httpReq.readyState)
-        console.log("Status " + httpReq.status)
-        var httpResp = JSON.parse(httpReq.responseText);
-        if (httpReq.status === 200) {
-            console.log(httpResp);
-            userData = httpResp.data;
-            console.log("HTTP RESP SUCCESS " + httpResp.success)
-            console.log("USER DATA " + userData);        
-            if (httpResp.success){
-                console.log("SUCCESS: Change PW Message:" +  httpResp.message);
-                document.getElementById("accountalert").innerText = httpResp.message;
+        if (httpReq.responseText === "") {
+            // do nothing
+        }
+        else {
+
+            console.log("Ready State " + httpReq.readyState)
+            console.log("Status " + httpReq.status)
+            var httpResp = JSON.parse(httpReq.responseText);
+            if (httpReq.status === 200) {
+                console.log(httpResp);
+                userData = httpResp.data;
+                console.log("HTTP RESP SUCCESS " + httpResp.success)
+                console.log("USER DATA " + userData);        
+                if (httpResp.success){
+                    console.log("SUCCESS: Change PW Message:" +  httpResp.message);
+                    document.getElementById("accountalert").innerText = httpResp.message;
+                }
+                else {
+                    // feedback(httpResp.message);
+                    console.log(httpResp.message);
+                    document.getElementById("accountalert").innerText = httpResp.message;
+                }
             }
-            else {
-                // feedback(httpResp.message);
+            else{
                 console.log(httpResp.message);
                 document.getElementById("accountalert").innerText = httpResp.message;
             }
         }
-        else{
-            console.log(httpResp.message);
-            document.getElementById("accountalert").innerText = httpResp.message;
-        }
     };
-
     // Hashing token
     var data = newPassword + oldPassword + confirmNewPassword + tokenChange;
     var hashedData = hashData(data);
@@ -271,7 +287,7 @@ function showMyProfile(){
             // do nothing
         }else{
             console.log(httpReq.responseText);
-            httpResp = JSON.parse(httpReq.responseText);
+            var httpResp = JSON.parse(httpReq.responseText);
             userData = httpResp.data;
             // console.log("Response when onload: " + httpResp)
             if (httpReq.readyState === 4 && httpReq.status === 200) {
@@ -313,24 +329,30 @@ var showOtherProfile = function(email){
     document.getElementById("postalert").innerText = "";
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        var httpResp = JSON.parse(httpReq.responseText);
-        if (httpReq.readyState === 4 && httpReq.status === 200) {
-            // console.log(httpResp);
-            var searchUserData = httpResp.data;      
-            if (httpResp.success){
-                searchemail = searchUserData.email;
-                document.getElementById("profileemail").innerHTML = searchUserData.email;
-                document.getElementById("profilefname").innerHTML = searchUserData.firstName;
-                document.getElementById("profilefamname").innerHTML = searchUserData.familyName;
-                document.getElementById("profilegender").innerHTML = searchUserData.gender;
-                document.getElementById("profilecity").innerHTML = searchUserData.city;
-                document.getElementById("profilecountry").innerHTML = searchUserData.country;
-                document.getElementById("profileheader").innerHTML = searchUserData.firstName + "'s Profile"; 
-                document.getElementById("homecontent").className = "content-cur";   
-            }
-            else { 
-                document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
-                // document.getElementById("homecontent").className ="content";
+        if (httpReq.responseText === "") {
+            // do nothing
+        }
+        else {
+
+            var httpResp = JSON.parse(httpReq.responseText);
+            if (httpReq.readyState === 4 && httpReq.status === 200) {
+                // console.log(httpResp);
+                var searchUserData = httpResp.data;      
+                if (httpResp.success){
+                    searchemail = searchUserData.email;
+                    document.getElementById("profileemail").innerHTML = searchUserData.email;
+                    document.getElementById("profilefname").innerHTML = searchUserData.firstName;
+                    document.getElementById("profilefamname").innerHTML = searchUserData.familyName;
+                    document.getElementById("profilegender").innerHTML = searchUserData.gender;
+                    document.getElementById("profilecity").innerHTML = searchUserData.city;
+                    document.getElementById("profilecountry").innerHTML = searchUserData.country;
+                    document.getElementById("profileheader").innerHTML = searchUserData.firstName + "'s Profile"; 
+                    document.getElementById("homecontent").className = "content-cur";   
+                }
+                else { 
+                    document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
+                    // document.getElementById("homecontent").className ="content";
+                }
             }
         }
     };
@@ -349,39 +371,45 @@ var searchuser = function(){
     var searchEmailString = trysearchemail.toString()
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        // console.log("Ready State " + httpReq.readyState);
-        // console.log("Status " + httpReq.status);
-        var httpResp = JSON.parse(httpReq.responseText);
-        if (httpReq.status === 200) {
-            // console.log(httpResp);
-            var searchUserData = httpResp.data;
-            // console.log("HTTP RESP SUCCESS " + httpResp.success)
-            // console.log("Searched user DATA " + searchUserData);    
-            // console.log(httpResp.success)   
-            if (httpResp.success){
-                document.getElementById("searchalert").innerHTML = "";
-                if (searchUserData.email === useremail){
-                    showMyProfile();
+        if (httpReq.responseText === "") {
+            // do nothing
+        }
+        else {
+
+            // console.log("Ready State " + httpReq.readyState);
+            // console.log("Status " + httpReq.status);
+            var httpResp = JSON.parse(httpReq.responseText);
+            if (httpReq.status === 200) {
+                // console.log(httpResp);
+                var searchUserData = httpResp.data;
+                // console.log("HTTP RESP SUCCESS " + httpResp.success)
+                // console.log("Searched user DATA " + searchUserData);    
+                // console.log(httpResp.success)   
+                if (httpResp.success){
+                    document.getElementById("searchalert").innerHTML = "";
+                    if (searchUserData.email === useremail){
+                        showMyProfile();
+                    }
+                    else {
+                        // console.log("before i display : " + searchUserData.email);
+                        showOtherProfile(searchUserData.email);
+                    }
+                    // document.getElementById("homecontent").className ="content-cur";
+                    refreshboard(searchUserData.email);
                 }
                 else {
-                    // console.log("before i display : " + searchUserData.email);
-                    showOtherProfile(searchUserData.email);
+                    // No such user is found
+                    // console.log("no user found message :" + httpResp.message)
+                    document.getElementById("searchalert").innerHTML = httpResp.message;
+                    document.getElementById("homecontent").className ="content";
                 }
-                // document.getElementById("homecontent").className ="content-cur";
-                refreshboard(searchUserData.email);
             }
             else {
-                // No such user is found
-                // console.log("no user found message :" + httpResp.message)
+               // No such user is found
+                // console.log("no user found message :" + httpResp.message);
                 document.getElementById("searchalert").innerHTML = httpResp.message;
                 document.getElementById("homecontent").className ="content";
             }
-        }
-        else {
-           // No such user is found
-            // console.log("no user found message :" + httpResp.message);
-            document.getElementById("searchalert").innerHTML = httpResp.message;
-            document.getElementById("homecontent").className ="content";
         }
     };
     // console.log("type of search email " + typeof searchEmailString);
@@ -406,28 +434,33 @@ var postMessage = function(){
     // console.log("receiver email " + email);
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
-        // console.log("Ready State " + httpReq.readyState)
-        // console.log("Status " + httpReq.status)
-        var httpResp = JSON.parse(httpReq.responseText);
-        if (httpReq.status === 200) {
-            // console.log(httpResp);
-            userData = httpResp.data;
-            // console.log("HTTP RESP SUCCESS " + httpResp.success)
-            // console.log("USER DATA " + userData);        
-            if (httpResp.success){
-                document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
-                document.getElementById("postalert").innerText = postresult.message;
-                refreshboard(userData.email);
-                
+        if (httpReq.responseText === "") {
+            // do nothing
+        }
+        else {
+            // console.log("Ready State " + httpReq.readyState)
+            // console.log("Status " + httpReq.status)
+            var httpResp = JSON.parse(httpReq.responseText);
+            if (httpReq.status === 200) {
+                // console.log(httpResp);
+                userData = httpResp.data;
+                // console.log("HTTP RESP SUCCESS " + httpResp.success)
+                // console.log("USER DATA " + userData);        
+                if (httpResp.success){
+                    document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
+                    document.getElementById("postalert").innerText = httpResp.message;
+                    refreshboard(email);
+                    
+                }
+                else {
+                    // console.log(httpResp.message)
+                    document.getElementById("postalert").innerText = httpResp.message;
+                }
             }
-            else {
+            else{
                 // console.log(httpResp.message)
                 document.getElementById("postalert").innerText = httpResp.message;
             }
-        }
-        else{
-            // console.log(httpResp.message)
-            document.getElementById("postalert").innerText = httpResp.message;
         }
     };
 
@@ -566,30 +599,35 @@ var attachHandler = function () {
             var result = localStorage.getItem("token");
             var httpReq = new XMLHttpRequest();
             httpReq.onreadystatechange = function(){
-        
-            if (httpReq.readyState == 4 && httpReq.status==200){
-                    var httpResp = JSON.parse(httpReq.responseText);
-                    if (httpResp.success){
-                        // result = httpResp.token;
-                        token = JSON.stringify(result);
-                        // tokenSignout = JSON.parse(token) // used for postrequest
-                        
-                        // console.log("client js line 432 " + token);
-                        // console.log("client js line 433 " + result);
-                        displayView.hide("profile");
-                        displayView.show("welcome");
-                        // localStorage.clear();
-                        localStorage.removeItem("token", JSON.stringify(token));
-                        // localStorage.setItem("token","[]");
-                        useremail = "";
-                        searchemail = "";
-                        // document.getElementById("loginalert").innerHTML = httpResp.message;
+            if (httpReq.responseText === "") {
+                // do nothing
+            }
+            else {
+
+                if (httpReq.readyState == 4 && httpReq.status==200){
+                        var httpResp = JSON.parse(httpReq.responseText);
+                        if (httpResp.success){
+                            // result = httpResp.token;
+                            token = JSON.stringify(result);
+                            // tokenSignout = JSON.parse(token) // used for postrequest
+                            
+                            // console.log("client js line 432 " + token);
+                            // console.log("client js line 433 " + result);
+                            displayView.hide("profile");
+                            displayView.show("welcome");
+                            // localStorage.clear();
+                            localStorage.removeItem("token", JSON.stringify(token));
+                            // localStorage.setItem("token","[]");
+                            useremail = "";
+                            searchemail = "";
+                            // document.getElementById("loginalert").innerHTML = httpResp.message;
+                        }
+                        else {
+                            feedback(httpResp.message);
+                        }
                     }
-                    else {
-                        feedback(httpResp.message);
-                    }
-                }
-            };
+                };
+            }
             var data = tokenSignout + tokenSignout;
             var hashedData = hashData(data);
             postRequest(httpReq, "sign_out" ,JSON.stringify({'token' : tokenSignout}), hashedData);
