@@ -3,7 +3,7 @@ var useremail = "";
 var searchemail = "";
 
 // the code required to display a view
-// Displaying a certain view - Step 2
+// Displaying a certain view
 var displayView = {
     show: function (id) {
         document.getElementById(id + "Page").innerHTML = document.getElementById(id + "View").innerHTML;
@@ -80,12 +80,12 @@ function connectSocket(token, callback){
     };
 }
 
-//code that is executed as the page is loaded.
+// code that is executed as the page is loaded
 window.onload = function() {
     initlocalstorage();
     var token = JSON.parse(localStorage.getItem("token"))
-    // var token = JSON.parse(localStorage.getItem("token"));
-    //only when the user is logged out, it will shows the welcome view
+
+    // only when the user is logged out, it will shows the welcome view
     if(JSON.parse(localStorage.getItem("token")).length == 0){
         displayView.show("welcome");
     }else{
@@ -101,30 +101,6 @@ window.onload = function() {
     }
 };
 
-// User field validation - Step 3
-// function pwValidation() {
-//     const entered_pw = document.getElementById('signup-pw');
-//     const confirm_pw = document.getElementById('signup-repeatPSW');
-
-//     // 3. Both password fields must contain the same string
-//     if (entered_pw.value !== confirm_pw.value) {
-//         alert('Passwords do not match. Please re-enter your password.');
-//         entered_pw.value = ''; // Clear the password fields
-//         confirm_pw.value = '';
-//         return false;
-//     }
-//     // 4. The password must be at least X characters long (assume X = 8)
-//     if (entered_pw.value.length < 8 || confirm_pw.value.length < 8) {
-//         alert('Entered password must be at least 8 characters long.');
-//         entered_pw.value = ''; // Clear the password fields
-//         confirm_pw.value = '';
-//         return false;
-//     }
-
-//     console.log('Passwords match, proceed!');
-//     return true;
-// }
-
 // Adding the signin mechanism - Step 5
 var login = function(){
     if (true) {
@@ -138,18 +114,10 @@ var login = function(){
             else {
                 var httpResp = JSON.parse(httpReq.responseText);
                 if (httpReq.status==200){
-                    // console.log(httpReq.responseText);
-                    // console.log("test");
-                    // console.log(httpResp.token);
                     if (httpResp.success){
                         result = httpResp.token;
                         token = JSON.stringify(result);
                         tokenSocket = JSON.parse(token)
-                        // console.log("result " + result);
-                        // console.log("token " + token);
-                        // console.log("hi "  + JSON.parse(token));
-                        // console.log("line 117  " + typeof token);
-                        // localStorage.setItem("email", email);
                         localStorage.setItem("token", token);
                         localStorage.setItem("email", email);
                         connectSocket(tokenSocket, function() {
@@ -182,15 +150,6 @@ function postRequest(request, url, data, token){
     request.send(data);
 }
 
-// function getRequest(request, url, data){
-//     request.open("GET", url, true);
-//     if (data!=null) {
-//             request.setRequestHeader("token", data);
-//     }
-//     request.setRequestHeader("Content-type","application/json; charset=utf-8");
-//     request.send(data);
-// }
-
 // Adding the signup mechanism - Step 4
 var signup = function() {
     var email = document.getElementById('signup-email').value;
@@ -202,19 +161,18 @@ var signup = function() {
     var city = document.getElementById('signup-city').value;
     var country = document.getElementById('signup-country').value;
     var newUser = {email, password, firstname, familyname, gender, city, country};
-    // var submitResult = serverstub.signUp(newUser);   
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
         if (httpReq.responseText === ""){
-            // do nothing
+            // do nothing, this serves as a sanity check
         }
         else{
-            var httpResp = JSON.parse(httpReq.responseText); // error same as login
-            console.log(httpResp);
+            var httpResp = JSON.parse(httpReq.responseText);
+            // console.log(httpResp);
+            // HTTP Ready states: 0: UNSENT, 1: OPENED, 2: HEADERS_RECEIVED, 3: LOADING, 4: DONE
             if (httpReq.status === 200 && httpReq.readyState == 4) {
                 console.log("sign up status " + httpResp.success); 
                 if (httpResp.success){
-                    // useremail = httpResp.data.email;
                     document.getElementById("signupalert").innerText = httpResp.message;
                 }
                 else {
@@ -234,11 +192,9 @@ var signup = function() {
                                                     'country': country,
                                                     'password_confirmation': password_confirmation,
                                                     'password' : password}) , null);
-    
-    // alert('Form submitted successfully!');
-}
+    }
 
-// Allows user to change password in the Account page.
+// allows user to change password in the Account page
 var changePassword = function(){
     var token = JSON.parse(localStorage.getItem("token")); // current user's email
     var oldPassword = document.getElementById('oldPassword').value;
@@ -250,7 +206,6 @@ var changePassword = function(){
             // do nothing
         }
         else{
-
             console.log("Ready State " + httpReq.readyState)
             console.log("Status " + httpReq.status)
             var httpResp = JSON.parse(httpReq.responseText);
