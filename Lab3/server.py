@@ -16,9 +16,11 @@ app = Flask(__name__)
 sock = Sock(app)
 active_sockets = dict()
 
+
 @app.route("/")  # Initial landing page of the user.
 def index():
     return render_template("client.html")
+
 
 # Retrieves all the existing user - for testing
 @app.route("/retrieve_all")
@@ -45,6 +47,7 @@ def retrieve_all_messages():
 def retrieve_all_tokens():
     result = get_all_tokens()
     return jsonify([dict(row) for row in result])
+
 
 # Sign in function -- tested
 @app.route("/sign_in", methods=["POST"])
@@ -311,7 +314,7 @@ def get_user_data_by_email():
 # Get user data by token -- tested
 @app.route("/get_user_data_by_token", methods=["POST"])
 def get_user_data_by_token():
-    token = request.json['token']
+    token = request.json["token"]
     try:
         result = get_user_data_bytoken(token)
         userData = get_user_data_byemail(result[0][0])
@@ -345,7 +348,7 @@ def get_user_messages_by_email():
     token = request.json["token"]
     # token = request.headers.get('token')
     email = request.json["email"]
-    try:  
+    try:
         if user_exist(email) == False:
             return (
                 jsonify({"success": False, "message": "Email not found"}),
@@ -379,9 +382,9 @@ def get_user_messages_by_email():
                 )
     except:
         return (
-                jsonify({"success": False, "message": "Invalid token"}),
-                400,
-            )
+            jsonify({"success": False, "message": "Invalid token"}),
+            400,
+        )
 
 
 # get user messages by token
@@ -544,6 +547,7 @@ def echo_socket(ws):
     finally:
         print(f"Closing connection. Last received message: {token}")
         ws.close()
+
 
 if __name__ == "__main__":
     # Start the server with gevent-websocket handler

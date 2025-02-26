@@ -2,14 +2,14 @@
 import hashlib
 import random
 import re
+
+import flask_bcrypt
 from database_helper import *
 from flask import Flask, json, jsonify, render_template, request
 from flask_sock import Sock
 from gevent import pywsgi
 from geventwebsocket import WebSocketError
 from geventwebsocket.handler import WebSocketHandler
-import flask_bcrypt
-
 
 app = Flask(__name__)
 bcrypt = flask_bcrypt.Bcrypt(app)
@@ -228,7 +228,7 @@ def change_password():
         try:
             result = get_user_data_bytoken(token)
             oldPasswordHashed = get_user(result[0][0])[1]
-            hashPasswordCheck = bcrypt.check_password_hash(oldPasswordHashed,old_password)
+            hashPasswordCheck = bcrypt.check_password_hash(oldPasswordHashed,old_password) #if true, password is correct
             if result[0][0] == 0:
                 return (
                     jsonify({"success": False, "message": "Invalid Token"}),
@@ -248,7 +248,7 @@ def change_password():
                         ),
                         400,
                     )
-                elif hashPasswordCheck == False:  # user[0] is username, user[1] is password
+                elif hashPasswordCheck == False:
                     return (
                         jsonify({"success": False, "message": "Wrong password"}),
                         403,

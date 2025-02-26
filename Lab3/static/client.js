@@ -30,9 +30,11 @@ var initlocalstorage = function(){
 
 
 //code for websocket
+// callback function will trigger if the socket connection is successful
 function connectSocket(token, callback){
     console.log("Socket associated with token:  " + token);
     const ws = new WebSocket("ws://127.0.0.1:5000/echo");
+    // after calling echo websocket server, it will trigger the onopen function once to see if the connection is established
     ws.onopen = function () {
         if (ws.readyState === WebSocket.OPEN) {
             console.log("Sending message..." + token);
@@ -49,17 +51,18 @@ function connectSocket(token, callback){
         
         if (callback) {
             console.log("Callback line 52")
+            // This triggers the callback function that uses the connectSocket function
             callback();
         }
     };
     
+    // triggers when server side sends a message/response to the client
     ws.onmessage = function (response){
         console.log("Message received from server:", response.data);
         // ws.send("ACK: " + event.data); // Send acknowledgment back
         if (response.data=="logout"){
             //logout without closing connection
             ws.send("close");
-            feedback("Logged out from another device")
         }
 
         if (response.data == "close"){
@@ -157,7 +160,6 @@ var login = function(){
                         document.getElementById("signinalert").innerText = httpResp.message;
                     }
                     else {
-                        // feedback(httpResp.message);
                         document.getElementById("signinalert").innerText = httpResp.message;
                     }
                 }
@@ -262,7 +264,6 @@ var changePassword = function(){
                     document.getElementById("accountalert").innerText = httpResp.message;
                 }
                 else {
-                    // feedback(httpResp.message);
                     console.log(httpResp.message);
                     document.getElementById("accountalert").innerText = httpResp.message;
                 }
@@ -343,7 +344,6 @@ var showOtherProfile = function(email){
                     document.getElementById("homecontent").className = "content-cur";   
                 }
                 else {
-                    // feedback(httpResp.message);
                     document.getElementById("searchalert").innerHTML = "No such user found, please try again.";
                     // document.getElementById("homecontent").className ="content";
                 }
@@ -375,14 +375,19 @@ var searchuser = function(){
                 console.log(httpResp.success)   
                 if (httpResp.success){
                     document.getElementById("searchalert").innerHTML = "";
-                    if (searchUserData.email === useremail){
+                    console.log("type of searched email " + typeof(searchUserData.email));
+                    console.log("user email " + useremail);
+
+                    if (searchUserData.email == useremail){
+                        console.log("showing profiles yea");
                         showMyProfile();
+                        // document.getElementById("homecontent").className ="content-cur";
                     }
                     else {
                         console.log("before i display : " + searchUserData.email);
                         showOtherProfile(searchUserData.email);
                     }
-                    // document.getElementById("homecontent").className ="content-cur";
+                    document.getElementById("homecontent").className ="content-cur";
                     refreshboard(searchUserData.email);
                 }
                 else {
@@ -390,7 +395,6 @@ var searchuser = function(){
                     console.log("no user found message :" + httpResp.message)
                     document.getElementById("searchalert").innerHTML = httpResp.message;
                     document.getElementById("homecontent").className ="content";
-                    // feedback(httpResp.message);
                 }
             }
             else {
@@ -506,7 +510,6 @@ var refreshboard =  function (email) {
                     }
                 }
                 else {
-                    // feedback(httpResp.message);
                     wall.innerHTML = "No messages currently";
                 }
             }
@@ -607,7 +610,7 @@ var attachHandler = function () {
                                 // document.getElementById("loginalert").innerHTML = httpResp.message;
                             }
                             else {
-                                feedback(httpResp.message);
+                                console.log(httpResp.message);
                             }
                     }
                 }
@@ -629,14 +632,3 @@ function clearTokens() {
     localStorage.clear();
     localStorage.removeItem("token", JSON.stringify(token));
 };
-
-/* Function to display a message for the user
-*  arg[0] = string of text to be displayed.
-*/
-// function feedback(text) {
-
-//     var feedback = document.getElementById('feedback');
-//     var message = document.getElementById('errorMessage');
-//     message.innerHTML = text;
-//     feedback.style.display = "block";
-// }

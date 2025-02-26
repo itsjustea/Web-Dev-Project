@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS messages (
 --     datetime DATETIME DEFAULT CURRENT_TIMESTAMP
 -- );
 
+CREATE TABLE IF NOT EXISTS tokens (
+    email TEXT NOT NULL,
+    token TEXT NOT NULL
+);
 
 -- Clear DB
 

@@ -366,6 +366,7 @@ var searchuser = function(){
                         showOtherProfile(searchUserData.email);
                     }
                     refreshboard(searchUserData.email);
+                    document.getElementById("homecontent").className ="content-cur";
                 }
                 else {
                     // No such user is found
