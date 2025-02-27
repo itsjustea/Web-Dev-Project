@@ -68,8 +68,6 @@ def sign_in():
     else:
         token = token_generator()
         result = store_token(email, token)
-        # set header token
-        # response = request.headers.set("token", token)
 
         if result == True:
             return (

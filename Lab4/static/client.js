@@ -87,33 +87,8 @@ window.onload = function() {
             displayView.hide("welcome");
             displayView.show("profile");
         });
-        // document.getElementById("defaultOpen").click();
     }
 };
-
-// User field validation - Step 3
-// function pwValidation() {
-//     const entered_pw = document.getElementById('signup-pw');
-//     const confirm_pw = document.getElementById('signup-repeatPSW');
-
-//     // 3. Both password fields must contain the same string
-//     if (entered_pw.value !== confirm_pw.value) {
-//         alert('Passwords do not match. Please re-enter your password.');
-//         entered_pw.value = ''; // Clear the password fields
-//         confirm_pw.value = '';
-//         return false;
-//     }
-//     // 4. The password must be at least X characters long (assume X = 8)
-//     if (entered_pw.value.length < 8 || confirm_pw.value.length < 8) {
-//         alert('Entered password must be at least 8 characters long.');
-//         entered_pw.value = ''; // Clear the password fields
-//         confirm_pw.value = '';
-//         return false;
-//     }
-
-//     console.log('Passwords match, proceed!');
-//     return true;
-// }
 
 // Adding the signin mechanism - Step 5
 var login = function(){
@@ -142,7 +117,6 @@ var login = function(){
                         document.getElementById("signinalert").innerText = httpResp.message;
                     }
                     else {
-                        // feedback(httpResp.message);
                         document.getElementById("signinalert").innerText = httpResp.message;
                     }
                 }
@@ -165,15 +139,6 @@ function postRequest(request, url, data, hashedData){
     request.send(data);
 }
 
-// function getRequest(request, url, data, hashedData){
-//     request.open("GET", url, true);
-//     if (hashedData!=null) {
-//             request.setRequestHeader("hashedData", hashedData);
-//     }
-//     request.setRequestHeader("Content-type","application/json; charset=utf-8");
-//     request.send(data);
-// }
-
 // Adding the signup mechanism - Step 4
 var signup = function() {
     var email = document.getElementById('signup-email').value;
@@ -185,19 +150,17 @@ var signup = function() {
     var city = document.getElementById('signup-city').value;
     var country = document.getElementById('signup-country').value;
     var newUser = {email, password, firstname, familyname, gender, city, country};
-    // var submitResult = serverstub.signUp(newUser);   
     var httpReq = new XMLHttpRequest();
     httpReq.onreadystatechange = function(){
         if (httpReq.responseText === "") {
             // do nothing
         }
         else {
-            var httpResp = JSON.parse(httpReq.responseText); // error same as login
+            var httpResp = JSON.parse(httpReq.responseText);
             console.log(httpResp);
             if (httpReq.status === 200 && httpReq.readyState == 4) {
                 console.log("sign up status " + httpResp.success); 
                 if (httpResp.success){
-                    // useremail = httpResp.data.email;
                     document.getElementById("signupalert").innerText = httpResp.message;
                 }
                 else {
@@ -218,7 +181,6 @@ var signup = function() {
                                                     'password_confirmation': password_confirmation,
                                                     'password' : password}) , null);
     
-    // alert('Form submitted successfully!');
 }
 
 // Allows user to change password in the Account page.
