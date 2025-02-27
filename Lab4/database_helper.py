@@ -276,6 +276,25 @@ def get_email_by_token(token):
     else:
         return email[0][0]
     
+def is_logged_in(email):
+    query = """
+    SELECT * from tokens where email = ?
+    """
+    print(email)
+    params = (email,)
+    result = execute_query(query, params)
+    
+    if result != []:
+        return True
+    else:
+        return False   
+    
+def update_token(email, token):
+    query = """
+    UPDATE tokens SET token = ? WHERE email = ?
+    """
+    params = (token, email)
+    execute_query(query, params)
 
 def deleteAllData():
     db = get_db()

@@ -29,9 +29,11 @@ var initlocalstorage = function(){
 
 
 //code for websocket
+// callback function will trigger if the socket connection is successful
 function connectSocket(token, callback){
     console.log("Socket associated with token:  " + token);
     const ws = new WebSocket("ws://127.0.0.1:5000/echo");
+    // after calling echo websocket server, it will trigger the onopen function once to see if the connection is established
     ws.onopen = function () {
         if (ws.readyState === WebSocket.OPEN) {
             console.log("Sending message..." + token);
@@ -47,17 +49,21 @@ function connectSocket(token, callback){
         }
         
         if (callback) {
+            // console.log("Callback line 52")
+            // This triggers the callback function that uses the connectSocket function
             callback();
         }
     };
     
+    // triggers when server side sends a message/response to the client
     ws.onmessage = function (response){
         console.log("Message received from server:", response.data);
         // ws.send("ACK: " + event.data); // Send acknowledgment back
         if (response.data=="logout"){
             //logout without closing connection
-            ws.send("close");
-            feedback("Logged out from another device")
+            console.log("client logout")
+            localStorage.setItem("token","[]");
+            // ws.send("close");
         }
 
         if (response.data == "close"){

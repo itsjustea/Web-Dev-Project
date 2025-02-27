@@ -75,26 +75,65 @@ def sign_in():
 
             if(result & (hashedPassword != None)):
                 token = token_generator()
-                result = store_token(email, token)
-                if result == True:
-                    return (
-                        jsonify(
-                            {"success": True, "message": "Sign In Successful", "token": token}
-                        ),
-                        200,
-                    )
-                else:
-                    return (
-                        jsonify(
-                            {"success": False, "message": "Sign In Failed", "token": token}
-                        ),
-                        500,
-                    )                    
+
+                 # ws = active_sockets.pop(email, None)
+        print(email)
+        token = token_generator()
+
+        if is_logged_in(email):
+            ws = active_sockets.get(email)
+            print("active")
+            if ws:
+                print("logout dump")
+                # ws.send(json.dumps("logout"))
+                ws.send("logout")
+                
+            print(ws)
+            update_token(email, token)
+            return (
+                jsonify(
+                    {"success": True, "message": "You successfully signed in (and your other logged in session was logged out)", "token": token}
+                ),
+                200,
+            )
+        
+        else:
+            print("no multiple user")
+            result = store_token(email, token)
+            if result == False:
+                return (
+                    jsonify(
+                        {"success": False, "message": "Sign In Failed", "token": token}
+                    ),
+                    500,
+                )
             else:
                 return (
-                        jsonify({"success": False, "message": "Wrong password"}),
-                        401,
-                    )
+                    jsonify(
+                        {"success": True, "message": "Sign In successful", "token": token}
+                    ),
+                    200,
+                )
+        #     result = store_token(email, token)
+        #     if result == True:
+        #         return (
+        #             jsonify(
+        #                 {"success": True, "message": "Sign In Successful", "token": token}
+        #             ),
+        #             200,
+        #         )
+        #     else:
+        #         return (
+        #             jsonify(
+        #                 {"success": False, "message": "Sign In Failed", "token": token}
+        #             ),
+        #             500,
+        #         )                    
+        # else:
+        #     return (
+        #             jsonify({"success": False, "message": "Wrong password"}),
+        #             401,
+        #         )
     except:
         return (
             jsonify(
@@ -556,52 +595,54 @@ def deletealltoken():
     delete_all_token()
     return True
 
+
 @sock.route("/echo")
 def echo_socket(ws):
     print("WebSocket connection established")  # Debugging print
     token = None
-    try:
-        while True:  # Keep listening for messages
-            token = ws.receive()
-            print(f"Received message: {token}")  # Debugging print
-            ws.send(f"{token}")  # Echo back to client
-            email = get_email_by_token(token)  # current line of error
-            # print("line 504 " + email)
-            if email in active_sockets:
-                try:
-                    active_sockets[email].send(json.dumps("logout"))
-                    print("Active Websocket deleted: " + email)
+    # try:
+    while True:  # Keep listening for messages
+        token = ws.receive()
+        print(f"Received message: {token}")  # Debugging print
+        ws.send(f"{token}")  # Echo back to client
+        email = get_email_by_token(token)  # current line of error
+        if email:
+            print("if email")
+        # in active_sockets:
+            # try:
+            #     active_sockets[email].send(json.dumps("logout"))
+            #     print("Active Websocket deleted: " + email)
 
-                except:
-                    print("Active Websocket deleted (due to reload): " + email)
+            # except:
+            #     print("Active Websocket deleted (due to reload): " + email)
 
-                del active_sockets[email]
-                active_sockets[email] = ws
-                print("New Active Websocket added: " + email)
-            else:
-                active_sockets[email] = ws
-                print("New Active Websocket added: " + email)
+            # del active_sockets[email]
+            active_sockets[email] = ws
+        #     print("New Active Websocket added: " + email)
+        # else:
+        #     active_sockets[email] = ws
+        #     print("New Active Websocket added: " + email)
 
-            try:
-                while True:
-                    message = ws.receive()
-                    if message == "close":
-                        print("closing websocket")
-                        delete_token(token)
-                        break
+        # try:
+        #     while True:
+        #         message = ws.receive()
+        #         if message == "close":
+        #             print("closing websocket")
+        #             delete_token(token)
+        #             break
 
-            except WebSocketError as e:
-                print("Client Disconnected Websocket")
+        # except WebSocketError as e:
+        #     print("Client Disconnected Websocket")
 
-    except WebSocketError as e:
-        print("WebSocketError:", e)
+    # except WebSocketError as e:
+    #     print("WebSocketError:", e)
 
-    except Exception as e:
-        print("Unexpected error:", e)
+    # except Exception as e:
+    #     print("Unexpected error:", e)
 
-    finally:
-        print(f"Closing connection. Last received message: {token}")
-        ws.close()
+    # finally:
+    #     print(f"Closing connection. Last received message: {token}")
+    #     ws.close()
 
 #function that retrieves the token from the provided email and recreates the hash with the provided data
 def server_hash(data, token):
