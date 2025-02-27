@@ -50,7 +50,7 @@ function connectSocket(token, callback){
         }
         
         if (callback) {
-            console.log("Callback line 52")
+            // console.log("Callback line 52")
             // This triggers the callback function that uses the connectSocket function
             callback();
         }
@@ -62,8 +62,9 @@ function connectSocket(token, callback){
         // ws.send("ACK: " + event.data); // Send acknowledgment back
         if (response.data=="logout"){
             //logout without closing connection
-            localStorage.setItem("token", token);
-            ws.send("close");
+            console.log("client logout")
+            localStorage.setItem("token","[]");
+            // ws.send("close");
         }
 
         if (response.data == "close"){
@@ -588,4 +589,13 @@ function clearTokens() {
     postRequest(httpReq, "deletealltoken" ,null, null);
     localStorage.clear();
     localStorage.removeItem("token", JSON.stringify(token));
+};
+
+////// for test
+function clearAllTable() {
+    displayView.hide("profile");
+    displayView.show("welcome");
+    var httpReq = new XMLHttpRequest();
+    postRequest(httpReq, "deleteall" ,null, null);
+    localStorage.clear();
 };

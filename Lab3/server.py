@@ -14,7 +14,8 @@ from geventwebsocket.handler import WebSocketHandler
 
 app = Flask(__name__)
 sock = Sock(app)
-active_sockets = dict()
+active_sockets = {}
+# active_sockets = dict()
 
 
 @app.route("/")  # Initial landing page of the user.
@@ -54,8 +55,6 @@ def retrieve_all_tokens():
 def sign_in():
     email = request.json["username"]
     password = request.json["password"]
-    print("signin")
-    print(active_sockets)
     user = get_user(email)
     if user == 0:
         return (
@@ -68,43 +67,45 @@ def sign_in():
             401,
         )
     else:
-        ws = active_sockets[email]
-        print(ws)
-        ws.send(json.dumps("logout"))
-        ws.close()
-        print("Before delete")
-        print(active_sockets)
-        del active_sockets[email]
-        print("After delete")
-        print(active_sockets)
-        # try:
-        #     while True:
-        #         message = ws.receive()
-        #         if message == "close":
-        #             print("closing websocket")
-        #             delete_token(token)
-        #             break
-
-        # except WebSocketError as e:
-        #     print("Client Disconnected Websocket")
-
+        # ws = active_sockets.pop(email, None)
+        print(email)
         token = token_generator()
-        result = store_token(email, token)
 
-        if result == True:
+        if is_logged_in(email):
+            ws = active_sockets.get(email)
+            print("active")
+            if ws:
+                print("logout dump")
+                # ws.send(json.dumps("logout"))
+                ws.send("logout")
+                
+            print(ws)
+            update_token(email, token)
             return (
                 jsonify(
-                    {"success": True, "message": "Sign In Successful", "token": token}
+                    {"success": True, "message": "You successfully signed in (and your other logged in session was logged out)", "token": token}
                 ),
                 200,
             )
+        
         else:
-            return (
-                jsonify(
-                    {"success": False, "message": "Sign In Failed", "token": token}
-                ),
-                500,
-            )
+            print("no multiple user")
+            result = store_token(email, token)
+            if result == False:
+                return (
+                    jsonify(
+                        {"success": False, "message": "Sign In Failed", "token": token}
+                    ),
+                    500,
+                )
+            else:
+                return (
+                    jsonify(
+                        {"success": True, "message": "Sign In successful", "token": token}
+                    ),
+                    200,
+                )
+
 
 
 def valid_email(email):
@@ -533,6 +534,7 @@ def echo_socket(ws):
         ws.send(f"{token}")  # Echo back to client
         email = get_email_by_token(token)  # current line of error
         if email:
+            print("if email")
         # in active_sockets:
             # try:
             #     active_sockets[email].send(json.dumps("logout"))
@@ -543,21 +545,21 @@ def echo_socket(ws):
 
             # del active_sockets[email]
             active_sockets[email] = ws
-            print("New Active Websocket added: " + email)
-            # else:
-            #     active_sockets[email] = ws
-            #     print("New Active Websocket added: " + email)
+        #     print("New Active Websocket added: " + email)
+        # else:
+        #     active_sockets[email] = ws
+        #     print("New Active Websocket added: " + email)
 
-    #         try:
-    #             while True:
-    #                 message = ws.receive()
-    #                 if message == "close":
-    #                     print("closing websocket")
-    #                     delete_token(token)
-    #                     break
+        # try:
+        #     while True:
+        #         message = ws.receive()
+        #         if message == "close":
+        #             print("closing websocket")
+        #             delete_token(token)
+        #             break
 
-    #         except WebSocketError as e:
-    #             print("Client Disconnected Websocket")
+        # except WebSocketError as e:
+        #     print("Client Disconnected Websocket")
 
     # except WebSocketError as e:
     #     print("WebSocketError:", e)
@@ -569,6 +571,11 @@ def echo_socket(ws):
     #     print(f"Closing connection. Last received message: {token}")
     #     ws.close()
 
+
+@app.route("/deleteall", methods=["POST"])
+def deleteall():
+    deleteAllData()
+    return True
 
 if __name__ == "__main__":
     # Start the server with gevent-websocket handler
