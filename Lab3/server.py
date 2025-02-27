@@ -54,6 +54,8 @@ def retrieve_all_tokens():
 def sign_in():
     email = request.json["username"]
     password = request.json["password"]
+    print("signin")
+    print(active_sockets)
     user = get_user(email)
     if user == 0:
         return (
@@ -66,6 +68,26 @@ def sign_in():
             401,
         )
     else:
+        ws = active_sockets[email]
+        print(ws)
+        ws.send(json.dumps("logout"))
+        ws.close()
+        print("Before delete")
+        print(active_sockets)
+        del active_sockets[email]
+        print("After delete")
+        print(active_sockets)
+        # try:
+        #     while True:
+        #         message = ws.receive()
+        #         if message == "close":
+        #             print("closing websocket")
+        #             delete_token(token)
+        #             break
+
+        # except WebSocketError as e:
+        #     print("Client Disconnected Websocket")
+
         token = token_generator()
         result = store_token(email, token)
 
@@ -504,47 +526,48 @@ def deletealltoken():
 def echo_socket(ws):
     print("WebSocket connection established")  # Debugging print
     token = None
-    try:
-        while True:  # Keep listening for messages
-            token = ws.receive()
-            print(f"Received message: {token}")  # Debugging print
-            ws.send(f"{token}")  # Echo back to client
-            email = get_email_by_token(token)  # current line of error
-            if email in active_sockets:
-                try:
-                    active_sockets[email].send(json.dumps("logout"))
-                    print("Active Websocket deleted: " + email)
+    # try:
+    while True:  # Keep listening for messages
+        token = ws.receive()
+        print(f"Received message: {token}")  # Debugging print
+        ws.send(f"{token}")  # Echo back to client
+        email = get_email_by_token(token)  # current line of error
+        if email:
+        # in active_sockets:
+            # try:
+            #     active_sockets[email].send(json.dumps("logout"))
+            #     print("Active Websocket deleted: " + email)
 
-                except:
-                    print("Active Websocket deleted (due to reload): " + email)
+            # except:
+            #     print("Active Websocket deleted (due to reload): " + email)
 
-                del active_sockets[email]
-                active_sockets[email] = ws
-                print("New Active Websocket added: " + email)
-            else:
-                active_sockets[email] = ws
-                print("New Active Websocket added: " + email)
+            # del active_sockets[email]
+            active_sockets[email] = ws
+            print("New Active Websocket added: " + email)
+            # else:
+            #     active_sockets[email] = ws
+            #     print("New Active Websocket added: " + email)
 
-            try:
-                while True:
-                    message = ws.receive()
-                    if message == "close":
-                        print("closing websocket")
-                        delete_token(token)
-                        break
+    #         try:
+    #             while True:
+    #                 message = ws.receive()
+    #                 if message == "close":
+    #                     print("closing websocket")
+    #                     delete_token(token)
+    #                     break
 
-            except WebSocketError as e:
-                print("Client Disconnected Websocket")
+    #         except WebSocketError as e:
+    #             print("Client Disconnected Websocket")
 
-    except WebSocketError as e:
-        print("WebSocketError:", e)
+    # except WebSocketError as e:
+    #     print("WebSocketError:", e)
 
-    except Exception as e:
-        print("Unexpected error:", e)
+    # except Exception as e:
+    #     print("Unexpected error:", e)
 
-    finally:
-        print(f"Closing connection. Last received message: {token}")
-        ws.close()
+    # finally:
+    #     print(f"Closing connection. Last received message: {token}")
+    #     ws.close()
 
 
 if __name__ == "__main__":

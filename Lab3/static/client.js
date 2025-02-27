@@ -62,6 +62,7 @@ function connectSocket(token, callback){
         // ws.send("ACK: " + event.data); // Send acknowledgment back
         if (response.data=="logout"){
             //logout without closing connection
+            localStorage.setItem("token", token);
             ws.send("close");
         }
 
