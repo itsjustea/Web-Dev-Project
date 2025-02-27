@@ -16,11 +16,13 @@ bcrypt = flask_bcrypt.Bcrypt(app)
 sock = Sock(app)
 active_sockets = dict()
 
+
 # Initial landing page of the user.
-@app.route("/")  
+@app.route("/")
 def index():
     # print("welcome")
     return render_template("client.html")
+
 
 # Retrieves all the existing user - for testing
 @app.route("/retrieve_all")
@@ -52,6 +54,7 @@ def retrieve_all_tokens():
 
 ### Defining all the necessary functions from serverstub
 
+
 # Sign in function -- tested
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
@@ -59,11 +62,18 @@ def sign_in():
     password = request.json["password"]
     try:
         result = get_user(email)
+
+        if request.method != "POST":
+            return (
+                jsonify({"success": False, "message": "Unauthorized request"}),
+                405,
+            )
+
         if result == 0:
             return (
                 jsonify({"success": False, "message": "User not found"}),
                 401,
-        )
+            )
         else:
             hashedPassword = result[1]
             print(password)
@@ -73,10 +83,10 @@ def sign_in():
             except:
                 result = False
 
-            if(result & (hashedPassword != None)):
+            if result & (hashedPassword != None):
                 token = token_generator()
 
-                 # ws = active_sockets.pop(email, None)
+                # ws = active_sockets.pop(email, None)
         print(email)
         token = token_generator()
 
@@ -87,16 +97,20 @@ def sign_in():
                 print("logout dump")
                 # ws.send(json.dumps("logout"))
                 ws.send("logout")
-                
+
             print(ws)
             update_token(email, token)
             return (
                 jsonify(
-                    {"success": True, "message": "You successfully signed in (and your other logged in session was logged out)", "token": token}
+                    {
+                        "success": True,
+                        "message": "You successfully signed in (and your other logged in session was logged out)",
+                        "token": token,
+                    }
                 ),
                 200,
             )
-        
+
         else:
             print("no multiple user")
             result = store_token(email, token)
@@ -110,7 +124,11 @@ def sign_in():
             else:
                 return (
                     jsonify(
-                        {"success": True, "message": "Sign In successful", "token": token}
+                        {
+                            "success": True,
+                            "message": "Sign In successful",
+                            "token": token,
+                        }
                     ),
                     200,
                 )
@@ -128,7 +146,7 @@ def sign_in():
         #                 {"success": False, "message": "Sign In Failed", "token": token}
         #             ),
         #             500,
-        #         )                    
+        #         )
         # else:
         #     return (
         #             jsonify({"success": False, "message": "Wrong password"}),
@@ -137,13 +155,19 @@ def sign_in():
     except:
         return (
             jsonify(
-                {"success": False, "message": "Password or email is invalid", "token": token}
+                {
+                    "success": False,
+                    "message": "Password or email is invalid",
+                    "token": token,
+                }
             ),
             401,
         )
 
+
 def valid_email(email):
     return bool(re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email))
+
 
 # Sign up function -- tested
 @app.route("/sign_up", methods=["POST"])
@@ -171,9 +195,17 @@ def sign_up():
                 and (country != "")
             ):
                 if password == password_confirmation:
-                    hashedPassword = bcrypt.generate_password_hash(password).decode('utf-8')
+                    hashedPassword = bcrypt.generate_password_hash(password).decode(
+                        "utf-8"
+                    )
                     insert_user(
-                        email, hashedPassword, first_name, last_name, gender, city, country
+                        email,
+                        hashedPassword,
+                        first_name,
+                        last_name,
+                        gender,
+                        city,
+                        country,
                     )
                     return (
                         jsonify(
@@ -182,7 +214,7 @@ def sign_up():
                                 "message": "Sign Up Successful, please enter login credentials above.",
                             }
                         ),
-                        200,
+                        201,  # 201 - Created new account
                     )
                 else:
                     return (
@@ -199,7 +231,7 @@ def sign_up():
         else:
             return (
                 jsonify({"success": False, "message": "User already exist"}),
-                400,
+                409,  # 409 - user already exists
             )
     except:
         return (
@@ -207,16 +239,24 @@ def sign_up():
             400,
         )
 
+
 # Sign out function
 @app.route("/sign_out", methods=["POST"])
 def sign_out():
-    hashedData = request.headers.get('hashedData')
+    hashedData = request.headers.get("hashedData")
     token = request.json["token"]
-    serverHash = server_hash(token,token)
-    if(serverHash==hashedData):
+    serverHash = server_hash(token, token)
+    if serverHash == hashedData:
         try:
             result = get_user_data_bytoken(token)
             useremail = result[0][0]
+
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
+
             if result[0][0] == 0:
                 return (
                     jsonify({"success": False, "message": "Invalid Token"}),
@@ -227,11 +267,16 @@ def sign_out():
                 result = delete_token(token)
                 if result == True:
                     return (
-                        jsonify({"success": True, "message": "Successfully signed out"}),
+                        jsonify(
+                            {"success": True, "message": "Successfully signed out"}
+                        ),
                         200,
                     )
                 else:
-                    return jsonify({"success": False, "message": "Sign out failed"}), 400
+                    return (
+                        jsonify({"success": False, "message": "Sign out failed"}),
+                        400,
+                    )
         except:
             return (
                 jsonify({"success": False, "message": "Invalid Token"}),
@@ -239,9 +284,10 @@ def sign_out():
             )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
+
 
 # Check whether user exist
 def user_exist(email):
@@ -253,21 +299,30 @@ def user_exist(email):
         result = True
     return result
 
+
 # Change password function
 @app.route("/change_password", methods=["POST"])
 def change_password():
-    hashedData = request.headers.get('hashedData')
+    hashedData = request.headers.get("hashedData")
     token = request.json["token"]
     old_password = request.json["oldPassword"]
     new_password = request.json["newPassword"]
     check_new_password = request.json["checkNewPassword"]
     beforeHashedData = new_password + old_password + check_new_password
     serverHash = server_hash(beforeHashedData, token)
-    if (serverHash == hashedData): 
+    if serverHash == hashedData:
         try:
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
+
             result = get_user_data_bytoken(token)
             oldPasswordHashed = get_user(result[0][0])[1]
-            hashPasswordCheck = bcrypt.check_password_hash(oldPasswordHashed,old_password) #if true, password is correct
+            hashPasswordCheck = bcrypt.check_password_hash(
+                oldPasswordHashed, old_password
+            )  # if true, password is correct
             if result[0][0] == 0:
                 return (
                     jsonify({"success": False, "message": "Invalid Token"}),
@@ -292,7 +347,7 @@ def change_password():
                         jsonify({"success": False, "message": "Wrong password"}),
                         403,
                     )
-                
+
                 elif new_password != check_new_password:
                     return (
                         jsonify(
@@ -314,12 +369,17 @@ def change_password():
                         400,
                     )
                 else:
-                    newPasswordHashed = bcrypt.generate_password_hash(new_password).decode('utf-8')
+                    newPasswordHashed = bcrypt.generate_password_hash(
+                        new_password
+                    ).decode("utf-8")
                     # database_helper.update_password(email, newPasswordHashed)
                     update_password(result[0][0], newPasswordHashed)
                     return (
                         jsonify(
-                            {"success": True, "message": "Password Changed Successfully"}
+                            {
+                                "success": True,
+                                "message": "Password Changed Successfully",
+                            }
                         ),
                         200,
                     )
@@ -330,23 +390,31 @@ def change_password():
             )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
+
 
 # Get user data by emailx
 @app.route("/get_user_data_by_email", methods=["POST"])
 def get_user_data_by_email():
-    hashedData = request.headers.get('hashedData')
-    email = request.json['email']
-    token = request.json['token']
+    hashedData = request.headers.get("hashedData")
+    email = request.json["email"]
+    token = request.json["token"]
     beforeHashedData = email
     print("data at email " + beforeHashedData)
     serverHash = server_hash(beforeHashedData, token)
-    if (serverHash == hashedData):
+    if serverHash == hashedData:
         try:
             result = get_user_data_bytoken(token)
             useremail = result[0][0]
+
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
+
             if result[0][0] == 0:
                 return (
                     jsonify({"success": False, "message": "Invalid Token"}),
@@ -372,7 +440,10 @@ def get_user_data_by_email():
                 else:
                     return (
                         jsonify(
-                            {"success": False, "message": "Searched User does not exist"}
+                            {
+                                "success": False,
+                                "message": "Searched User does not exist",
+                            }
                         ),
                         404,
                     )
@@ -383,23 +454,28 @@ def get_user_data_by_email():
             )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
 
 
 # Get user data by token -- tested
 @app.route("/get_user_data_by_token", methods=["POST"])
 def get_user_data_by_token():
-    hashedData = request.headers.get('hashedData')
-    token = request.json['token']
-    serverHash = server_hash(token,token)
+    hashedData = request.headers.get("hashedData")
+    token = request.json["token"]
+    serverHash = server_hash(token, token)
     print("serverhash " + serverHash)
-    if (serverHash == hashedData):
+    if serverHash == hashedData:
         try:
             result = get_user_data_bytoken(token)
             userData = get_user_data_byemail(result[0][0])
             user = [dict(row) for row in userData]
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
             # print(user)
             if user_exist(result[0][0]) == True:
                 return (
@@ -424,19 +500,25 @@ def get_user_data_by_token():
             )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
+
 
 # Get user messages by email -- tested
 @app.route("/get_user_messages_by_email", methods=["POST"])
 def get_user_messages_by_email():
-    hashedData = request.headers.get('hashedData')
-    token = request.json['token']
+    hashedData = request.headers.get("hashedData")
+    token = request.json["token"]
     email = request.json["email"]
     serverHash = server_hash(email, token)
-    if (serverHash == hashedData):
+    if serverHash == hashedData:
         try:
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
             # result = get_user_data_bytoken(token)
             if user_exist(email) == False:
                 return (
@@ -463,24 +545,30 @@ def get_user_messages_by_email():
                     )
         except:
             return (
-                    jsonify({"success": False, "message": "Invalid token"}),
-                    400,
-                )
+                jsonify({"success": False, "message": "Invalid token"}),
+                400,
+            )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
+
 
 # get user messages by token
 @app.route("/get_user_messages_by_token", methods=["POST"])
 def get_user_messages_by_token():
-    hashedData = request.headers.get('hashedData')
+    hashedData = request.headers.get("hashedData")
     token = request.json["token"]
-    serverHash = server_hash(token,token)
-    if (serverHash == hashedData):
+    serverHash = server_hash(token, token)
+    if serverHash == hashedData:
         try:
-            result = get_user_data_bytoken(token)       
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
+            result = get_user_data_bytoken(token)
             if user_exist(result[0][0]) == False:
                 return (
                     jsonify({"success": False, "message": "Invalid token"}),
@@ -511,9 +599,10 @@ def get_user_messages_by_token():
             )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
+
 
 # Post messages function
 @app.route("/post_message", methods=["POST"])
@@ -524,9 +613,14 @@ def post_message():
     message = request.json["message"]
     beforeHashedData = receiver_email + message
     serverHash = server_hash(beforeHashedData, token)
-    if (serverHash == hashedData):
+    if serverHash == hashedData:
         try:
-            result = get_user_data_bytoken(token)   
+            if request.method != "POST":
+                return (
+                    jsonify({"success": False, "message": "Unauthorized request"}),
+                    405,
+                )
+            result = get_user_data_bytoken(token)
             sender_email = result[0][0]
             receiver = user_exist(receiver_email)
             if receiver == False:
@@ -539,7 +633,7 @@ def post_message():
                     jsonify({"success": False, "message": "Message is empty."}),
                     404,
                 )
-            elif (message is None):
+            elif message is None:
                 return (
                     jsonify({"success": False, "message": "Message is empty."}),
                     404,
@@ -567,9 +661,10 @@ def post_message():
             )
     else:
         return (
-                jsonify({"success": False, "message": "Authentication Failed"}),
-                403,
-            )
+            jsonify({"success": False, "message": "Authentication Failed"}),
+            403,
+        )
+
 
 def token_generator():
     LENGTH_TOKEN = 30
@@ -590,6 +685,7 @@ def show_routes():
         )
     return jsonify(routes)
 
+
 @app.route("/deletealltoken", methods=["POST"])
 def deletealltoken():
     delete_all_token()
@@ -608,7 +704,7 @@ def echo_socket(ws):
         email = get_email_by_token(token)  # current line of error
         if email:
             print("if email")
-        # in active_sockets:
+            # in active_sockets:
             # try:
             #     active_sockets[email].send(json.dumps("logout"))
             #     print("Active Websocket deleted: " + email)
@@ -644,7 +740,8 @@ def echo_socket(ws):
     #     print(f"Closing connection. Last received message: {token}")
     #     ws.close()
 
-#function that retrieves the token from the provided email and recreates the hash with the provided data
+
+# function that retrieves the token from the provided email and recreates the hash with the provided data
 def server_hash(data, token):
     # token = get_token_by_email(email)
     print("token during server hash func call")
@@ -653,7 +750,8 @@ def server_hash(data, token):
     data = data + token
     print("data before hash")
     print(data)
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
+
 
 @app.route("/deleteall", methods=["POST"])
 def deleteall():
