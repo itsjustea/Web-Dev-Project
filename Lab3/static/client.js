@@ -412,8 +412,9 @@ var searchuser = function(){
 var postMessage = function(){
     var token = JSON.parse(localStorage.getItem("token"));
     var message = document.getElementById("addmessage").value;
-    if (message === ""){
-        // nothing
+    if (typeof message === "undefined") {
+        // do nothing
+        return false;
     }
     else{
 
