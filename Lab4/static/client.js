@@ -64,6 +64,7 @@ function connectSocket(token, callback){
             console.log("client logout")
             localStorage.setItem("token","[]");
             // ws.send("close");
+            window.location.reload()
         }
 
         if (response.data == "close"){
