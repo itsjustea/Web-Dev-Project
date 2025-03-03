@@ -76,7 +76,9 @@ def sign_in():
             )
         else:
             hashedPassword = result[1]
+            print("password")
             print(password)
+            print("hashedpassword")
             print(hashedPassword)
             try:
                 result = bcrypt.check_password_hash(hashedPassword, password)
@@ -85,7 +87,15 @@ def sign_in():
 
             if result & (hashedPassword != None):
                 token = token_generator()
-
+            
+            else:
+                token = []
+                return (
+                    jsonify(
+                        {"success": False, "message": "Sign In Failed", "token": token}
+                    ),
+                    400,
+                )
                 # ws = active_sockets.pop(email, None)
         print(email)
         token = token_generator()
@@ -132,26 +142,6 @@ def sign_in():
                     ),
                     200,
                 )
-        #     result = store_token(email, token)
-        #     if result == True:
-        #         return (
-        #             jsonify(
-        #                 {"success": True, "message": "Sign In Successful", "token": token}
-        #             ),
-        #             200,
-        #         )
-        #     else:
-        #         return (
-        #             jsonify(
-        #                 {"success": False, "message": "Sign In Failed", "token": token}
-        #             ),
-        #             500,
-        #         )
-        # else:
-        #     return (
-        #             jsonify({"success": False, "message": "Wrong password"}),
-        #             401,
-        #         )
     except:
         return (
             jsonify(
@@ -161,7 +151,7 @@ def sign_in():
                     "token": token,
                 }
             ),
-            401,
+            400,
         )
 
 

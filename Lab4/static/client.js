@@ -121,14 +121,18 @@ var login = function(){
                             displayView.show("profile");
                         });
                         useremail = email;
-                        document.getElementById("signinalert").innerText = httpResp.message;
-                    }
-                    else {
-                        document.getElementById("signinalert").innerText = httpResp.message;
+                        // document.getElementById("signinalert").innerText = httpResp.message;
+                        document.getElementById("signinalert").innerText = "Logging in";
                     }
                 }
+
+                else if (httpReq.status==401){
+                    document.getElementById("signinalert").innerText = "User does not exist.";
+                }
+
                 else{
-                    document.getElementById("signinalert").innerText = httpResp.message;
+                    // document.getElementById("signinalert").innerText = httpResp.message;
+                    document.getElementById("signinalert").innerText = "Wrong Password, please try again.";
                 }
             }
         };
@@ -165,17 +169,25 @@ var signup = function() {
         else {
             var httpResp = JSON.parse(httpReq.responseText);
             console.log(httpResp);
-            if (httpReq.status === 200 && httpReq.readyState == 4) {
+            if (httpReq.status === 201 && httpReq.readyState == 4) {
                 console.log("sign up status " + httpResp.success); 
                 if (httpResp.success){
-                    document.getElementById("signupalert").innerText = httpResp.message;
+                    // document.getElementById("signupalert").innerText = httpResp.message;
+                    document.getElementById("signupalert").innerText = "Registered Successfully, please login.";
                 }
-                else {
-                    document.getElementById("signupalert").innerText = httpResp.message;
-                }
+                // else {
+                //     // document.getElementById("signupalert").innerText = httpResp.message;
+                //     document.getElementById("signupalert").innerText = "User already existed.";
+                // }
             }
+            else if (httpReq.status === 409){
+                // document.getElementById("signupalert").innerText = httpResp.message;
+                document.getElementById("signupalert").innerText = "User has already existed.";
+            }
+
             else{
-                document.getElementById("signupalert").innerText = httpResp.message;
+                // document.getElementById("signupalert").innerText = httpResp.message;
+                document.getElementById("signupalert").innerText = "Invalid registeration.";
             }
         }
     };
@@ -213,18 +225,20 @@ var changePassword = function(){
                 console.log("HTTP RESP SUCCESS " + httpResp.success)
                 console.log("USER DATA " + userData);        
                 if (httpResp.success){
-                    console.log("SUCCESS: Change PW Message:" +  httpResp.message);
-                    document.getElementById("accountalert").innerText = httpResp.message;
+                    // console.log("SUCCESS: Change PW Message:" +  httpResp.message);
+                    // document.getElementById("accountalert").innerText = httpResp.message;
+                    document.getElementById("accountalert").innerText = "Password has been changed successfully."; 
                 }
-                else {
-                    // feedback(httpResp.message);
-                    console.log(httpResp.message);
-                    document.getElementById("accountalert").innerText = httpResp.message;
-                }
+            }
+            else if (httpReq.status === 403){
+                console.log(httpResp.message);
+                // document.getElementById("accountalert").innerText = httpResp.message;
+                document.getElementById("accountalert").innerText = "Invalid old password.";
             }
             else{
                 console.log(httpResp.message);
-                document.getElementById("accountalert").innerText = httpResp.message;
+                // document.getElementById("accountalert").innerText = httpResp.message;
+                document.getElementById("accountalert").innerText = "Invalid new password.";  
             }
         }
     };
@@ -337,15 +351,17 @@ var searchuser = function(){
                     refreshboard(searchUserData.email);
                     document.getElementById("homecontent").className ="content-cur";
                 }
-                else {
-                    // No such user is found
-                    document.getElementById("searchalert").innerHTML = httpResp.message;
-                    document.getElementById("homecontent").className ="content";
-                }
+                // else {
+                //     // No such user is found
+                //     // document.getElementById("searchalert").innerHTML = httpResp.message;
+                //     document.getElementById("searchalert").innerHTML = "User does not exist.";
+                //     document.getElementById("homecontent").className ="content";
+                // }
             }
             else {
                // No such user is found
-                document.getElementById("searchalert").innerHTML = httpResp.message;
+                // document.getElementById("searchalert").innerHTML = httpResp.message;
+                document.getElementById("searchalert").innerHTML = "User does not exist.";
                 document.getElementById("homecontent").className ="content";
             }
         }
@@ -385,20 +401,23 @@ var postMessage = function(){
                     userData = httpResp.data;
                     if (httpResp.success){
                         document.getElementById("addmessage").value = ""; // clears the textfield after the submission to prevent resubmission
-                        document.getElementById("postalert").innerText = httpResp.message;
+                        // document.getElementById("postalert").innerText = httpResp.message;
+                        document.getElementById("postalert").innerText = "Message posted.";
                         refreshboard(email);
                         
                     }
                     else {
 
                         document.getElementById("addmessage").value = ""; 
-                        document.getElementById("postalert").innerText = httpResp.message;
+                        // document.getElementById("postalert").innerText = httpResp.message;
                     }
                 }
                 else{
 
                     document.getElementById("addmessage").value = ""; 
-                    document.getElementById("postalert").innerText = httpResp.message;
+                    // document.getElementById("postalert").innerText = httpResp.message;
+                    document.getElementById("postalert").innerText = "Message is blank.";
+                    
                 }
             }
         };
@@ -434,7 +453,7 @@ var refreshboard =  function (email) {
                     var messages = httpResp.data;
                     if (messages.length === 0) {
                         // if user has no message, will display this message
-                        wall.innerHTML = httpResp.message;
+                        wall.innerHTML = "No messages currently for you.";
                     }
                     else {
                         var message = "";
@@ -448,11 +467,12 @@ var refreshboard =  function (email) {
                     }
                 }
                 else {
-                    wall.innerHTML = httpResp.message;
+                    wall.innerHTML = "Unable to retreive messages currently for this user.";
                 }
             }
             else{
-                wall.innerHTML = httpResp.message
+                // wall.innerHTML = httpResp.message
+                wall.innerHTML = "No messages currently for this user.";
             }
         }
     };
@@ -544,7 +564,7 @@ var attachHandler = function () {
                             // document.getElementById("loginalert").innerHTML = httpResp.message;
                         }
                         else {
-                            feedback(httpResp.message);
+                            // d=
                         }
                     }
                 };
